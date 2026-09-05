@@ -16,7 +16,7 @@ import StudioCore
     @Published var dataRevision=0
     @Published var error: String?
     @Published var notice=""
-    @Published var section="Brief & sources"
+    @Published var section="Brief & sources" {willSet {Diagnostics.shared?.record("tab_selected",detail:newValue)}}
     let codex=CodexClient()
     private let selection=ProjectSelection()
     private var codexObserver:AnyCancellable?
@@ -35,6 +35,7 @@ import StudioCore
         python=argument("--python") ?? defaults.string(forKey:"python") ?? (root+"/.venv/bin/python")
         codexBinary=defaults.string(forKey:"codexBinary") ?? "/Applications/ChatGPT.app/Contents/Resources/codex"
         project=argument("--project") ?? defaults.string(forKey:"project") ?? ""
+        section=argument("--section") ?? "Brief & sources"
         codexObserver=codex.$running.removeDuplicates().dropFirst().sink { [weak self] running in
             if !running {Task { @MainActor [weak self] in self?.requestRefresh()}}
         }
@@ -43,7 +44,7 @@ import StudioCore
     func perform(_ body:@escaping () async throws -> Void) {
         guard !busy else {return};busy=true;error=nil
         Task {
-            do {try await body();persist()}catch{self.error=error.localizedDescription}
+            do {try await body();persist()}catch{Diagnostics.shared?.record("action_failed",detail:String(reflecting:type(of:error)));self.error=error.localizedDescription}
             busy=false
             if refreshPending {refreshPending=false;requestRefresh()}
         }

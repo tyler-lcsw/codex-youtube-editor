@@ -4,13 +4,26 @@ import StudioCore
 
 @main struct StudioApp: App {
     @StateObject private var workspace=Workspace()
+    init() {
+        Diagnostics.shared?.captureRuntimeErrors()
+        if Diagnostics.shared == nil {NSLog("Codex Studio could not open its diagnostics folder.")}
+        NSSetUncaughtExceptionHandler {exception in
+            Diagnostics.shared?.record("uncaught_exception",detail:exception.name.rawValue)
+        }
+        Diagnostics.shared?.importCrashReports(from:FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/DiagnosticReports"))
+    }
     var body: some Scene {
         WindowGroup("Codex Studio") {
             StudioWindow().environmentObject(workspace).frame(minWidth:1100,minHeight:740)
                 .task {NSApp.setActivationPolicy(.regular);NSApp.activate(ignoringOtherApps:true)
                     if !workspace.project.isEmpty {workspace.perform {try await workspace.refresh()}}
+                    if ProcessInfo.processInfo.arguments.contains("--smoke-review") {
+                        try? await Task.sleep(for:.seconds(1));workspace.section="Review"
+                        try? await Task.sleep(for:.seconds(4));Diagnostics.shared?.record("review_smoke_passed");try? FileHandle.standardOutput.write(contentsOf:Data("REVIEW_SMOKE_OK\n".utf8));NSApp.terminate(nil)
+                    }
                 }
         }.defaultSize(width:1360,height:880)
+        .commands {CommandGroup(after:.help) {Button("Open Diagnostic Logs") {if let folder=Diagnostics.shared?.directory {NSWorkspace.shared.open(folder)}}}}
     }
 }
 struct StudioWindow:View {
@@ -48,6 +61,7 @@ struct StudioWindow:View {
                 if !w.notice.isEmpty {Text(w.notice).font(.caption).foregroundStyle(.secondary).padding(8)}
             }.background(Color(nsColor:.windowBackgroundColor))
         }.tint(.mint)
+        .onReceive(NotificationCenter.default.publisher(for:NSApplication.willTerminateNotification)) {_ in Diagnostics.shared?.record("session_ended")}
         .alert("Action needs attention",isPresented:Binding(get:{w.error != nil},set:{if !$0 {w.error=nil}})) {Button("OK"){w.error=nil}} message:{Text(w.error ?? "")}
     }
 }

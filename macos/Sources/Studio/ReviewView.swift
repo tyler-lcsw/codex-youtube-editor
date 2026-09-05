@@ -32,7 +32,7 @@ struct ReviewView:View {
                 }
                 GeometryReader {geometry in
                     ZStack {
-                        VideoPlayer(player:player)
+                        NativeReviewPlayer(player:player)
                         if draw {AnnotationOverlay(videoSize:videoSize,selection:$rect)}
                         if !draw,let rect=reviewContext?.rect ?? rect {
                             let bounds=ReviewGeometry.videoRect(container:geometry.size,video:videoSize)
@@ -158,4 +158,16 @@ struct MarkedFrame:View {
             }
         }
     }
+}
+
+// Avoid _AVKit_SwiftUI.VideoPlayerView metadata initialization, which aborts on
+// the qualified M4 runtime. Keep AVKit controls through its public AppKit view.
+private struct NativeReviewPlayer:NSViewRepresentable {
+    let player:AVPlayer
+    func makeNSView(context:Context)->AVPlayerView {
+        let view=AVPlayerView();view.controlsStyle = .inline;view.videoGravity = .resizeAspect;view.player=player
+        return view
+    }
+    func updateNSView(_ view:AVPlayerView,context:Context) {if view.player !== player {view.player=player}}
+    static func dismantleNSView(_ view:AVPlayerView,coordinator:()) {view.player=nil}
 }

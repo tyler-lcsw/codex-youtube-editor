@@ -80,3 +80,20 @@ acceptance or merge the app as qualified until that gate is completed. A synthet
 Interface Demo production under `~/Movies/Codex Studio` is prepared for this UI check.
 It is not authentic-footage editorial qualification. Native image/plugin parity remains
 a capability-specific verification and scoped-approval boundary. See `mac-studio.md`.
+
+
+### Review crash and stability investigation (2026-09-05)
+
+The user reported a crash opening Review before making other changes. Reproduced
+SIGABRT in Apple's `_AVKit_SwiftUI.VideoPlayerView` superclass metadata initialization.
+Replaced the SwiftUI video wrapper with a direct `NSViewRepresentable` hosting the
+public `AVPlayerView`. Native launch checks pass for empty and fixture projects.
+Durable local diagnostics capture tab/engine/lifecycle events, fatal stderr and copied
+macOS crash reports; the original failure was reproduced again to verify logging.
+Focused validation: 34 Python tests and 13 native checks passed.
+
+Interactive acceptance remains blocked, now by a separate **SkyComputerUseService**
+SIGTRAP in `Array.remove(at:)` when inspecting Studio. Finder inspection works.
+Resources-first launch and a reverted sidebar simplification did not resolve it.
+No interactive pass is claimed. Track each basic function in
+`studio-interactive-test-log.md`; keep PR7 unmerged pending that acceptance.

@@ -58,3 +58,26 @@ Baseline integration evidence: subscription account read identified ChatGPT Pro;
 Optional `--account-only` checks managed sign-in; `--probe` runs the two bounded model requests using subscription usage. Neither reads credential contents. Build/test results and final UI evidence are maintained in `docs/implementation-status.md`.
 
 This increment is not a general nonlinear editor, multi-user service, automatic distributed scheduler or App Store release. There is no automatic scene-understanding model or guarantee that local helpers equal Codex; the agent builds and verifies the content map using existing capabilities. Native image generation/plugin exposure still needs a session-specific capability test and scoped approval. Authentic supplied-footage qualification requires actual footage and complete audiovisual review; the synthetic interface fixture cannot satisfy that criterion. Publication testing remains explicitly excluded.
+
+
+## Crash diagnostics
+
+Help → **Open Diagnostic Logs** opens `~/Library/Logs/Codex Studio/`.
+Each launch writes an immediately flushed `session-<id>.jsonl` containing lifecycle,
+tab selections, engine operation names/exit status and error types. Matching `.stderr`
+files preserve native fatal runtime messages, including Swift traps that ordinary
+error handling cannot catch. On the next launch, Studio copies its latest macOS
+`.ips` crash reports from `~/Library/Logs/DiagnosticReports/` into the same folder.
+macOS may generate those reports after the process exits; an additional launch can
+collect a delayed report. A missing `session_ended` means an unclean exit, not proof
+of a crash (force quit, test termination and shutdown can also cause it).
+
+Files are local only, created with owner-only permissions. Structured events omit
+project content, prompts and credentials; native stderr/system crash reports can
+contain paths and runtime details. Nothing is uploaded automatically. Startup prunes
+older diagnostic files, retaining the latest 40 before adding current-session files
+and importing up to 10 recent crash reports. A running session's output is not byte
+capped. Review logs before sharing. If log storage cannot be opened, macOS system
+logging receives a warning; system crash reporting remains independent.
+
+See `studio-interactive-test-log.md` for actual stability-test outcomes and blockers.
