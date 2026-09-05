@@ -19,14 +19,14 @@ Execution authorized September 5, 2026, including model downloads/use. Publicati
 | Tracker/publication | Local tracker persistence/filter/resync tests; publication retained | Publication tests/uploads waived |
 | Upstream | Original docs preserved, extension boundaries and merge procedure documented | Future upstream features need capability-specific qualification |
 
-Verification: 84 pytest tests passed (one publication test explicitly excluded), skill audit, Remotion TypeScript check and npm audit. Live evidence includes the 3.3-second synthetic edit → cleanup → Remotion cutaway → ducked SFX export and locally generated images. See the benchmark report for exact observations and limitations. No hosted media generation or publication occurred.
+Verification: 94 pytest tests passed (one publication test explicitly excluded), skill audit, Remotion TypeScript check and npm audit. Live evidence includes the 3.3-second synthetic edit → cleanup → Remotion cutaway → ducked SFX export and locally generated images. See the benchmark report for exact observations and limitations. No hosted media generation or publication occurred.
 
 The next production video still needs the user's actual brand/reference inputs and ordinary editorial review. It is not necessary to recreate the original example video or set up additional PAIR nodes to use this release.
 
-## Post-merge continuation
+## Current continuation state
 
-The setup/audit follow-up automates pinned DeepFilterNet archive installation and adds a read-only upstream comparison CLI. Archive hashes/path safety and unchanged-checkout audit behavior have focused regressions. The real pinned archive verified successfully, and the baseline-to-merge comparison produced a receipt. Full timeline-effect implementations and resource-heavy qualification remain outside this follow-up; the audit makes future upstream changes reviewable without enabling them automatically.
+PRs #1, #2 and #3 are merged. Setup verifies and stages the pinned DeepFilterNet archive; the read-only upstream audit compares local commits without changing the checkout. Timeline validation preserves unknown fields/reused asset references and stages final exports. Registered v1 crossfade, punch-in and grade handlers preserve time; reusable Remotion components and a 90-frame visual proof are included. Pixel tests include an output effect after an insert. See `timeline-compatibility.md`.
 
-The next compatibility step adds the legacy timeline schema, preserves unknown fields/reused shot assets, rejects unsupported extension declarations and stages final bake output. A real legacy fixture retained identical decoded picture/audio hashes. See `timeline-compatibility.md`. Declarative crossfade/punch-in/grade handlers remain pending; this step establishes validation rather than claiming those effects are implemented.
+The acceptance runner records bounded Astra/Sol discovery, timeline and recovery scenarios with unique attempts, logs, hashes and explicit unreviewed status. It never converts a successful command exit into creative approval. Recovery reviews identified gaps that are now covered by regressions: one-time native dispatch markers, import repair in separate attempt folders, scope revalidation and cleanup of surviving child processes after the leader exits.
 
-PR #2 is merged. Task 12 now includes registered time-preserving v1 crossfade/punch-in/color-grade handlers, reusable Remotion components, real pixel/frame tests and a network-denied 90-frame visual proof. See `timeline-compatibility.md` for supported scopes and distinct CSS/FFmpeg grade controls.
+Remaining limits are listed in `known-limits.md`. General job-cache integration across all legacy commands, full creative/identity parity, large media models and multi-node scaling are not claimed. Ordinary production work needs the owner's footage/brand/reference inputs and review; it does not require the upstream example video.

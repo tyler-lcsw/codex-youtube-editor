@@ -10,13 +10,13 @@ def clip(path, color, filters=None):
     subprocess.run(command+['-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac',str(path)],check=True)
 
 
-def bake(tmp_path, master, shots, effects):
+def bake(tmp_path, master, shots, effects,expected_frames=60):
     output=tmp_path/'output.mp4'
     tl={'master':str(master),'remotion_out':str(tmp_path),'preview':{'end_s':2,'width':64,'height':64,'fps':30,'out':str(output)},'shots':shots,'extensions':effects}
     path=tmp_path/'timeline.json';path.write_text(json.dumps(tl))
     subprocess.run([sys.executable,'tools/bake.py',str(path)],check=True,capture_output=True)
     raw=subprocess.check_output(['ffmpeg','-v','error','-i',str(output),'-map','0:v','-pix_fmt','rgb24','-f','rawvideo','-'])
-    assert len(raw)==60*64*64*3
+    assert len(raw)==expected_frames*64*64*3
     return lambda frame,x=32:tuple(raw[(frame*64*64+32*64+x)*3:(frame*64*64+32*64+x)*3+3])
 
 
@@ -45,3 +45,11 @@ def test_output_grade_does_not_affect_other_frames(tmp_path):
     pixel=bake(tmp_path,master,[],[effect('color-grade','output',15,45,{'brightness':.2})])
     assert abs(pixel(0)[0]-pixel(59)[0])<=2
     assert pixel(30)[0]>pixel(0)[0]+35
+
+
+def test_output_grade_uses_clock_after_insert(tmp_path):
+    master=tmp_path/'master.mp4';clip(master,'red');clip(tmp_path/'insert.mp4','blue')
+    pixel=bake(tmp_path,master,[{'id':'insert','type':'insert','master_at_s':.5,'duration_s':1}],
+        [effect('color-grade','output',60,75,{'brightness':.2})],expected_frames=90)
+    assert pixel(59)[1]<20 and pixel(75)[1]<20
+    assert pixel(60)[1]>30 and pixel(74)[1]>30

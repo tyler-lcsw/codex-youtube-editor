@@ -1,6 +1,7 @@
 """Durable, agent-mediated native image handoff. This module never calls an image API."""
 import argparse
 import json
+from datetime import datetime, timezone
 import shutil
 import uuid
 from pathlib import Path
@@ -44,27 +45,47 @@ def claim_generation(request_path: Path, approval_path: Path) -> dict:
                 if not authorize_hybrid_image(r,a):raise PermissionError('Request is outside approved scope')
                 a['used_generations']+=1;reservations[r['request_id']]=fingerprint;a['reservations']=reservations
                 atomic_json(approval_path,a)
-            if r.get('status') == 'succeeded' and valid_result(r.get('result', {})):
+            if r.get('status') == 'succeeded' or r.get('dispatch_id'):
                 return r
             r.update(status='awaiting_codex_image',approval_id=a.get('id'),approval_path=str(approval_path.resolve()),reserved_fingerprint=fingerprint)
             atomic_json(request_path,r)
         return r
 
+def validate_reservation(request):
+    fingerprint=job_key({k:request[k] for k in ('prompt','purpose','references','provider')},'native-handoff-v1')
+    approval=json.loads(Path(request['approval_path']).read_text())
+    if (approval.get('approved') is not True
+        or any(approval.get(k)!=request[k] for k in ('purpose','references','provider'))
+        or approval.get('reservations',{}).get(request['request_id'])!=fingerprint):
+        raise PermissionError('Generation reservation or approval scope missing or changed')
+
+
+def begin_generation(request_path: Path) -> dict:
+    """Reserve one dispatch before the native call. An interruption remains uncertain."""
+    with file_lock(request_path.with_suffix('.lock')):
+        request=json.loads(request_path.read_text());validate_references(request)
+        if request.get('dispatch_id') or request.get('status')=='succeeded':
+            raise PermissionError('Generation already dispatched; recover/import its artifact or prepare a new approved request')
+        if request.get('status')!='awaiting_codex_image':raise PermissionError('Claim scoped approval before dispatch')
+        validate_reservation(request)
+        request.update(status='generation_in_flight',dispatch_id=uuid.uuid4().hex,
+            dispatched_at=datetime.now(timezone.utc).isoformat(),
+            dispatch_note='Marker recorded before native call; does not prove the call completed. Never blindly repeat it.')
+        atomic_json(request_path,request);return request
+
+
 def import_codex_image(request_path: Path, output_path: Path, reported_model: str | None) -> dict:
     with file_lock(request_path.with_suffix('.lock')):
         r=json.loads(request_path.read_text());validate_references(r)
+        if r.get('status') not in {'generation_in_flight','succeeded'}:raise PermissionError('Begin approved generation before importing')
+        validate_reservation(r)
         if r.get('status')=='succeeded' and valid_result(r.get('result',{})):return r['result']
-        if r.get('status')!='awaiting_codex_image':raise PermissionError('Reserve approved generation before importing')
-        fingerprint=job_key({k:r[k] for k in ('prompt','purpose','references','provider')},'native-handoff-v1')
-        a=json.loads(Path(r['approval_path']).read_text())
-        if not a.get('approved') or a.get('reservations',{}).get(r['request_id'])!=fingerprint:
-            raise PermissionError('Generation reservation missing or changed')
         with Image.open(output_path) as im:
             im.verify()
         with Image.open(output_path) as im:
             width,height=im.size;fmt=im.format
         if fmt not in {'PNG','JPEG','WEBP'}:raise ValueError('Unsupported generated image format')
-        folder=Path(r['project'])/'media/generated'/r['request_id'];folder.mkdir(parents=True,exist_ok=True)
+        folder=Path(r['project'])/'media/generated'/r['request_id']/('import-'+uuid.uuid4().hex);folder.mkdir(parents=True,exist_ok=True)
         asset=folder/('native.'+{'PNG':'png','JPEG':'jpg','WEBP':'webp'}[fmt])
         shutil.copyfile(output_path,asset)
         with Image.open(asset) as im:
@@ -72,7 +93,7 @@ def import_codex_image(request_path: Path, output_path: Path, reported_model: st
         result={'artifacts':[{'path':str(asset),'sha256':file_hash(asset),'width':width,'height':height,'format':fmt},
                              {'path':str(jpg),'sha256':file_hash(jpg),'role':'preview'}],
                 'metrics':{},'provenance':{'provider':'codex_builtin','reported_model':reported_model or 'unknown',
-                  'requested_model':r['requested_model'],'approval_id':r['approval_id'],'references':r['references'],'prompt':r['prompt']}}
+                  'requested_model':r['requested_model'],'dispatch_id':r.get('dispatch_id'),'approval_id':r['approval_id'],'references':r['references'],'prompt':r['prompt']}}
         atomic_json(folder/'provenance.json',result)
         r.update(status='succeeded',result=result);atomic_json(request_path,r)
         return result
@@ -81,8 +102,10 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='cmd',required=True)
     new=sub.add_parser('prepare');new.add_argument('project',type=Path);new.add_argument('--prompt-file',type=Path,required=True);new.add_argument('--ref',type=Path,action='append',default=[]);new.add_argument('--purpose',default='thumbnail')
     claim=sub.add_parser('claim');claim.add_argument('request',type=Path);claim.add_argument('--approval',type=Path,required=True)
+    begin=sub.add_parser('begin');begin.add_argument('request',type=Path)
     imp=sub.add_parser('import');imp.add_argument('request',type=Path);imp.add_argument('output',type=Path);imp.add_argument('--reported-model')
     a=p.parse_args()
     if a.cmd=='prepare':print(prepare_request(a.project,a.prompt_file.read_text(),a.ref,a.purpose))
     elif a.cmd=='claim':print(json.dumps(claim_generation(a.request,a.approval),indent=2))
+    elif a.cmd=='begin':print(json.dumps(begin_generation(a.request),indent=2))
     else:print(json.dumps(import_codex_image(a.request,a.output,a.reported_model),indent=2))

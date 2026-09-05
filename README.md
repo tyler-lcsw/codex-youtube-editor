@@ -26,6 +26,8 @@ Qwen3 ASR/ForcedAligner 0.6B, DeepFilterNet3, Qwen3 TTS 0.6B Base and FLUX.2 Kle
 
 Bounded native Codex images are available with scoped user approval. There is no automatic hosted fallback. Large avatar/video models, generative music, multi-reference/high-resolution image qualification and multi-node scaling remain deferred. Existing interfaces and upstream tools are retained; deferred does not mean quality-equivalent replacements exist today.
 
+Versioned crossfades, punch-ins and color grading are available through the [timeline contracts](docs/timeline-compatibility.md). Repeatable Astra/Sol checks are documented in [acceptance](docs/acceptance.md).
+
 See the [revised first-release decision](plan/M4%20First%20Release%20%E2%80%94%20Runtime%20and%20Memory%20Decision.md), [measured results](docs/benchmarks/first-release.md), and [upstream maintenance](docs/upstream-maintenance.md). The original example video is background research, not the release benchmark. Publication testing was explicitly waived; no test upload is part of setup.
 
 ## Verification
