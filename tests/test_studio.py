@@ -246,3 +246,15 @@ def test_final_stage_requires_completion_receipt_even_if_gates_pass(project, tmp
     monkeypatch.setattr(flow.quality, 'gate', lambda *args: {'passed':True})
     evidence = project / 'work/report.md'; evidence.write_text('Synthetic test evidence')
     with pytest.raises(ValueError): call(project, 'record_stage', stage='final_review', evidence=[str(evidence)], reason='Gate alone is insufficient')
+
+
+def test_validate_asset_rejects_changed_media_after_reopen_preserves_history(project, media):
+    asset = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    annotation = call(project, 'add_annotation', asset_id=asset['id'], time_ms=100, text='Historical feedback')['annotations'][0]
+    assert call(project, 'validate_asset', asset_id=asset['id']) == asset
+    Path(asset['path']).write_bytes(b'changed bytes')
+    assert call(project, 'open')['annotations'][0] == annotation
+    with pytest.raises(ValueError): call(project, 'validate_asset', asset_id=asset['id'])
+    assert call(project, 'open')['annotations'][0] == annotation
+    Path(asset['path']).unlink()
+    with pytest.raises((ValueError, FileNotFoundError)): call(project, 'validate_asset', asset_id=asset['id'])
