@@ -70,7 +70,7 @@ def main():
         tl = json.load(f)
 
     sys.path.insert(0, ROOT)
-    from tools.timeline_extensions import apply_timeline_extensions, validate_bake_settings
+    from tools.timeline_extensions import apply_timeline_extensions, validate_bake_settings, crossfade_filter, output_effect_filter
     if end_override is not None:
         tl["preview"]["end_s"] = end_override
     tl = apply_timeline_extensions(tl)
@@ -202,6 +202,11 @@ def main():
             cmd = ["ffmpeg", "-y", "-ss", f"{off:.4f}", "-i", cut["file"],
                    "-vf", common_vf, "-frames:v", str(n), "-an",
                    *VSEG, "-pix_fmt", "yuv420p", seg]
+            transition=next((e for e in tl.get('extensions',[]) if e['id']=='crossfade' and e['target']==cut['id']),None)
+            if transition:
+                fc=crossfade_filter(transition,off,W,H,FPS)
+                cmd=["ffmpeg","-y","-ss",f"{a:.4f}","-i",master,"-ss",f"{off:.4f}","-i",cut['file'],
+                     "-filter_complex",fc,"-map","[v]","-frames:v",str(n),"-an",*VSEG,"-pix_fmt","yuv420p",seg]
         elif ov:
             off = a - ov["in"]
             kind = f"master+overlay:{ov['id']} @+{off:.2f}s"
@@ -260,6 +265,14 @@ def main():
         cmd += ["-c:a", "aac", "-b:a", "192k"]
     cmd += ["-t", f"{TOTAL:.4f}", "-movflags", "+faststart", staged_output]
     run(cmd)
+
+    effects=output_effect_filter(tl.get('extensions',[]),W,H,FPS)
+    if effects:
+        graph,label=effects
+        effected=os.path.join(scratch,"effects"+Path(out_path).suffix)
+        run(["ffmpeg","-y","-i",staged_output,"-filter_complex",graph,"-map",label,"-map","0:a?",
+             *VOUT,"-pix_fmt","yuv420p","-c:a","copy","-movflags","+faststart",effected])
+        staged_output=effected
 
     dur = run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                "-of", "default=nw=1:nk=1", staged_output]).strip()

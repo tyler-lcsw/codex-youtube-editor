@@ -1,15 +1,42 @@
-# Timeline compatibility and export validation
+# Timeline compatibility and effects
 
-`schemas/timeline.schema.json` describes the existing cutaway, overlay, split and insert timeline shapes. `tools.timeline_extensions.apply_timeline_extensions` returns a deep copy and preserves unknown properties and repeated references to the same shot asset. It does not rewrite historical files.
+`schemas/timeline.schema.json` describes existing cutaway, overlay, split and insert timelines. `tools.timeline_extensions.apply_timeline_extensions` validates and returns a deep copy, preserving unknown properties and repeated shot asset references. `bake.py` validates before creating output or launching FFmpeg. Malformed ranges, nonfinite values, unsupported versions/parameters and invalid render settings fail clearly.
 
-`tools/bake.py` validates this contract before creating output or launching FFmpeg. It rejects invalid shot types, reversed/empty ranges, nonfinite JSON numbers, missing split boxes and invalid render settings. Preview clipping remains supported: a shot may extend beyond the selected preview end. Bake dimensions must be even and FPS an integer; fractional-FPS baking is not implemented and no longer silently truncates the rate.
+## Version 1 extensions
 
-The optional `extensions` array reserves declarations with `id`, `version`, `target`, `start_frame`, `end_frame`, `parameters` and `time_policy`. Empty or absent extensions preserve legacy behavior. **No declarative effect handler is registered yet.** Every nonempty declaration fails with its unsupported ID/version; it cannot silently disappear from the render. Existing effects authored inside Remotion shots still work. Crossfade, punch-in/spotlight and color-grade handlers remain a later Task 12 deliverable, each requiring explicit timing policy and real render qualification.
+All effects require `time_policy: "preserve"`. They change pixels without consuming handles, overlapping timeline duration or moving audio. Ranges use integer frames, start-inclusive/end-exclusive, at `preview.fps`. List order determines the order of output effects.
 
-## Export preservation
+| ID | Target and clock | Parameters |
+|---|---|---|
+| `crossfade` | One uniquely named cutaway; start/end must equal that shot's master-clock bounds | `in_frames`, `out_frames` (integers, nonnegative, positive sum no longer than the shot) |
+| `punch-in` | `output`; frames on the final clock including inserts | `zoom` 1–4 (default 1.5), `center_x`/`center_y` 0–1 (default .5) |
+| `color-grade` | `output`; frames on the final clock including inserts | `brightness` −1–1 (default 0), `contrast` 0–2 (default 1), `saturation` 0–3 (default 1) |
 
-Bake uses a unique temporary directory instead of deleting a shared scratch directory. Final output is encoded to a staged file, its duration is checked against the timeline within one frame or 40 ms (whichever is larger), and only then is the previous export replaced. Failure retains the previous export and scratch evidence. Writing over the input master is rejected. This is failure preservation, not resumable render scheduling or a concurrency coordinator.
+A cutaway crossfade blends the moving master and moving shot during its existing slot, then returns to the master. It uses a linear blend in the encoded color space, not scene-linear colorimetry. The master audio continues unchanged. It cannot overlap another visual shot; compose complex layers inside Remotion instead. Inserts retain their existing pause/resume semantics.
+
+```json
+{
+  "id": "crossfade", "version": 1, "target": "OpeningCard",
+  "start_frame": 30, "end_frame": 120,
+  "parameters": {"in_frames": 12, "out_frames": 12},
+  "time_policy": "preserve"
+}
+```
+
+This example requires a unique `OpeningCard` cutaway from master seconds 1 to 4 at 30 FPS. Grade/punch-in output effects run in a staged postprocess, re-encoding video and copying audio. Do not promise bit-identical picture outside the effect after a lossy re-encode. Empty/absent extensions retain the old rendering path.
+
+## Remotion authoring
+
+Reusable `Crossfade`, `PunchIn` and `ColorGrade` components live in `remotion/src/lib/extensions/`. Pass `version={1}` and explicit frame ranges. They preserve the composition clock. `ExtensionProof` demonstrates all three in a 90-frame composition.
+
+Remotion `ColorGrade` uses CSS multipliers (neutral brightness 1), while the FFmpeg timeline grade uses additive brightness (neutral 0). These are separate authoring controls; do not copy brightness values between them assuming equivalence.
+
+## Validation and preservation
+
+Preview clipping remains supported. Bake dimensions must be even; FPS must be an integer. Fractional-FPS baking is not implemented and is rejected rather than silently truncated. Tiny split boxes fail before encoding.
+
+Bake uses a unique scratch directory, encodes to staged files and checks final duration within one frame or 40 ms (whichever is larger) before replacing the previous export. Failure retains the prior export and scratch evidence. Overwriting the input master is rejected. This is failure preservation, not a concurrency coordinator or resumable scheduling engine.
 
 ## Evidence
 
-Focused regressions reproduce unsupported-extension bypass and a final encoder failure that writes partial bytes. Both now fail safely. The legacy 3.3-second master/cutaway timeline was rendered again: decoded video and audio SHA-256 hashes matched the pre-change output exactly. Receipt: `work/benchmarks/bake-compatibility.json` on the M4 checkout. This is one legacy fixture, not universal compatibility proof or a physical lip-sync measurement.
+Real FFmpeg pixel tests check red→blue→red cutaway blending, bounded crop location and bounded grade brightness while retaining exactly 60 frames. Unsupported/shadowed declarations fail. The legacy 3.3-second timeline retained identical decoded video/audio hashes without extensions. `ExtensionProof` rendered 90 frames with external network access denied; representative crossfade, punch and grade frames were inspected. Receipts/artifacts are in `work/benchmarks/`. These are functional fixtures, not physical lip-sync or broad creative-quality certification.

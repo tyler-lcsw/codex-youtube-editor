@@ -74,4 +74,4 @@ and why in `videos/<project>/work/v2-update-plan.md` so the next pass inherits t
 
 Done = the changed beats render, you have **looked at** stills/frames at each cue, the preview is re-baked, and composited frames are spot-checked. Update the plan/timeline and any relevant memory when the pass is complete.
 
-Before baking, follow `docs/timeline-compatibility.md`. Keep existing TSX effects inside rendered shots. Nonempty declarative timeline `extensions` are not supported yet and fail explicitly; do not insert declarations as a substitute for implementing an effect.
+Before baking, follow `docs/timeline-compatibility.md`. Use the registered v1 crossfade, punch-in and color-grade contracts where appropriate. Unsupported versions and parameters fail explicitly. Keep complex layered effects inside rendered Remotion shots.
