@@ -3,6 +3,14 @@ name: suggest-sfx
 description: Step 4 of the AI Video Editor pipeline — the SFX pass. Analyze a video's beats + narration and propose tasteful sound effects synced to them, drawing from (and growing) a shared, reusable SFX library, then render an SFX-mixed audition preview. Use when the user wants to "add SFX / sound effects", "suggest sfx", "score the transitions", "sound-design this beat", generate/source sound effects, build or extend the sfx library/catalog, author or audit a sfx-plan, or mix SFX over a video-N preview in this repo. Covers reading timeline + edited-transcript + brand §10, the library-first flow, generating misses with the ElevenLabs Sound Effects API, the per-video sfx-plan.json, the hard user-audit gate, and mixing with tools/mix_sfx.py (light voice ducking). Not the music bed (that is the final-mix step) and not the visual beats (that is $make-tsx).
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 

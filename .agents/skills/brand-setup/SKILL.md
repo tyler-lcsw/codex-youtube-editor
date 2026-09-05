@@ -3,6 +3,14 @@ name: brand-setup
 description: Makes this repo's videos look like YOUR channel instead of the house default — interviews you for palette, fonts, wordmark, motion energy, delivery specs and SFX taste, then rewrites brand.md + remotion/src/brand.ts + remotion/src/fonts.ts together and renders a proof card so you SEE it. Use whenever the user wants to set up or change their brand, rebrand the repo, "make it my colors/fonts", change the accent color, set their wordmark, adjust the motion feel, or asks why their videos look like someone else's. Run it once before the first video. Not for per-video art direction (that is $make-tsx) and not for thumbnails, which are deliberately louder than the brand (that is $packaging).
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 

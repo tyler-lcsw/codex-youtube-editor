@@ -3,6 +3,14 @@ name: vidtsx-2d-generator
 description: Generate production-ready 2D TSX video files for VidTSX (Remotion-based) from a shot, scene, or video description. Use whenever the user wants to create or generate a VidTSX video, a 2D TSX shot or scene, an animated clip, title card, or rendered motion graphic — including when they describe a visual animation they want built, or say "make a shot", "build this scene", "generate the TSX", or "turn this into a video". Covers the mandatory file structure and composition config, dimension presets (horizontal/vertical/square), six style presets (minimalist, memphis, neo-brutalism, glassmorphism, neon, corporate), and the hard rules that keep renders from crashing, covering frame-based animation only (no useState/useEffect/setTimeout), strictly monotonic interpolate ranges, Easing.bezier not wrapper syntax, and the chroma-js and @remotion/paths import gotchas. Not for 3D/three.js compositions, general React work, or editing video files.
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 

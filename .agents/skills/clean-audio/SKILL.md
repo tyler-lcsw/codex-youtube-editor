@@ -3,6 +3,14 @@ name: clean-audio
 description: Voice/audio cleanup step of the AI Video Editor pipeline — diagnose a video's background noise, pick the right denoise method, and produce a cleaned master (voice isolated, levels preserved, video stream copied). Use when the user wants to "clean the audio / voice", "remove background noise", "denoise", "isolate voice", fix outdoor/room/water/hum/hiss noise, run ElevenLabs Voice Isolator or local RNNoise, A/B denoise methods, or produce a cleaned master for a video-N in this repo. Covers diagnosing the noise (spectrogram + levels), local DeepFilterNet and optional RNNoise auditions, the sample A/B, tools/clean_voice.py, preserving levels (RMS-match, not LUFS), and rewiring the pipeline to the clean master. Not the SFX/music mix (that is $suggest-sfx + the final-mix step) and not the cut (that is $clean-cut).
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 

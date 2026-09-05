@@ -3,6 +3,14 @@ name: fake-screencast
 description: Turn static SCREENSHOTS into a simulated screen recording (TSX) — a fake screencast with an animated cursor that eases to targets and clicks, a browser URL bar that updates per page, hard-cut navigations, in-page filter crossfades, smooth scroll, and a ken-burns zoom onto the payoff. Use when a beat needs to show a walkthrough of a web app / dashboard / settings page and you'd rather build it from screenshots than get (or ask for) a real screen recording — "fake a screen recording", "turn these screenshots into a screencast", "simulate clicking through the dashboard", "animate this UI walkthrough", "cursor moving through the app". Built on remotion/src/lib/screencast.tsx. This is a technique WITHIN step 2 (make-tsx): defer timeline/render/bake orchestration to make-tsx and raw crash-free TSX rules to vidtsx-2d-generator. Not for a single static page clone (use WebBrowserFrame directly) and not when the point is genuine proof of real speed/output (use a real recording).
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 
