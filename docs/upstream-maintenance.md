@@ -11,3 +11,15 @@ Add new adapters without changing historical cut/timeline formats. Preserve unkn
 Qualify each capability independently: text, vision, TTS reference modes, image edits/reference count, sound generation and video are not interchangeable. Multi-reference images, music, generative SFX, avatar and video require measured implementations before being marked local-ready. Retained hosted commands require explicit opt-in and are not first-release dependencies.
 
 The local SQLite tracker can rebuild from canonical project files. Publication remains a separate explicit approval boundary and was not tested during this migration. Planned upstream UI/assembly/shorts features can be added behind these boundaries without requiring a Claude runtime.
+
+## Executable audit
+
+Compare already available commits without fetching or changing branches:
+
+```sh
+.venv/bin/python -m tools.upstream_audit --base BASE_SHA --candidate CANDIDATE_SHA --output work/upstream-audit.json
+```
+
+The JSON records resolved commit hashes and changed files grouped into skills, dependencies, tools, Remotion, schemas/config, assets and documentation. Renames appear as deletion/addition so neither side disappears from review. A missing commit fails explicitly: fetch the intended source separately, then rerun. This command does not contact upstream, merge changes or certify semantic compatibility. Its optional output file is the only write.
+
+The first live comparison used baseline `a6ac742b44520fd3c6aeaf3cd754e113fa334fed` and PR #1 merge `a1903d1b86dbf47b3a8544119b427eee9c033a3d`; receipt is `work/benchmarks/upstream-audit.json`. Tests also verify that uncommitted work and HEAD remain unchanged.

@@ -30,12 +30,12 @@ Do not merge these inference environments. DeepFilterNet currently needs Torch/T
 .envs/image/bin/python -m tools.setup_models aligner
 .envs/image/bin/python -m tools.setup_models tts
 .envs/image/bin/python -m tools.setup_models image_klein
-.envs/image/bin/python -m tools.setup_models denoise --verify-only
+.venv/bin/python -m tools.setup_models denoise
 .envs/image/bin/python -m tools.setup_models llm_4b
 .envs/image/bin/python -m tools.setup_models llm_9b
 ```
 
-DeepFilterNet3 is already installed here from the pinned upstream archive recorded under `denoise` in the model lock. For a fresh machine, obtain that exact archive, verify its SHA-256 from the lock before extracting beneath `models/denoise`, reject archive paths escaping the destination, then run `--verify-only`. Do not let DeepFilterNet automatically download a different checkpoint.
+DeepFilterNet3 setup uses the exact upstream archive under `denoise` in the lock. It verifies the archive and every selected file before installing from a temporary directory, rejects unsafe archive paths, and leaves an existing valid installation untouched. If an existing installation is damaged or modified, setup fails rather than deleting it; move it aside explicitly before reinstalling. Add `--verify-only` to check any installed model without network access. DeepFilterNet setup/verification uses the core Python environment; Hugging Face downloads use the image environment.
 
 ## Media commands
 
