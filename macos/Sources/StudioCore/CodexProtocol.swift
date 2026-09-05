@@ -30,7 +30,8 @@ public final class JSONLines {
 }
 public struct StudioError: LocalizedError {
     public let message: String
-    public init(_ message: String) { self.message = message }
+    public let uncertain: Bool
+    public init(_ message: String, uncertain: Bool = false) { self.message = message; self.uncertain = uncertain }
     public var errorDescription: String? { message }
 }
 public func prettyJSON(_ value: Any) -> String {

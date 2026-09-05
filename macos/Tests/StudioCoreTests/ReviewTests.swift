@@ -12,3 +12,16 @@ final class ReviewTests {
         XCTAssertEqual(rect, CGRect(x:0.25,y:0.25,width:0.5,height:0.5))
     }
 }
+
+func testAnnotationDraftsAndSavedContextStayIndependent() {
+    var drafts=AnnotationDrafts()
+    drafts.setRevision("revision-a",for:"note-a")
+    drafts.setRevision("revision-b",for:"note-b")
+    drafts.setNote("Correction A",for:"note-a")
+    XCTAssertEqual(drafts.revision(for:"note-b",fallback:nil),"revision-b")
+    XCTAssertEqual(drafts.note(for:"note-b"),"")
+    let context=AnnotationContext(["time_ms":1200,"end_ms":2400,"rect":["x":0.1,"y":0.2,"width":0.3,"height":0.4],"transcript_ids":["word-1"]])
+    XCTAssertEqual(context.timeMS,1200);XCTAssertEqual(context.endMS,2400)
+    XCTAssertEqual(context.rect,CGRect(x:0.1,y:0.2,width:0.3,height:0.4))
+    XCTAssertEqual(context.transcriptIDs,["word-1"])
+}

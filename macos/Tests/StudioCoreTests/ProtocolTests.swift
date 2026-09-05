@@ -69,3 +69,56 @@ func testAccountSwitchToAPIPreventsTurnDispatch() async throws {
     let calls=try String(contentsOf:log)
     XCTAssertFalse(calls.contains("thread/start"))
 }
+
+@MainActor
+func testUncertainDispatchKeepsTurnLockAndPersistsThreadFirst() async throws {
+    let folder=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
+    defer{try? FileManager.default.removeItem(at:folder)}
+    let script=folder.appendingPathComponent("server.py"),saved=folder.appendingPathComponent("thread.txt")
+    try """
+    #!/usr/bin/python3
+    import sys,json,os
+    for line in sys.stdin:
+        m=json.loads(line);method=m.get('method','')
+        if 'id' not in m:continue
+        result={}
+        if method=='account/read':result={'account':{'type':'chatgpt','planType':'pro'}}
+        if method=='model/list':result={'data':[{'model':'gpt-6-astra'}]}
+        if method=='thread/start':result={'thread':{'id':'thread-fixture'}}
+        if method=='turn/start':
+            if not os.path.exists(\(String(reflecting:saved.path))):sys.exit(3)
+            print(json.dumps({'method':'turn/started','params':{'turn':{'id':'turn-fixture'}}}),flush=True)
+            continue
+        print(json.dumps({'id':m['id'],'result':result}),flush=True)
+    """.write(to:script,atomically:true,encoding:.utf8)
+    try FileManager.default.setAttributes([.posixPermissions:0o700],ofItemAtPath:script.path)
+    let client=CodexClient(requestTimeout:0.5);defer{client.disconnect()}
+    try await client.connect(binary:script.path)
+    do {_ = try await client.send(text:"Start",engine:folder.path,project:folder.path,model:"gpt-6-astra",onThreadReady:{id in try id.write(to:saved,atomically:true,encoding:.utf8)});fatalError("Expected withheld response timeout")}
+    catch {XCTAssertTrue(client.running)}
+    let persisted=try String(contentsOf:saved);XCTAssertEqual(persisted,"thread-fixture")
+    do {_ = try await client.send(text:"Second",engine:folder.path,project:folder.path,model:"gpt-6-astra");fatalError("Second turn should be blocked")}
+    catch {XCTAssertTrue(client.running)}
+}
+
+@MainActor
+func testFailedProjectOpenPreservesIdentityAndRejectsOverlap() async throws {
+    let root=FileManager.default.currentDirectoryPath
+    let temp=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer{try? FileManager.default.removeItem(at:temp)}
+    let bridge=EngineBridge(root:root,python:root+"/.venv/bin/python")
+    let first=temp.appendingPathComponent("first").path
+    _ = try await bridge.request("create",project:first,params:["title":"Same title"])
+    let selection=ProjectSelection()
+    try await selection.open(first,using:bridge)
+    do {try await selection.open(temp.appendingPathComponent("missing").path,using:bridge);fatalError("Bad project should fail")}
+    catch {XCTAssertEqual(selection.path,first);XCTAssertEqual(selection.data["title"] as? String,"Same title")}
+    let task=Task {try await selection.open(first,using:bridge)}
+    await Task.yield()
+    if selection.loading {
+        do {try await selection.open(first,using:bridge);fatalError("Overlap should fail")}
+        catch {XCTAssertTrue(selection.loading)}
+    } else {fatalError("Expected in-flight bridge request")}
+    try await task.value
+}

@@ -16,6 +16,8 @@ struct UnderstandingView:View {
                     VStack(alignment:.leading,spacing:8) {
                         HStack {Text(row["label"] as? String ?? "Stage").font(.headline);Spacer();Text(row["status"] as? String ?? "pending").foregroundStyle(.mint)}
                         Text("Requires: \((row["requires"] as? [String] ?? []).joined(separator:", "))").font(.caption).foregroundStyle(.secondary)
+                        Text(row["instructions"] as? String ?? "").foregroundStyle(.secondary)
+                        Text("Required artifacts: \((row["artifacts"] as? [String] ?? []).joined(separator:", "))").font(.caption).textSelection(.enabled)
                         if let review=row["review"] as? [String:Any] {Text(review["reason"] as? String ?? "").textSelection(.enabled)}
                     }.frame(maxWidth:.infinity,alignment:.leading).padding(10)
                 }

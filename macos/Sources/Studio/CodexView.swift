@@ -8,21 +8,23 @@ struct CodexView:View {
     @State private var model="gpt-6-astra"
     @State private var answers=[String:String]()
     @State private var connecting=false
+    @State private var loginURL:URL?
     var body:some View {
         ScrollView {VStack(alignment:.leading,spacing:18) {
             GroupBox("ChatGPT subscription") {
                 VStack(alignment:.leading,spacing:12) {
                     HStack {Label(client.accountLabel,systemImage:client.subscription ? "checkmark.seal" : "person.crop.circle");Spacer()
                         Button(connecting ? "Connecting…" : "Connect") {connect()}.disabled(connecting || client.running)
-                        Button("Sign in with ChatGPT") {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};let url=try await client.signIn();NSWorkspace.shared.open(url)} catch {w.error=error.localizedDescription}}}.disabled(client.running || connecting)
+                        Button("Sign in with ChatGPT") {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};let url=try await client.signIn();loginURL=url;NSWorkspace.shared.open(url)} catch {w.error=error.localizedDescription}}}.disabled(client.running || connecting)
                     }
+                    if let loginURL {Link("Open ChatGPT sign-in",destination:loginURL);Text(loginURL.absoluteString).font(.caption).lineLimit(3).textSelection(.enabled)}
                     Text("Subscription access only. No API key or API billing fallback.").font(.caption).foregroundStyle(.secondary)
                     DisclosureGroup("Local application paths") {
                         TextField("Engine repository",text:$w.engine).textFieldStyle(.roundedBorder)
                         TextField("Python executable",text:$w.python).textFieldStyle(.roundedBorder)
                         TextField("Codex executable",text:$w.codexBinary).textFieldStyle(.roundedBorder)
                         Button("Save paths") {w.persist()}
-                    }.disabled(client.running)
+                    }.disabled(client.running || w.busy || connecting)
                 }.padding(12)
             }
             GroupBox("Production task") {
@@ -80,8 +82,8 @@ struct CodexView:View {
         w.perform {
             let handoff=try await w.handoff(copy:false)
             let handoffPath=handoff["path"] as? String ?? ""
-            let id=try await client.send(text:"Read the current production handoff at \(handoffPath). User request:\n\(instruction)",engine:engine,project:project,model:model,existingThread:w.data["thread_id"] as? String)
-            try await w.request("set_thread",["thread_id":id]);prompt=""
+            _ = try await client.send(text:"Read the current production handoff at \(handoffPath). User request:\n\(instruction)",engine:engine,project:project,model:model,existingThread:w.data["thread_id"] as? String,onThreadReady:{id in try await w.request("set_thread",["thread_id":id])})
+            prompt=""
         }
     }
 }

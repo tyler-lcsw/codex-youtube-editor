@@ -1,8 +1,12 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import StudioCore
 struct IntakeView:View {
     @EnvironmentObject var w:Workspace
     @State private var fields=[String:String]()
+    @State private var baseline=""
+    @State private var dirty=false
+    var briefChanged:Bool {baseline != prettyJSON(w.data["brief"] ?? [:])}
     @State private var resourceURL=""
     @State private var resourceLabel=""
     @State private var resourceRole="reference"
@@ -16,10 +20,11 @@ struct IntakeView:View {
                     VStack(alignment:.leading,spacing:14) {
                         ForEach(labels,id:\.0) {key,label in
                             VStack(alignment:.leading) {Text(label).font(.caption).foregroundStyle(.secondary)
-                                TextField(label,text:Binding(get:{fields[key] ?? ""},set:{fields[key]=$0}),axis:.vertical).lineLimit(key=="context" ? 4...8 : 1...3).textFieldStyle(.roundedBorder)
+                                TextField(label,text:Binding(get:{fields[key] ?? ""},set:{fields[key]=$0;dirty=true}),axis:.vertical).lineLimit(key=="context" ? 4...8 : 1...3).textFieldStyle(.roundedBorder)
                             }
                         }
-                        Button("Save brief") {let brief=fields;w.perform {try await w.request("update_brief",["brief":brief]);try await w.refresh();w.notice="Brief saved; dependent reviews reassessed."}}.disabled(w.project.isEmpty)
+                        Button("Save brief") {let brief=fields;w.perform {try await w.request("update_brief",["brief":brief]);dirty=false;try await w.refresh();load();w.notice="Brief saved; dependent reviews reassessed."}}.disabled(w.project.isEmpty || (dirty && briefChanged))
+                        if dirty && briefChanged {Text("The saved brief changed. Reload it before saving your draft.").foregroundStyle(.orange);Button("Reload saved brief"){load()}}
                     }.padding(12)
                 }
                 GroupBox("Footage and documents") {
@@ -57,7 +62,7 @@ struct IntakeView:View {
                     }.padding(12)
                 }
             }.padding(24)
-        }.onAppear {load()}.onChange(of:w.project){_,_ in load()}.onChange(of:w.title){_,_ in load()}
+        }.onAppear {load()}.onChange(of:w.project){_,_ in load()}.onChange(of:w.dataRevision){_,_ in if !dirty {load()}}
     }
-    func load() {fields=(w.data["brief"] as? [String:Any] ?? [:]).compactMapValues{$0 as? String}}
+    func load() {dirty=false;baseline=prettyJSON(w.data["brief"] ?? [:]);fields=(w.data["brief"] as? [String:Any] ?? [:]).compactMapValues{$0 as? String}}
 }

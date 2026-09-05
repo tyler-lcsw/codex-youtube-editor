@@ -14,8 +14,10 @@ struct ReviewView:View {
     @State private var rect: CGRect?
     @State private var draw=false
     @State private var capturePath=""
-    @State private var resolution=""
-    @State private var resolutionNote=""
+    @State private var drafts=AnnotationDrafts()
+    @State private var reviewContext:AnnotationContext?
+    @State private var integrityError:String?
+    @State private var validatedID=""
     @State private var transcriptWords=[[String:Any]]()
     @State private var selectedWords=Set<String>()
     var media:[[String:Any]] {(w.assets+w.revisions).filter{($0["role"] as? String) != "document"}}
@@ -32,18 +34,19 @@ struct ReviewView:View {
                     ZStack {
                         VideoPlayer(player:player)
                         if draw {AnnotationOverlay(videoSize:videoSize,selection:$rect)}
-                        if !draw,let rect {
+                        if !draw,let rect=reviewContext?.rect ?? rect {
                             let bounds=ReviewGeometry.videoRect(container:geometry.size,video:videoSize)
                             Rectangle().stroke(.mint,lineWidth:3).frame(width:rect.width*bounds.width,height:rect.height*bounds.height).position(x:bounds.minX+rect.midX*bounds.width,y:bounds.minY+rect.midY*bounds.height).allowsHitTesting(false)
                         }
                     }.background(.black)
                 }.frame(minHeight:280)
                 HStack {
-                    Button("Pause & annotate",systemImage:"pause.circle") {capture()}.disabled(asset==nil || w.busy)
+                    Button("Pause & annotate",systemImage:"pause.circle") {capture()}.disabled(asset==nil || validatedID != selected || w.busy)
                     Toggle("Draw region",isOn:$draw).toggleStyle(.button).disabled(capturePath.isEmpty)
                     Button("Clear region"){rect=nil}
                     Text(String(format:"%.3f s",Double(markerMS)/1000)).monospacedDigit()
                 }
+                if let integrityError {Text("Historical feedback only: \(integrityError)").foregroundStyle(.orange)}
                 if !capturePath.isEmpty {Label("Frame captured for this version",systemImage:"checkmark.circle").font(.caption).foregroundStyle(.mint)}
                 TextField("Optional range end (seconds)",text:$endSeconds).textFieldStyle(.roundedBorder)
                 TextField("What should change here, and why?",text:$comment,axis:.vertical).lineLimit(3...6).textFieldStyle(.roundedBorder)
@@ -58,16 +61,19 @@ struct ReviewView:View {
             }.padding(20).frame(minWidth:560)
             ScrollView {VStack(alignment:.leading,spacing:16) {
                 Text("Feedback on this version").font(.title3.bold())
+                Text("\(w.annotations.filter{$0["status"] as? String != "accepted"}.count) unresolved across this production. Select the original reviewed version to see its notes.").font(.caption).foregroundStyle(.secondary)
                 if feedback.isEmpty {Text("Pause the video to leave a precise note.").foregroundStyle(.secondary)}
-                ForEach(feedback.indices,id:\.self) {i in let note=feedback[i]
+                ForEach(feedback.indices,id:\.self) {i in let note=feedback[i];let noteID=note["id"] as? String ?? ""
                     GroupBox {
                         VStack(alignment:.leading,spacing:10) {
-                            HStack {Button(String(format:"%.3f s",Double(note["time_ms"] as? Int ?? 0)/1000)) {player.seek(to:CMTime(value:Int64(note["time_ms"] as? Int ?? 0),timescale:1000));player.pause()};Spacer();Text(note["status"] as? String ?? "open").font(.caption).foregroundStyle(.mint)}
+                            HStack {Button(String(format:"%.3f s",Double(note["time_ms"] as? Int ?? 0)/1000)) {reviewContext=AnnotationContext(note);draw=false;player.seek(to:CMTime(value:Int64(note["time_ms"] as? Int ?? 0),timescale:1000));player.pause()};Spacer();Text((integrityError == nil ? "" : "historical · ")+(note["status"] as? String ?? "open")).font(.caption).foregroundStyle(.mint)}
                             Text(note["text"] as? String ?? "").textSelection(.enabled)
-                            if let path=note["frame_path"] as? String,let image=NSImage(contentsOfFile:path) {Image(nsImage:image).resizable().aspectRatio(contentMode:.fit).frame(maxHeight:130)}
+                            if let path=note["frame_path"] as? String,let image=NSImage(contentsOfFile:path) {MarkedFrame(image:image,rect:AnnotationContext(note).rect).frame(height:130)}
+                            if let end=note["end_ms"] as? Int {Text(String(format:"Range ends at %.3f s",Double(end)/1000)).font(.caption)}
+                            if let anchors=note["transcript_ids"] as? [String],!anchors.isEmpty {Text("Transcript: \(anchors.joined(separator:", "))").font(.caption)}
                             DisclosureGroup("Resolve or reopen") {
-                                Picker("Replacement revision",selection:$resolution) {Text("Choose revision").tag("");ForEach(w.revisions.indices,id:\.self) {j in Text(w.revisions[j]["label"] as? String ?? "Revision").tag(w.revisions[j]["id"] as? String ?? "")}}
-                                TextField("Resolution notes",text:$resolutionNote,axis:.vertical).textFieldStyle(.roundedBorder)
+                                Picker("Replacement revision",selection:Binding(get:{drafts.revision(for:noteID,fallback:note["resolution_revision_id"] as? String)},set:{drafts.setRevision($0,for:noteID)})) {Text("Choose revision").tag("");ForEach(w.revisions.indices,id:\.self) {j in Text(w.revisions[j]["label"] as? String ?? "Revision").tag(w.revisions[j]["id"] as? String ?? "")}}
+                                TextField("Resolution notes",text:Binding(get:{drafts.note(for:noteID)},set:{drafts.setNote($0,for:noteID)}),axis:.vertical).textFieldStyle(.roundedBorder)
                                 HStack {Button("Addressed"){transition(note,"addressed")};Button("Ready for review"){transition(note,"ready_for_review")}}
                                 HStack {Button("Accept correction"){transition(note,"accepted")};Button("Reopen"){transition(note,"open")}}
                             }
@@ -76,18 +82,32 @@ struct ReviewView:View {
                     }
                 }
             }.padding(18)}.frame(minWidth:300,idealWidth:340,maxWidth:450)
-        }.onChange(of:selected){_,_ in loadMedia()}.onChange(of:w.project){_,_ in selected="";player.replaceCurrentItem(with:nil)}
+        }.onChange(of:selected){_,_ in loadMedia()}.onChange(of:w.project){_,_ in selected="";drafts=AnnotationDrafts();reviewContext=nil;player.replaceCurrentItem(with:nil)}
         .onDisappear {player.pause()}
     }
     func loadMedia() {
-        player.pause();capturePath="";rect=nil;draw=false;selectedWords=[];transcriptWords=[]
-        guard let a=asset,let path=a["path"] as? String else {player.replaceCurrentItem(with:nil);return}
-        let av=AVURLAsset(url:URL(fileURLWithPath:path));player.replaceCurrentItem(with:AVPlayerItem(asset:av))
-        Task {if let track=try? await av.loadTracks(withMediaType:.video).first,let size=try? await track.load(.naturalSize),let transform=try? await track.load(.preferredTransform) {let s=size.applying(transform);videoSize=CGSize(width:abs(s.width),height:abs(s.height))}}
-        if let bytes=try? Data(contentsOf:URL(fileURLWithPath:w.project+"/work/edited-transcript.json")),let d=(try? JSONSerialization.jsonObject(with:bytes)) as? [String:Any],d["master_sha256"] as? String == a["sha256"] as? String {transcriptWords=d["words"] as? [[String:Any]] ?? []}
+        player.pause();player.replaceCurrentItem(with:nil);capturePath="";rect=nil;draw=false;selectedWords=[];transcriptWords=[];reviewContext=nil;integrityError=nil;validatedID=""
+        guard let a=asset,let id=a["id"] as? String else {return}
+        let project=w.project,bridge=w.bridge
+        Task {
+            do {
+                let checked=try await bridge.request("validate_asset",project:project,params:["asset_id":id])
+                guard selected==id,w.project==project,let path=checked["path"] as? String else{return}
+                let av=AVURLAsset(url:URL(fileURLWithPath:path))
+                if let track=try await av.loadTracks(withMediaType:.video).first {
+                    let size=try await track.load(.naturalSize),transform=try await track.load(.preferredTransform)
+                    let transformed=size.applying(transform)
+                    guard selected==id,w.project==project else{return}
+                    videoSize=CGSize(width:abs(transformed.width),height:abs(transformed.height))
+                }
+                guard selected==id,w.project==project else{return}
+                validatedID=id;player.replaceCurrentItem(with:AVPlayerItem(asset:av))
+                if let bytes=try? Data(contentsOf:URL(fileURLWithPath:project+"/work/edited-transcript.json")),let d=(try? JSONSerialization.jsonObject(with:bytes)) as? [String:Any],d["master_sha256"] as? String == a["sha256"] as? String {transcriptWords=d["words"] as? [[String:Any]] ?? []}
+            } catch {if selected==id,w.project==project {integrityError=error.localizedDescription}}
+        }
     }
     func capture() {
-        player.pause();draw=false;rect=nil
+        player.pause();draw=false;rect=nil;reviewContext=nil
         let time=player.currentTime().seconds
         guard time.isFinite,let id=asset?["id"] as? String else {return}
         markerMS=max(0,Int((time*1000).rounded()));let ms=markerMS
@@ -106,9 +126,10 @@ struct ReviewView:View {
     }
     func transition(_ note:[String:Any],_ status:String) {
         guard let id=note["id"] as? String else{return}
-        var p:[String:Any]=["id":id,"status":status,"note":resolutionNote,"user_action":true]
-        if !resolution.isEmpty {p["resolution_revision_id"]=resolution}
-        w.perform {try await w.request("update_annotation",p);resolutionNote=""}
+        let revision=drafts.revision(for:id,fallback:note["resolution_revision_id"] as? String)
+        var p:[String:Any]=["id":id,"status":status,"note":drafts.note(for:id),"user_action":true]
+        if !revision.isEmpty {p["resolution_revision_id"]=revision}
+        w.perform {try await w.request("update_annotation",p);drafts.setNote("",for:id)}
     }
 }
 struct AnnotationOverlay:View {
@@ -121,6 +142,20 @@ struct AnnotationOverlay:View {
                 Color.black.opacity(0.001)
                 if let r=selection {Rectangle().fill(.mint.opacity(0.15)).overlay(Rectangle().stroke(.mint,lineWidth:3)).frame(width:r.width*bounds.width,height:r.height*bounds.height).position(x:bounds.minX+r.midX*bounds.width,y:bounds.minY+r.midY*bounds.height)}
             }.contentShape(Rectangle()).gesture(DragGesture(minimumDistance:2).onChanged {value in selection=ReviewGeometry.selection(from:value.startLocation,to:value.location,in:bounds)})
+        }
+    }
+}
+
+struct MarkedFrame:View {
+    let image:NSImage
+    let rect:CGRect?
+    var body:some View {
+        GeometryReader {g in
+            let bounds=ReviewGeometry.videoRect(container:g.size,video:image.size)
+            ZStack {
+                Image(nsImage:image).resizable().aspectRatio(contentMode:.fit).frame(width:g.size.width,height:g.size.height)
+                if let r=rect {Rectangle().stroke(.mint,lineWidth:2).frame(width:r.width*bounds.width,height:r.height*bounds.height).position(x:bounds.minX+r.midX*bounds.width,y:bounds.minY+r.midY*bounds.height)}
+            }
         }
     }
 }

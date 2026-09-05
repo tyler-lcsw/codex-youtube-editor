@@ -12,10 +12,12 @@ import StudioCore
     @Published var workflow=[String:Any]()
     @Published var quality=[String:Any]()
     @Published var busy=false
+    @Published var dataRevision=0
     @Published var error: String?
     @Published var notice=""
     @Published var section="Brief & sources"
     let codex=CodexClient()
+    private let selection=ProjectSelection()
     var bridge:EngineBridge {EngineBridge(root:engine,python:python)}
     var assets:[[String:Any]] {data["assets"] as? [[String:Any]] ?? []}
     var revisions:[[String:Any]] {data["revisions"] as? [[String:Any]] ?? []}
@@ -37,7 +39,7 @@ import StudioCore
         Task {do {try await body();persist()}catch{self.error=error.localizedDescription};busy=false}
     }
     func request(_ method:String,_ params:[String:Any]=[:]) async throws {
-        data=try await bridge.request(method,project:project,params:params)
+        data=try await bridge.request(method,project:project,params:params);dataRevision += 1
     }
     func refresh() async throws {
         try await request("open")
@@ -45,19 +47,26 @@ import StudioCore
         quality=try await bridge.request("quality",project:project)
     }
     func newProject() {
-        guard !codex.running else {error="Stop the current Codex task before changing projects.";return}
+        guard !busy && !codex.running else {error="Wait for the current action or stop the Codex task before changing projects.";return}
         let panel=NSSavePanel();panel.title="Create production folder";panel.nameFieldStringValue="Untitled Production"
         let base=FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Movies/Codex Studio")
         try? FileManager.default.createDirectory(at:base,withIntermediateDirectories:true);panel.directoryURL=base;panel.canCreateDirectories=true
         guard panel.runModal() == .OK,let url=panel.url else{return}
-        project=url.path
-        perform {try await self.request("create",["title":url.lastPathComponent]);try await self.refresh()}
+        let candidate=url.path
+        perform {
+            try await self.selection.open(candidate,using:self.bridge,createTitle:url.lastPathComponent)
+            self.data=self.selection.data;self.project=self.selection.path;self.dataRevision += 1;try await self.refresh()
+        }
     }
     func openProject() {
-        guard !codex.running else {error="Stop the current Codex task before changing projects.";return}
+        guard !busy && !codex.running else {error="Wait for the current action or stop the Codex task before changing projects.";return}
         let panel=NSOpenPanel();panel.canChooseDirectories=true;panel.canChooseFiles=false;panel.title="Open production folder"
         guard panel.runModal() == .OK,let url=panel.url else{return}
-        project=url.path;perform {try await self.refresh()}
+        let candidate=url.path
+        perform {
+            try await self.selection.open(candidate,using:self.bridge)
+            self.data=self.selection.data;self.project=self.selection.path;self.dataRevision += 1;try await self.refresh()
+        }
     }
     func importFiles(role:String="source",revision:Bool=false) {
         let panel=NSOpenPanel();panel.allowsMultipleSelection=true;panel.title=revision ? "Add rendered revision" : "Import sources"
