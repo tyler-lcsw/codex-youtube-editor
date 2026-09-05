@@ -68,6 +68,11 @@ checks passed; skill audit passed; release .app built and ad-hoc signed.** Real 
 account read identified ChatGPT Pro and bounded Astra/Sol subscription responses passed.
 No API use, token copying, hosted media generation, remote-node setup or publication.
 
+Installed development bundle: `~/Applications/Codex Studio.app`, with its engine set to
+the retained `codex/mac-production-app` worktree until merge. Signature verification passed.
+A final whole-branch review found and fixed stale cached QA display and completion
+refreshes lost when leaving the Codex panel; the scoped re-review is approved.
+
 The development app launched successfully, but native visual/playback/interaction
 acceptance is **pending**: the computer-use tool reported M4 locked and unable to unlock.
 The user was asked to unlock M4. Do not substitute the automated results for interactive
