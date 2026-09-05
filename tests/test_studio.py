@@ -305,3 +305,52 @@ def test_studio_action_cli_accepts_explicit_intake_stage(project, before_plans):
     result = subprocess.run([__import__('sys').executable, '-m', 'tools.production_quality', 'run', str(project), '--stage', 'intake', '--rules', 'R04', '--reason', 'Synthetic CLI gate check', '--evidence', str(before_plans), '--', __import__('sys').executable, '-c', 'pass'], text=True, capture_output=True)
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout)['exit_code'] == 0
+
+
+@pytest.fixture
+def qa_ready_studio(project):
+    from tools import production_quality as quality
+    evidence = project / 'work/synthetic-qa.md'
+    evidence.write_text('Synthetic unit-test receipt fixture only; not real production acceptance.')
+    deliverable = project / 'output/synthetic.txt'; deliverable.write_text('Synthetic delivery bytes')
+    quality.set_deliverables(project, [str(deliverable)])
+    for phase in quality.PHASES:
+        quality.record(project, phase, [{'id':rule['id'], 'status':'planned' if phase == 'before' else 'pass', 'reason':f"Synthetic test disposition for {rule['id']} in {phase}", 'evidence':[str(evidence)]} for rule in quality.read_rules()['rules']], 'unit-test-fixture')
+    return project
+
+
+def prepare_studio_stages(project):
+    report = project / 'work/stage-findings.md'; report.write_text('Synthetic stage finding')
+    (project / 'work/analysis/source-understanding.md').write_text('Synthetic source understanding')
+    (project / 'work/analysis/content-map.json').write_text('{"segments":[]}')
+    (project / 'work/edit-plan.md').write_text('Synthetic edit plan')
+    for stage in ('intake','source_understanding','editorial_strategy','edit'):
+        call(project, 'record_stage', stage=stage, evidence=[str(report)], reason=f'Synthetic {stage} finding')
+    return report
+
+
+def test_finalize_studio_requires_current_pre_final_stages(qa_ready_studio):
+    from tools import production_quality as quality
+    assert all(quality.gate(qa_ready_studio, phase)['passed'] for phase in quality.PHASES)
+    with pytest.raises(ValueError): quality.finalize(qa_ready_studio)
+
+
+@pytest.mark.parametrize('change', ['brief','workflow','evidence','review'])
+def test_studio_completion_receipt_invalidates_inputs_without_qa_changes(qa_ready_studio, tmp_path, monkeypatch, change):
+    from tools import production_quality as quality
+    from tools import studio_workflow as flow
+    config = tmp_path / 'workflow.json'; config.write_bytes(flow.WORKFLOW.read_bytes())
+    monkeypatch.setattr(flow, 'WORKFLOW', config)
+    project = qa_ready_studio
+    report = prepare_studio_stages(project)
+    quality.finalize(project)
+    assert quality.require_complete(project)['status'] == 'qa_complete'
+    call(project, 'record_stage', stage='final_review', evidence=[str(report)], reason='Synthetic final review')
+    assert quality.require_complete(project)['status'] == 'qa_complete'
+    assert call(project, 'workflow')['stages'][-1]['status'] == 'complete'
+    if change == 'brief': call(project, 'update_brief', brief={'purpose':'Changed objective'})
+    elif change == 'workflow': config.write_bytes(config.read_bytes()+b'\n')
+    elif change == 'review': call(project, 'record_stage', stage='intake', evidence=[str(report)], reason='New intake interpretation')
+    else: report.write_text('Corrected stage finding')
+    assert all(quality.gate(project, phase)['passed'] for phase in quality.PHASES)
+    with pytest.raises(ValueError): quality.require_complete(project)

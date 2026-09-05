@@ -198,10 +198,17 @@ def finalize(project, rules_path=RULES):
         checks = [gate(project, p, rules_path) for p in PHASES]
         if not all(g['passed'] for g in checks):
             raise ValueError('Cannot complete production: ' + json.dumps(checks))
+        studio_binding = None
+        if (Path(project).resolve() / 'work/studio/project.json').is_file():
+            from .studio_workflow import require_action, completion_binding
+            require_action(project, 'final_review')
+            studio_binding = completion_binding(project)
         data = state(project); policy = read_rules(rules_path)
         receipt = {'status': 'qa_complete', 'time': now(), 'policy_sha256': policy['sha256'],
                    'revision': data['revision'], 'deliverables': data['deliverables'], 'checks': checks,
                    'publication_authorized': False}
+        if studio_binding is not None:
+            receipt['studio_binding'] = studio_binding
         data['status'] = 'qa_complete'; save(project, data)
         atomic_json(folder(project) / 'completion.json', receipt)
         return receipt
@@ -215,6 +222,10 @@ def require_complete(project):
             or receipt['deliverables'] != data['deliverables'] or data['status'] != 'qa_complete'
             or not all(gate(project, phase)['passed'] for phase in PHASES)):
         raise ValueError('Production QA is stale or incomplete; reassess and finalize')
+    if 'studio_binding' in receipt or (Path(project).resolve() / 'work/studio/project.json').is_file():
+        from .studio_workflow import completion_binding
+        if receipt.get('studio_binding') != completion_binding(project):
+            raise ValueError('Studio completion inputs or prerequisite reviews changed; reassess and finalize')
     return receipt
 
 

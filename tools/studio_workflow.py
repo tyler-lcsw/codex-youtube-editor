@@ -108,3 +108,17 @@ def require_action(project, stage):
         states = {item['id']:item['status'] for item in stages}
         if any(states[prerequisite] != 'complete' for prerequisite in selected['requires']):
             raise ValueError('Studio action prerequisites require current completed reviews')
+
+
+def completion_binding(project):
+    """Snapshot completion inputs without consulting workflow/final QA recursively.
+
+    Atomic project reads are intentional: callers can already hold the Studio
+    state lock while computing final-stage validity.
+    """
+    from .studio_project import read
+    data = read(Path(project).resolve())
+    reviews = {stage:review for stage,review in data['stage_reviews'].items() if stage != 'final_review'}
+    if any(not quality.current(review['evidence']) for review in reviews.values()):
+        raise ValueError('Studio prerequisite review evidence is stale')
+    return {'inputs':binding(data), 'pre_final_reviews':digest(reviews)}
