@@ -89,3 +89,22 @@ def quality_status(project):
     except (ValueError, FileNotFoundError):
         complete = False
     return dict(rules_path=policy['path'], rules=policy['rules'], gates={p:quality.gate(project,p) for p in quality.PHASES}, complete=complete)
+
+
+def require_action(project, stage):
+    """Check the declared action stage against current Studio prerequisites.
+
+    Stage classification is the caller's editorial responsibility, not command
+    inference or an operating-system sandbox. This never records a review.
+    """
+    from .studio_project import read
+    from .run_state import file_lock
+    project = Path(project).resolve()
+    with file_lock(project / 'work/studio/.lock'):
+        stages = workflow(project, read(project))['stages']
+        selected = next((item for item in stages if item['id'] == stage), None)
+        if selected is None:
+            raise ValueError('Unknown Studio action stage')
+        states = {item['id']:item['status'] for item in stages}
+        if any(states[prerequisite] != 'complete' for prerequisite in selected['requires']):
+            raise ValueError('Studio action prerequisites require current completed reviews')

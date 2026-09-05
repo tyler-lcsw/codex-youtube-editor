@@ -146,7 +146,7 @@ def set_deliverables(project, paths, rules_path=RULES):
     return files
 
 
-def run_action(project, command, rule_ids, reason, evidence, rules_path=RULES, timeout=3600):
+def run_action(project, command, rule_ids, reason, evidence, rules_path=RULES, timeout=3600, stage=None):
     policy = read_rules(rules_path)
     if not command or not reason.strip() or not rule_ids or not set(rule_ids) <= {r['id'] for r in policy['rules']}:
         raise ValueError('Action needs a command, purpose and applicable current rule IDs')
@@ -154,6 +154,9 @@ def run_action(project, command, rule_ids, reason, evidence, rules_path=RULES, t
     if not files: raise ValueError('Action needs an edit plan or other durable evidence')
     # Serialize editing actions; the state lock itself is held only while writing metadata.
     with file_lock(folder(project) / '.action.lock'):
+        if (Path(project).resolve() / 'work/studio/project.json').is_file():
+            from .studio_workflow import require_action
+            require_action(project, 'edit' if stage is None else stage)
         if not gate(project, 'before', rules_path)['passed']:
             raise ValueError('Pre-production gate failed; run checklist/gate before and resolve findings')
         action = {'id': uuid.uuid4().hex, 'command': command, 'rules': rule_ids, 'reason': reason,
@@ -222,6 +225,7 @@ def main():
     p.add_argument('--file', type=Path); p.add_argument('--reviewer'); p.add_argument('--rules', nargs='+')
     p.add_argument('--reason', default=''); p.add_argument('--evidence', nargs='+', default=[])
     p.add_argument('--paths', nargs='+', default=[]); p.add_argument('--action-id'); p.add_argument('--timeout', type=float, default=3600)
+    p.add_argument('--stage', help='Studio workflow stage; defaults to edit for Studio projects')
     import sys
     argv = sys.argv[1:]; split = argv.index('--') if '--' in argv else len(argv)
     a = p.parse_args(argv[:split]); command = argv[split+1:]
@@ -234,7 +238,7 @@ def main():
             if payload.get('policy_sha256') != read_rules()['sha256']: raise ValueError('Checklist policy changed; generate a fresh checklist')
             result = record(a.project, a.phase, payload['rules'], a.reviewer)
         elif a.command == 'gate': result = gate(a.project, a.phase)
-        elif a.command == 'run': result = run_action(a.project, command, a.rules or [], a.reason, a.evidence, timeout=a.timeout)
+        elif a.command == 'run': result = run_action(a.project, command, a.rules or [], a.reason, a.evidence, timeout=a.timeout, stage=a.stage)
         elif a.command == 'deliverables': result = set_deliverables(a.project, a.paths)
         elif a.command == 'resolve': result = resolve_action(a.project, a.action_id, a.reason, a.evidence)
         elif a.command == 'finalize': result = finalize(a.project)

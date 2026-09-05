@@ -258,3 +258,50 @@ def test_validate_asset_rejects_changed_media_after_reopen_preserves_history(pro
     assert call(project, 'open')['annotations'][0] == annotation
     Path(asset['path']).unlink()
     with pytest.raises((ValueError, FileNotFoundError)): call(project, 'validate_asset', asset_id=asset['id'])
+
+
+@pytest.fixture
+def before_plans(project):
+    from tools import production_quality as quality
+    evidence = project / 'work/test-action-plan.md'
+    evidence.write_text('Engineering fixture only: write a marker to verify the production action prerequisite boundary. No media generation or acceptance.')
+    quality.record(project, 'before', [{'id':rule['id'], 'status':'planned', 'reason':f"Synthetic action plan coverage for {rule['id']}", 'evidence':[str(evidence)]} for rule in quality.read_rules()['rules']], 'test-fixture')
+    return evidence
+
+
+def test_studio_action_default_edit_requires_strategy_but_explicit_intake_runs(project, before_plans):
+    from tools import production_quality as quality
+    marker = project / 'work/ran.txt'
+    command = [__import__('sys').executable, '-c', 'from pathlib import Path; import sys; Path(sys.argv[1]).write_text("ran")', str(marker)]
+    assert quality.gate(project, 'before')['passed']
+    with pytest.raises(ValueError):
+        quality.run_action(project, command, ['R04'], 'Check default edit gate', [str(before_plans)])
+    assert not marker.exists()
+    with pytest.raises(ValueError):
+        quality.run_action(project, command, ['R04'], 'Reject unknown stage', [str(before_plans)], stage='unknown')
+    assert not marker.exists()
+    result = quality.run_action(project, command, ['R04'], 'Inspect during intake', [str(before_plans)], stage='intake')
+    assert result['exit_code'] == 0 and marker.read_text() == 'ran'
+    assert call(project, 'open')['stage_reviews'] == {}
+
+
+def test_action_uses_dynamic_workflow_prerequisites(project, before_plans, tmp_path, monkeypatch):
+    from tools import production_quality as quality
+    from tools import studio_workflow as flow
+    config = tmp_path / 'workflow.json'
+    config.write_text(json.dumps({'stages':[{'id':'inspect','requires':[]}, {'id':'edit','requires':['inspect']}], 'routes':{}}))
+    monkeypatch.setattr(flow, 'WORKFLOW', config)
+    command = [__import__('sys').executable, '-c', 'pass']
+    with pytest.raises(ValueError): quality.run_action(project, command, ['R04'], 'Check dynamic prerequisite', [str(before_plans)])
+    call(project, 'record_stage', stage='inspect', evidence=[str(before_plans)], reason='Inspected fixture')
+    assert quality.run_action(project, command, ['R04'], 'Run after inspection', [str(before_plans)])['exit_code'] == 0
+    before_plans.write_text('Corrected fixture findings')
+    # Restore current before QA to isolate the stale Studio prerequisite.
+    quality.record(project, 'before', [{'id':rule['id'], 'status':'planned', 'reason':f"Updated synthetic coverage for {rule['id']}", 'evidence':[str(before_plans)]} for rule in quality.read_rules()['rules']], 'test-fixture')
+    with pytest.raises(ValueError): quality.run_action(project, command, ['R04'], 'Stale inspection blocks', [str(before_plans)])
+
+
+def test_studio_action_cli_accepts_explicit_intake_stage(project, before_plans):
+    result = subprocess.run([__import__('sys').executable, '-m', 'tools.production_quality', 'run', str(project), '--stage', 'intake', '--rules', 'R04', '--reason', 'Synthetic CLI gate check', '--evidence', str(before_plans), '--', __import__('sys').executable, '-c', 'pass'], text=True, capture_output=True)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)['exit_code'] == 0
