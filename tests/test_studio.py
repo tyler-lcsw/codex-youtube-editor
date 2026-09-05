@@ -114,12 +114,11 @@ def test_unopened_project_request_does_not_create_directory(tmp_path):
         call(missing, 'open')
     assert not missing.exists()
 
-def test_changed_frame_cannot_be_silently_accepted(project, media):
-    asset = call(project, 'import_media', path=str(media), role='source')['assets'][0]
-    from PIL import Image
-    frame = project / 'work/frames/capture.png'; Image.new('RGB', (10, 10)).save(frame)
+def test_changed_frame_cannot_be_silently_accepted(project, video):
+    asset = call(project, 'import_media', path=str(video), role='source')['assets'][0]
+    frame = Path(call(project, 'capture_frame', asset_id=asset['id'], time_ms=100)['path'])
     annotation = call(project, 'add_annotation', asset_id=asset['id'], time_ms=100, text='Fix', frame_path=str(frame))['annotations'][0]
-    rev = call(project, 'add_revision', path=str(media), label='Second')['revisions'][0]
+    rev = call(project, 'add_revision', path=str(video), label='Second')['revisions'][0]
     call(project, 'update_annotation', id=annotation['id'], status='addressed', resolution_revision_id=rev['id'], note='Fixed')
     call(project, 'update_annotation', id=annotation['id'], status='ready_for_review', note='Ready')
     frame.write_bytes(b'different capture')
@@ -142,3 +141,65 @@ def test_invalid_frame_rejected(project, media):
 def test_project_has_engine_audio_and_transcript_directories(project):
     assert (project / 'work/audio').is_dir()
     assert (project / 'work/transcripts').is_dir()
+
+
+def test_rereview_prerequisite_does_not_revive_downstream(project):
+    intake = project / 'work/intake.md'; intake.write_text('Original input finding')
+    understanding = project / 'work/understanding.md'; understanding.write_text('Original interpretation')
+    call(project, 'record_stage', stage='intake', evidence=[str(intake)], reason='Original intake')
+    call(project, 'record_stage', stage='source_understanding', evidence=[str(understanding)], reason='Original understanding')
+    intake.write_text('Corrected input finding')
+    call(project, 'record_stage', stage='intake', evidence=[str(intake)], reason='Corrected intake')
+    assert call(project, 'workflow')['stages'][1]['status'] == 'stale'
+
+
+def test_unknown_resolution_reopen_preserves_annotation(project, media):
+    asset = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    annotation = call(project, 'add_annotation', asset_id=asset['id'], time_ms=100, text='Fix')['annotations'][0]
+    revision = call(project, 'add_revision', path=str(media), label='Second')['revisions'][0]
+    before = call(project, 'update_annotation', id=annotation['id'], status='addressed', resolution_revision_id=revision['id'], note='Changed')
+    with pytest.raises(ValueError):
+        call(project, 'update_annotation', id=annotation['id'], status='open', resolution_revision_id='missing', note='Reopen')
+    assert call(project, 'open')['annotations'] == before['annotations']
+
+
+@pytest.fixture
+def video(tmp_path):
+    output = tmp_path / 'fixture.mp4'
+    subprocess.run(['ffmpeg', '-v', 'error', '-f', 'lavfi', '-i', 'testsrc2=size=32x32:rate=10:duration=1', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', str(output)], check=True)
+    return output
+
+
+def test_capture_receipt_binds_exact_asset_time_and_bytes(project, video, media):
+    asset = call(project, 'import_media', path=str(video), role='source')['assets'][0]
+    revision = call(project, 'add_revision', path=str(video), label='Second')['revisions'][0]
+    capture = call(project, 'capture_frame', asset_id=asset['id'], time_ms=200)
+    assert capture['asset_sha256'] == asset['sha256'] and capture['time_ms'] == 200
+    assert Path(capture['path']).is_file()
+    for mismatch in ({'asset_id':revision['id']}, {'time_ms':300}):
+        params = dict(asset_id=asset['id'], time_ms=200, frame_path=capture['path'], text='Fix') | mismatch
+        with pytest.raises(ValueError): call(project, 'add_annotation', **params)
+    state = call(project, 'add_annotation', asset_id=asset['id'], time_ms=200, frame_path=capture['path'], text='Fix')
+    assert state['annotations'][0]['frame_path'] == capture['path']
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][-1]
+    with pytest.raises(ValueError): call(project, 'capture_frame', asset_id=audio['id'], time_ms=200)
+
+
+def test_unregistered_valid_image_is_not_capture(project, video):
+    from PIL import Image
+    asset = call(project, 'import_media', path=str(video), role='source')['assets'][0]
+    frame = project / 'work/frames/unrelated.png'; Image.new('RGB',(32,32),'red').save(frame)
+    with pytest.raises(ValueError):
+        call(project, 'add_annotation', asset_id=asset['id'], time_ms=100, frame_path=str(frame), text='Fix')
+
+
+def test_capture_reports_frame_time_and_survives_project_move(project, video):
+    import shutil
+    asset = call(project, 'import_media', path=str(video), role='source')['assets'][0]
+    capture = call(project, 'capture_frame', asset_id=asset['id'], time_ms=215)
+    assert capture['time_ms'] == 300
+    relocated = project.with_name('moved-project')
+    shutil.move(str(project), str(relocated))
+    frame = relocated / Path(capture['path']).relative_to(project)
+    state = call(relocated, 'add_annotation', asset_id=asset['id'], time_ms=300, frame_path=str(frame), text='Moved project capture')
+    assert state['annotations'][0]['frame_path'] == str(frame)

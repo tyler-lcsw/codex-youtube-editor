@@ -45,7 +45,8 @@ def workflow(project, data):
         prerequisites = all(statuses[p] == 'complete' for p in stage['requires'])
         status = 'pending' if prerequisites else 'blocked'
         if review:
-            status = 'complete' if prerequisites and review['binding'] == current and quality.current(review['evidence']) else 'stale'
+            prerequisite_hashes = {p:digest(data['stage_reviews'].get(p)) for p in stage['requires']}
+            status = 'complete' if prerequisites and review.get('prerequisites') == prerequisite_hashes and review['binding'] == current and quality.current(review['evidence']) else 'stale'
         if stage['id'] == 'final_review' and status == 'complete' and not all(quality.gate(project, phase)['passed'] for phase in quality.PHASES):
             status = 'stale'
         stage.update(status=status, review=review)
@@ -67,7 +68,7 @@ def record_stage(project, data, params):
     if any(not p.is_relative_to(project) for p in resolved): raise ValueError('Evidence must be project-local')
     if stage['id'] == 'final_review' and not all(quality.gate(project, phase)['passed'] for phase in quality.PHASES):
         raise ValueError('All production quality gates must pass before final review')
-    data['stage_reviews'][stage['id']] = dict(binding=binding(data), evidence=quality.snapshot(resolved), reason=reason)
+    data['stage_reviews'][stage['id']] = dict(binding=binding(data), prerequisites={p:digest(data['stage_reviews'][p]) for p in stage['requires']}, evidence=quality.snapshot(resolved), reason=reason)
 
 
 def quality_status(project):

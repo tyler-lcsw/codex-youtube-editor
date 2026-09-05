@@ -24,6 +24,10 @@ def dispatch(request):
         elif method in ('import_media','add_revision'):
             revision = method == 'add_revision'
             data['revisions' if revision else 'assets'].append(projects.import_asset(project, params, revision))
+        elif method == 'capture_frame':
+            capture = projects.capture_frame(project, data, params)
+            atomic_json(projects.state_path(project), data)
+            return capture
         elif method == 'add_annotation': data['annotations'].append(projects.add_annotation(project, data, params))
         elif method == 'update_annotation': projects.update_annotation(data, params)
         elif method == 'set_route':

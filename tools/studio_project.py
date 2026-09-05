@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import json
 import math
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -53,6 +54,12 @@ def read(project):
     for item in data['annotations']:
         if item.get('frame_path') and Path(item['frame_path']).is_relative_to(old):
             item['frame_path'] = str(project / Path(item['frame_path']).relative_to(old))
+    captures = {}
+    for capture in data.get('captures', {}).values():
+        path = Path(capture['path'])
+        if path.is_relative_to(old): capture['path'] = str(project / path.relative_to(old))
+        captures[capture['path']] = capture
+    data['captures'] = captures
     data['project'] = str(project)
     return data
 
@@ -136,6 +143,9 @@ def add_annotation(project, data, params):
         except OSError as error:
             raise ValueError('Invalid captured frame') from error
         frame = str(frame)
+        receipt = data.get('captures', {}).get(frame)
+        if not receipt or receipt['asset_id'] != asset['id'] or receipt['asset_sha256'] != asset['sha256'] or receipt['time_ms'] != start or receipt['sha256'] != file_hash(Path(frame)):
+            raise ValueError('Frame must have a capture receipt for this exact asset and time')
     anchors = params.get('transcript_ids', [])
     if not isinstance(anchors, list) or any(not isinstance(x, str) for x in anchors):
         raise ValueError('Transcript IDs must be strings')
@@ -154,7 +164,7 @@ def update_annotation(data, params):
     transitions = {'open': {'addressed'}, 'addressed': {'open','ready_for_review'}, 'ready_for_review': {'open','addressed','accepted'}, 'accepted': {'open'}}
     if status not in transitions[annotation['status']]: raise ValueError('Invalid annotation status transition')
     revision = params.get('resolution_revision_id', annotation['resolution_revision_id'])
-    if status != 'open':
+    if status != 'open' or revision is not None:
         if revision not in {r['id'] for r in data['revisions']} or revision == annotation['asset_id']:
             raise ValueError('Resolution must identify an existing replacement revision')
         asset_by_id(data, revision)
@@ -171,3 +181,32 @@ def add_resource(params):
     if parsed.scheme not in ('http','https') or not parsed.hostname or parsed.username or parsed.password:
         raise ValueError('Resource must be an HTTP(S) URL without credentials')
     return dict(id=uuid.uuid4().hex, url=url, label=text(params.get('label'),'label'), role=text(params.get('role'),'role'))
+
+
+def capture_frame(project, data, params):
+    """Decode a source frame and retain its actual presentation time and provenance."""
+    asset = asset_by_id(data, params.get('asset_id'))
+    requested = params.get('time_ms')
+    duration = asset.get('duration_ms')
+    if type(requested) is not int or duration is None or not 0 <= requested < duration:
+        raise ValueError('Capture time is outside selected media')
+    target = project / 'work/frames' / (uuid.uuid4().hex + '.png')
+    try:
+        result = subprocess.run([
+            'ffmpeg', '-nostdin', '-v', 'info', '-i', asset['path'], '-map', '0:v:0',
+            '-vf', f'select=gte(t\\,{requested / 1000}),showinfo', '-frames:v', '1',
+            '-fps_mode', 'vfr', str(target)
+        ], capture_output=True, text=True, timeout=120)
+        times = re.findall(r'Parsed_showinfo[^\n]*pts_time:([0-9.+eE-]+)', result.stderr)
+        if result.returncode or not target.is_file() or not times:
+            raise ValueError('Cannot capture a video frame at this time; selected asset must contain video')
+        with Image.open(target) as image: image.verify()
+        # Revalidate the immutable input after extraction before recording provenance.
+        asset_by_id(data, asset['id'])
+        receipt = dict(path=str(target), time_ms=round(float(times[0]) * 1000), requested_time_ms=requested,
+                       asset_id=asset['id'], asset_sha256=asset['sha256'], sha256=file_hash(target))
+        data.setdefault('captures', {})[str(target)] = receipt
+        return receipt
+    except BaseException:
+        target.unlink(missing_ok=True)
+        raise
