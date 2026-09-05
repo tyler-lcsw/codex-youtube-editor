@@ -3,6 +3,14 @@ name: packaging
 description: Generates click-optimized YouTube packaging — 3 thumbnail bets under one fixed title, engineered for YouTube's built-in A/B/C thumbnail test, plus a value-forward description, then renders the thumbnails as real images. Use this whenever you want to package a long-form video or turn a video idea into titles and thumbnails. Triggers include how would you package this, title ideas for, thumbnail concept, package this video, A/B variations, and make this clickable. Calibrates to your channel's own CTR data if you have it. Long-form only, never Shorts. Not for non-YouTube copywriting.
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 ## Current M4 provider workflow
 
 Read `AGENTS.md`, `docs/providers.md` and `docs/setup-macos.md`. Use the creative brief and composition guidance below while selecting an implemented provider explicitly.

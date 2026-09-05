@@ -3,6 +3,14 @@ name: clean-cut
 description: Step 1 of the AI Video Editor pipeline — turn raw talking-head footage into a clean master cut. Use when the user wants to "clean cut", "cut the raw footage", "remove filler / dead air / bad takes", "tighten the pacing", produce cuts.json, run the cut editor, or render a cleaned preview/master for a video-N project in this repo. Covers audio extraction, AssemblyAI transcription, authoring cuts.json (keeps/cuts/fluff categorized), the cut policy (content-aggressive, pause-natural ~0.5s), QA + review docs, the local cut-editor UI, tight/natural previews, the final 4K60 render, and producing edited-transcript.json as the handoff to $make-tsx. Not for building TSX overlays (that is $make-tsx) or the raw TSX authoring rules (that is vidtsx-2d-generator).
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 

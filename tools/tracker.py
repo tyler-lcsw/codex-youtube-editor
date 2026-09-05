@@ -35,6 +35,11 @@ def sync_project(project: Path, index: Path, apply: bool, stage: str | None=None
         prior=next((p for p in list_projects(index) if p['project_id']==pid),None)
         script=prior['script'] if prior else ''
     if apply:
+        if str(properties.get('stage', '')).lower().replace('-', '_').replace(' ', '_') in {
+                'ready', 'ready_to_publish', 'complete', 'completed', 'done', 'qa_complete'}:
+            from tools.production_quality import require_complete
+            receipt = require_complete(project)
+            properties['quality_policy_sha256'] = receipt['policy_sha256']
         properties['project_id']=pid
         from tools.run_state import atomic_json
         atomic_json(path,properties)

@@ -3,6 +3,14 @@ name: make-tsx
 description: Step 2 of the AI Video Editor pipeline — build the visual beats (Remotion TSX shots) over a project's master cut and bake a composited preview. Use when the user wants to add/edit overlays or full-screen animation segments, "make a shot / beat", implement an edit plan or a v2 update, retime a beat to the narration, re-render shots, or re-bake the video-N preview in this repo. Covers reading the plan + edited-transcript + brand + reusable kit, authoring shots library-first, syncing reveals to word times, updating timeline.json (cutaway vs overlay), rendering, verifying by screenshot, and baking with tools/bake.py. Defers raw TSX authoring rules to vidtsx-2d-generator and the cut itself to clean-cut.
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 

@@ -3,6 +3,14 @@ name: thumbnail
 description: Dedicated YouTube thumbnail generator — interviews you for exactly the style elements you want (environment, text budget, extras, accent color), then renders high-contrast, vibrant, face-consistent thumbnails with an explicitly selected image provider and verifies every frame before showing it. Use whenever you want to create, redo, or iterate thumbnail variants for a video — "make a thumbnail", "new version of B", "more realistic", "less text", "put the app on the screen", "another angle for the test". Renders into videos/<project>$packaging/thumbs/. Works standalone or as the render engine for Stage 5 of $packaging (which owns titles, bets, and descriptions).
 ---
 
+Production quality contract: read `docs/production-rules.md` before production,
+at each editing checkpoint, and at final QA. Follow `docs/production-quality-workflow.md`:
+route media-producing/editing commands through `tools.production_quality run`, inspect outputs,
+and record individual rule evidence. Re-read changed rules; do not use stale approvals.
+Run QA and tracker commands directly; they assess state rather than edit media.
+Do not declare production complete without all phase gates and a current final QA receipt.
+
+
 ## Current M4 provider workflow
 
 Read `AGENTS.md`, `docs/providers.md` and `docs/setup-macos.md`. Use the creative brief and composition guidance below while selecting an implemented provider explicitly.

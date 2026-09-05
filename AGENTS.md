@@ -4,6 +4,25 @@ Codex authors editorial decisions and Remotion TSX; deterministic local tools re
 validate and record artifacts. Read `docs/implementation-status.md` first while the
 migration is in progress, then the selected `.agents/skills/<name>/SKILL.md`.
 
+## Mandatory production quality contract
+
+`docs/production-rules.md` is the authoritative editable policy for every production.
+Read all rules before production, at each editing checkpoint, and again for final QA.
+Follow `docs/production-quality-workflow.md`; generate current checklists with
+`tools.production_quality`, record individual evidence and dispositions, and route
+media-producing/editing actions through its `run` command. Run QA and tracker commands
+directly so bookkeeping does not invalidate the media review. Apply this to every editing/generation
+skill and raw FFmpeg/Remotion command. Inspect each action's output before unrelated
+work; fix defects and reassess after corrections. Never auto-fill passing reviews.
+
+The responsible AI owns these checks. Do not ask the user to complete routine checklists.
+If actual listening/playback or another required review is unavailable, leave it pending
+and request the specific intervention. Never equate a successful render with acceptance.
+Register actual deliverables, complete all three phase gates, and finalize before marking
+production complete/ready. Check `require_complete(project)` whenever relying on a prior
+completion: changed policy, evidence, edits or deliverables can invalidate it. No historical
+production is grandfathered in. QA completion never authorizes publication.
+
 ## Runtime and boundaries
 
 - This checkout is on M4 (`m4-mini.local`, 24 GiB unified memory). Its internal startup

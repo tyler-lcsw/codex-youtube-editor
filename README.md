@@ -39,3 +39,11 @@ npm --prefix remotion run typecheck
 ```
 
 The [original upstream README](docs/upstream/README-original.md) is preserved for provenance, not as the active setup guide. Retain upstream licensing; Remotion and optional LM Studio have their own terms. Model licenses and revisions are recorded in `config/models.lock.json`; bundled font licenses accompany their files.
+
+## Authoritative production QA
+
+Every production follows the editable [31 production rules](docs/production-rules.md)
+through [before, during, and final QA](docs/production-quality-workflow.md). The coordinator
+reads policy at runtime, journals editing actions, and invalidates stale reviews when rules,
+evidence, actions, or deliverables change. Completion tracking requires a current QA receipt.
+Technical checks do not replace complete playback and listening review.
