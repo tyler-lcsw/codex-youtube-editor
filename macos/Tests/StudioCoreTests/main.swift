@@ -14,7 +14,7 @@ p.testUnknownApprovalCannotBecomeAnAcceptance()
 try ReviewTests().testLetterboxCoordinatesAndReverseDrag()
 testAnnotationDraftsAndSavedContextStayIndependent()
 Task { @MainActor in
-    do { try await testTransportDisconnectResolvesPendingRequests(); try await testAccountSwitchToAPIPreventsTurnDispatch(); try await testUncertainDispatchKeepsTurnLockAndPersistsThreadFirst(); try await testFailedProjectOpenPreservesIdentityAndRejectsOverlap(); print("11 native core checks passed"); exit(0) }
+    do { try await testTransportDisconnectResolvesPendingRequests(); try await testAccountSwitchToAPIPreventsTurnDispatch(); try await testUncertainDispatchKeepsTurnLockAndPersistsThreadFirst(); try await testFailedProjectOpenPreservesIdentityAndRejectsOverlap(); try await testObservedCompletionWinsOverDelayedDispatchTimeout(); print("12 native core checks passed"); exit(0) }
     catch { print(error); exit(1) }
 }
 RunLoop.main.run()

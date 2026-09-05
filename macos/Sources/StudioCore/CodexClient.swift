@@ -25,6 +25,7 @@ public struct CodexQuestion: Identifiable {
     private var serial=0
     private var pending=[Int:CheckedContinuation<[String:Any],Error>]()
     private var currentTurn: String?
+    private var observedCompletion=false
     private var generation=UUID()
     private let requestTimeout:Double
     public init(requestTimeout:Double=45) {self.requestTimeout=max(0.1,requestTimeout)}
@@ -80,7 +81,7 @@ public struct CodexQuestion: Identifiable {
     public func send(text:String,engine:String,project:String,model:String,existingThread:String?=nil,readOnly:Bool=false,onThreadReady:((String) async throws -> Void)?=nil) async throws -> String {
         guard !running else {throw StudioError("A production task is already running")}
         guard !text.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty else {throw StudioError("Enter a task")}
-        running=true;lastError=nil;lastAgentResponse=""
+        running=true;lastError=nil;lastAgentResponse="";observedCompletion=false;threadID=nil
         do {
             try await refreshAccount()
             guard subscription else {throw StudioError("Only ChatGPT subscription authentication is supported. Sign in with ChatGPT.")}
@@ -100,9 +101,9 @@ public struct CodexQuestion: Identifiable {
             messages += "\nYou: \(text)\n\nCodex: "
             let policy:[String:Any]=readOnly ? ["type":"readOnly","networkAccess":false] : ["type":"workspaceWrite","writableRoots":[engine,project],"networkAccess":false]
             let response=try await call("turn/start",["threadId":id,"input":[["type":"text","text":text]],"model":model,"sandboxPolicy":policy,"approvalPolicy":"on-request"])
-            currentTurn=(response["turn"] as? [String:Any])?["id"] as? String
+            if !observedCompletion {currentTurn=(response["turn"] as? [String:Any])?["id"] as? String}
             return id
-        } catch {running=(error as? StudioError)?.uncertain == true && connected;lastError=error.localizedDescription;throw error}
+        } catch {running=(error as? StudioError)?.uncertain == true && connected && !observedCompletion;lastError=error.localizedDescription;throw error}
     }
     public func interrupt() async throws {
         guard let id=threadID,let turn=currentTurn else {throw StudioError("No interruptible turn yet")}
@@ -148,6 +149,7 @@ public struct CodexQuestion: Identifiable {
     private func receive(_ object:[String:Any]) {
         if let method=object["method"] as? String {
             let params=object["params"] as? [String:Any] ?? [:]
+            if object["id"] == nil, let eventThread=params["threadId"] as? String, eventThread != threadID {return}
             if let id=object["id"] {
                 if CodexProtocol.approvalResult(method:method,allow:false) != nil || method=="item/tool/requestUserInput" {
                     questions.append(CodexQuestion(id:String(describing:id),method:method,params:params,wireID:id))
@@ -158,7 +160,7 @@ public struct CodexQuestion: Identifiable {
             } else if method=="item/agentMessage/delta" {let delta=params["delta"] as? String ?? "";messages += delta;lastAgentResponse += delta}
             else if method=="turn/started",let turn=params["turn"] as? [String:Any] {currentTurn=turn["id"] as? String;running=true}
             else if method=="turn/completed" {
-                running=false;currentTurn=nil;questions=[]
+                observedCompletion=true;running=false;currentTurn=nil;questions=[]
                 if let turn=params["turn"] as? [String:Any], let error=turn["error"], !(error is NSNull) {lastError=prettyJSON(error);messages += "\nTask error: \(prettyJSON(error))"}
                 messages += "\n"
             } else if method=="account/updated" || method=="account/login/completed" {

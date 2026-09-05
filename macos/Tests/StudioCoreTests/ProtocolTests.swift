@@ -122,3 +122,34 @@ func testFailedProjectOpenPreservesIdentityAndRejectsOverlap() async throws {
     } else {fatalError("Expected in-flight bridge request")}
     try await task.value
 }
+
+@MainActor
+func testObservedCompletionWinsOverDelayedDispatchTimeout() async throws {
+    let folder=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
+    defer{try? FileManager.default.removeItem(at:folder)}
+    let script=folder.appendingPathComponent("server.py"),saved=folder.appendingPathComponent("thread.txt")
+    try """
+    #!/usr/bin/python3
+    import sys,json,os
+    for line in sys.stdin:
+        m=json.loads(line);method=m.get('method','')
+        if 'id' not in m:continue
+        result={}
+        if method=='account/read':result={'account':{'type':'chatgpt','planType':'pro'}}
+        if method=='model/list':result={'data':[{'model':'gpt-6-astra'}]}
+        if method=='thread/start':result={'thread':{'id':'thread-fixture'}}
+        if method=='turn/start':
+            if not os.path.exists(\(String(reflecting:saved.path))):sys.exit(3)
+            print(json.dumps({'method':'turn/started','params':{'turn':{'id':'turn-fixture'}}}),flush=True)
+            print(json.dumps({'method':'turn/completed','params':{'turn':{'id':'turn-fixture','status':'completed','error':None}}}),flush=True)
+            continue
+        print(json.dumps({'id':m['id'],'result':result}),flush=True)
+    """.write(to:script,atomically:true,encoding:.utf8)
+    try FileManager.default.setAttributes([.posixPermissions:0o700],ofItemAtPath:script.path)
+    let client=CodexClient(requestTimeout:0.5);defer{client.disconnect()}
+    try await client.connect(binary:script.path)
+    do {_ = try await client.send(text:"Start",engine:folder.path,project:folder.path,model:"gpt-6-astra",onThreadReady:{id in try id.write(to:saved,atomically:true,encoding:.utf8)});fatalError("Expected withheld response timeout")}
+    catch {XCTAssertFalse(client.running)}
+    let persisted=try String(contentsOf:saved);XCTAssertEqual(persisted,"thread-fixture")
+}
