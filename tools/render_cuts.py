@@ -27,23 +27,22 @@ from concurrent.futures import ThreadPoolExecutor
 from fractions import Fraction
 from pathlib import Path
 
-from cutlib import AudioProbe, active_keeps, load_words, plan_clip
+try:
+    from .cutlib import AudioProbe, active_keeps, load_words, plan_clip
+    from .runtime.encoders import runtime_encoder
+except ImportError:
+    from cutlib import AudioProbe, active_keeps, load_words, plan_clip
+    from runtime.encoders import runtime_encoder
 
 SR = 48000  # audio build sample rate
 
-ENC = {
-    "preview": ["-vf", "scale=1280:-2,format=yuv420p", "-c:v", "h264_nvenc", "-preset", "p4",
-                "-rc", "vbr", "-cq", "30", "-b:v", "0"],
-    "final": ["-c:v", "hevc_nvenc", "-preset", "p5", "-profile:v", "main10",
-              "-pix_fmt", "p010le", "-rc", "vbr", "-cq", "19", "-b:v", "0"],
-}
 AUDIO_BITRATE = {"preview": "160k", "final": "256k"}
 
 
 def render_segment(src: Path, seg: tuple[float, float], out: Path, enc: list[str]) -> None:
     start, end = seg
     dur = end - start
-    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-hwaccel", "cuda",
+    cmd = ["ffmpeg", "-y", "-loglevel", "error",
            "-ss", f"{start:.3f}", "-t", f"{dur:.3f}", "-i", str(src),
            "-map", "0:0", "-an", *enc, str(out)]
     subprocess.run(cmd, check=True)
@@ -91,6 +90,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("project")
     ap.add_argument("--style", required=True)
+    ap.add_argument("--encoder", default="auto")
+    ap.add_argument("--workers", type=int, default=1)
     ap.add_argument("--mode", choices=["preview", "final"], default="preview")
     args = ap.parse_args()
 
@@ -107,6 +108,10 @@ def main() -> None:
         for seg in plan_clip(cid, active_keeps(clip), words, style, probe, clip.get("cuts")):
             jobs.append((project / clip["file"], seg))
 
+    if not jobs:
+        raise SystemExit("No active segments to render")
+    enc = runtime_encoder(args.mode, args.encoder)
+    print("encoder:", enc[enc.index("-c:v") + 1])
     total = sum(e - s for _, (s, e) in jobs)
     print(f"{args.style}/{args.mode}: {len(jobs)} segments, output ~ {total / 60:.1f} min")
 
@@ -117,8 +122,8 @@ def main() -> None:
     todo = [(src, seg, out) for (src, seg), out in zip(jobs, outs) if not is_finalized(out)]
     if len(todo) < len(jobs):
         print(f"  resuming: {len(jobs) - len(todo)} segments already encoded, {len(todo)} to go")
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        futs = [pool.submit(render_segment, src, seg, out, ENC[args.mode]) for src, seg, out in todo]
+    with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
+        futs = [pool.submit(render_segment, src, seg, out, enc) for src, seg, out in todo]
         for i, f in enumerate(futs):
             f.result()
             if (i + 1) % 20 == 0:

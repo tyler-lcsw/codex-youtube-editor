@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "fork": "https://github.com/tyler-lcsw/codex-youtube-editor",
+  "upstream": "https://github.com/hassancs91/claude-youtube-editor",
+  "sha": "a6ac742b44520fd3c6aeaf3cd754e113fa334fed",
+  "skills": [
+    "brand-setup",
+    "clean-audio",
+    "clean-cut",
+    "fake-screencast",
+    "make-tsx",
+    "packaging",
+    "suggest-sfx",
+    "thumbnail",
+    "vidtsx-2d-generator"
+  ]
+}
