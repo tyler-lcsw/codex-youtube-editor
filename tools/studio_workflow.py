@@ -20,6 +20,11 @@ def definitions():
     for stage in data['stages']:
         if stage['id'] in seen or not set(stage['requires']) <= seen:
             raise ValueError('Workflow stages must have unique IDs and earlier prerequisites')
+        artifacts = stage.get('artifacts', [])
+        if not isinstance(artifacts, list) or any(not isinstance(p, str) or not p.strip() or Path(p).is_absolute() or '..' in Path(p).parts or '\\' in p for p in artifacts):
+            raise ValueError('Required artifacts must use safe project-relative paths')
+        if 'instructions' in stage and (not isinstance(stage['instructions'], str) or not stage['instructions'].strip()):
+            raise ValueError('Stage instructions must be nonempty text')
         seen.add(stage['id'])
     if not seen: raise ValueError('Workflow cannot be empty')
     for task, providers in data['routes'].items():
@@ -47,8 +52,11 @@ def workflow(project, data):
         if review:
             prerequisite_hashes = {p:digest(data['stage_reviews'].get(p)) for p in stage['requires']}
             status = 'complete' if prerequisites and review.get('prerequisites') == prerequisite_hashes and review['binding'] == current and quality.current(review['evidence']) else 'stale'
-        if stage['id'] == 'final_review' and status == 'complete' and not all(quality.gate(project, phase)['passed'] for phase in quality.PHASES):
-            status = 'stale'
+        if stage['id'] == 'final_review' and status == 'complete':
+            try:
+                quality.require_complete(project)
+            except (ValueError, OSError, KeyError):
+                status = 'stale'
         stage.update(status=status, review=review)
         statuses[stage['id']] = status
     return dict(result, path=str(WORKFLOW), sha256=file_hash(WORKFLOW))
@@ -65,9 +73,11 @@ def record_stage(project, data, params):
     paths = params.get('evidence')
     if not isinstance(paths, list) or not paths: raise ValueError('Stage review requires evidence files')
     resolved = [Path(p).expanduser().resolve() for p in paths]
+    resolved.extend((project / p).resolve() for p in stage.get('artifacts', []))
+    resolved = list(dict.fromkeys(resolved))
     if any(not p.is_relative_to(project) for p in resolved): raise ValueError('Evidence must be project-local')
-    if stage['id'] == 'final_review' and not all(quality.gate(project, phase)['passed'] for phase in quality.PHASES):
-        raise ValueError('All production quality gates must pass before final review')
+    if stage['id'] == 'final_review':
+        quality.require_complete(project)
     data['stage_reviews'][stage['id']] = dict(binding=binding(data), prerequisites={p:digest(data['stage_reviews'][p]) for p in stage['requires']}, evidence=quality.snapshot(resolved), reason=reason)
 
 

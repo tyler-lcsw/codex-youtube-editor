@@ -79,6 +79,8 @@ def test_workflow_prerequisites_evidence_and_staleness(project, media):
     with pytest.raises(ValueError): call(project, 'record_stage', stage='source_understanding', evidence=[str(evidence)], reason='review')
     with pytest.raises(ValueError): call(project, 'record_stage', stage='intake', evidence=[], reason='review')
     call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Source imported')
+    (project / 'work/analysis/source-understanding.md').write_text('Synthetic source has no speech; content limitations recorded.')
+    (project / 'work/analysis/content-map.json').write_text('{"segments": [], "reason": "Synthetic fixture"}')
     call(project, 'record_stage', stage='source_understanding', evidence=[str(evidence)], reason='Silence assessed')
     assert call(project, 'workflow')['stages'][1]['status'] == 'complete'
     call(project, 'update_brief', brief={'purpose':'New objective'})
@@ -147,6 +149,8 @@ def test_rereview_prerequisite_does_not_revive_downstream(project):
     intake = project / 'work/intake.md'; intake.write_text('Original input finding')
     understanding = project / 'work/understanding.md'; understanding.write_text('Original interpretation')
     call(project, 'record_stage', stage='intake', evidence=[str(intake)], reason='Original intake')
+    (project / 'work/analysis/source-understanding.md').write_text('Synthetic source has no speech; content limitations recorded.')
+    (project / 'work/analysis/content-map.json').write_text('{"segments": [], "reason": "Synthetic fixture"}')
     call(project, 'record_stage', stage='source_understanding', evidence=[str(understanding)], reason='Original understanding')
     intake.write_text('Corrected input finding')
     call(project, 'record_stage', stage='intake', evidence=[str(intake)], reason='Corrected intake')
@@ -203,3 +207,42 @@ def test_capture_reports_frame_time_and_survives_project_move(project, video):
     frame = relocated / Path(capture['path']).relative_to(project)
     state = call(relocated, 'add_annotation', asset_id=asset['id'], time_ms=300, frame_path=str(frame), text='Moved project capture')
     assert state['annotations'][0]['frame_path'] == str(frame)
+
+
+def test_runtime_required_artifacts_are_nonempty_hashed_and_project_local(project, tmp_path, monkeypatch):
+    from tools import studio_workflow as flow
+    config = tmp_path / 'workflow.json'
+    config.write_text(json.dumps({'stages':[{'id':'intake','label':'Intake','requires':[], 'artifacts':['work/custom.md'], 'instructions':'Document source findings.'}], 'routes':{}}))
+    monkeypatch.setattr(flow, 'WORKFLOW', config)
+    evidence = project / 'work/reason.md'; evidence.write_text('Read source')
+    for content in (None, ''):
+        if content is not None: (project / 'work/custom.md').write_text(content)
+        with pytest.raises(ValueError): call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Reviewed')
+    artifact = project / 'work/custom.md'; artifact.write_text('Detailed source findings')
+    call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Reviewed')
+    assert call(project, 'workflow')['stages'][0]['status'] == 'complete'
+    artifact.write_text('Corrected finding')
+    assert call(project, 'workflow')['stages'][0]['status'] == 'stale'
+    artifact.unlink(); artifact.symlink_to(evidence.parent.parent.parent / 'outside.md')
+    artifact.resolve().write_text('Outside project')
+    with pytest.raises(ValueError): call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Reviewed')
+
+
+@pytest.mark.parametrize('unsafe', ['../outside.md', '/tmp/outside.md', 'work/../../outside.md', ''])
+def test_required_artifact_paths_reject_escape(project, tmp_path, monkeypatch, unsafe):
+    from tools import studio_workflow as flow
+    config = tmp_path / 'workflow.json'
+    config.write_text(json.dumps({'stages':[{'id':'intake','requires':[], 'artifacts':[unsafe]}], 'routes':{}}))
+    monkeypatch.setattr(flow, 'WORKFLOW', config)
+    with pytest.raises(ValueError): call(project, 'workflow')
+
+
+def test_final_stage_requires_completion_receipt_even_if_gates_pass(project, tmp_path, monkeypatch):
+    from tools import studio_workflow as flow
+    config = tmp_path / 'workflow.json'
+    config.write_text(json.dumps({'stages':[{'id':'final_review','requires':[]}], 'routes':{}}))
+    monkeypatch.setattr(flow, 'WORKFLOW', config)
+    # Isolate distinction between gate results and actual finalization receipt.
+    monkeypatch.setattr(flow.quality, 'gate', lambda *args: {'passed':True})
+    evidence = project / 'work/report.md'; evidence.write_text('Synthetic test evidence')
+    with pytest.raises(ValueError): call(project, 'record_stage', stage='final_review', evidence=[str(evidence)], reason='Gate alone is insufficient')
