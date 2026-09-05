@@ -21,12 +21,27 @@ def offsets(project: Path) -> dict:
 
 
 def load_words(project: Path, clip: str) -> list[dict]:
-    """Word list for a clip, preferring the newest transcription dir."""
-    for sub in ("transcripts-u35", "transcripts"):
-        p = project / "work" / sub / f"{clip}.json"
+    """Read explicitly selected transcripts, then validate every token before editing."""
+    try:
+        from .transcripts import validate_words
+    except ImportError:
+        from transcripts import validate_words
+    selection = project / "work" / "transcript-selection.json"
+    if selection.exists():
+        sub = json.loads(selection.read_text())["directory"]
+        folder = (project / "work" / sub).resolve()
+        if not folder.is_relative_to((project / "work").resolve()):
+            raise ValueError("Transcript selection escapes project work directory")
+        choices = [folder / f"{clip}.json"]
+    else:
+        choices = [project / "work" / sub / f"{clip}.json" for sub in ("transcripts", "transcripts-u35")]
+    for p in choices:
         if p.exists():
-            return json.loads(p.read_text()).get("words") or []
-    return []
+            words = json.loads(p.read_text()).get("words") or []
+            validate_words(words)
+            return words
+    raise FileNotFoundError(f"No transcript for {clip}; run transcribe.py first")
+
 
 
 class AudioProbe:

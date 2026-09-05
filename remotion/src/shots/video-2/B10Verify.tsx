@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react';
 import React from 'react';
 import { useCurrentFrame, AbsoluteFill, interpolate } from 'remotion';
 import { CircleCheck, RefreshCw, ShieldCheck, Crosshair, Mic } from 'lucide-react';
@@ -32,7 +33,7 @@ const SCALE = PAGE.w / GUIDE_W;
 
 // the loops
 type Loop = {
-  key: string; Icon: React.FC<{ size?: number; color?: string; strokeWidth?: number }>;
+  key: string; Icon: LucideIcon;
   label: string; what: string; finding: string;
   cue: number; sweep: [number, number]; findAt: number; greenAt: number; color: string;
 };

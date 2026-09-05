@@ -1,13 +1,13 @@
-"""Transcribe extracted WAVs with AssemblyAI (word-level timestamps, verbatim).
+"""Transcribe extracted WAVs locally with Qwen MLX recognition and alignment.
 
 Usage:
   python tools/transcribe.py video-1                     # all clips
   python tools/transcribe.py video-1 --clips 0233        # specific clip(s)
   python tools/transcribe.py video-1 --outdir transcripts-u35 --force
 
-Uses Universal-3.5 Pro (falls back to universal-2 for unsupported languages).
+Optional AssemblyAI requires --provider assemblyai --allow-cloud after explicit approval.
 Reads:  <project>/work/audio/*.wav
-Writes: <project>/work/<outdir>/<id>.json  (full AssemblyAI response)
+Writes: <project>/work/<outdir>/<id>.json  (normalized words and provider provenance)
 """
 
 import argparse
@@ -86,9 +86,21 @@ def submit(headers: dict, audio_url: str, keyterms: list[str]) -> str:
     return r.json()["id"]
 
 
+def local_cache_key(audio: Path, language, terms, revisions) -> str:
+    from hashlib import sha256
+    digest=sha256()
+    with audio.open('rb') as stream:
+        for chunk in iter(lambda:stream.read(1024*1024),b''):digest.update(chunk)
+    return sha256(json.dumps({'audio':digest.hexdigest(),'language':language,
+        'terms':terms,'models':revisions,'adapter':'qwen-mlx-v1'},sort_keys=True).encode()).hexdigest()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("project")
+    ap.add_argument("--provider", choices=["qwen_mlx", "assemblyai"], default="qwen_mlx")
+    ap.add_argument("--language")
+    ap.add_argument("--allow-cloud", action="store_true", help="Use only after explicit approval of hosted transcription")
     ap.add_argument("--clips", nargs="*", help="clip ids, default all")
     ap.add_argument("--outdir", default="transcripts")
     ap.add_argument("--force", action="store_true", help="re-transcribe even if output exists")
@@ -100,6 +112,40 @@ def main() -> None:
     out_dir = project / "work" / args.outdir
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    if args.provider == "qwen_mlx":
+        import subprocess
+        try:
+            from .runtime.offline import offline_command
+        except ImportError:
+            from runtime.offline import offline_command
+        worker = repo_root / ".envs/audio/bin/python"
+        if not worker.is_file():
+            sys.exit("Local ASR not installed; see docs/setup-macos.md. No cloud fallback.")
+        wavs = [w for w in sorted(audio_dir.glob("*.wav")) if not args.clips or w.stem in args.clips]
+        if not wavs:
+            sys.exit(f"No selected WAV files in {audio_dir}")
+        locks=json.loads((repo_root / 'config/models.lock.json').read_text())['models']
+        revisions={key:locks[key]['revision'] for key in ('asr','aligner')}
+        for wav in wavs:
+            cache_key=local_cache_key(wav,args.language,load_keyterms(project),revisions)
+            output = out_dir / (wav.stem + ".json")
+            if output.exists() and not args.force:
+                old = json.loads(output.read_text())
+                if old.get("cache_key") == cache_key:
+                    print(f"cached: {wav.stem}")
+                    continue
+            cmd = [sys.executable, "-m", "tools.media", "asr", "--audio", str(wav), "--out", str(output),
+                   "--keyterms", str(project / "work/keyterms.txt")]
+            if args.language: cmd += ["--language", args.language]
+            subprocess.run(cmd, cwd=repo_root, check=True, timeout=650)
+            completed=json.loads(output.read_text());completed['cache_key']=cache_key
+            sys.path.insert(0,str(repo_root))
+            from tools.run_state import atomic_json
+            atomic_json(output,completed)
+        (project / "work/transcript-selection.json").write_text(json.dumps({"directory": args.outdir}))
+        return
+    if not args.allow_cloud:
+        sys.exit("AssemblyAI requires explicit approval and --allow-cloud; local ASR is default")
     headers = {"authorization": load_env_key(repo_root, "ASSEMBLYAI_API_KEY")}
 
     keyterms = load_keyterms(project)

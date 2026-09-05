@@ -10,13 +10,16 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+try:
+    from .runtime.encoders import runtime_encoder
+except ImportError:
+    from runtime.encoders import runtime_encoder
 
 
 def encode_part(src: Path, out: Path) -> None:
     subprocess.run(
-        ["ffmpeg", "-y", "-loglevel", "error", "-hwaccel", "cuda", "-i", str(src),
-         "-map", "0:0", "-map", "0:1", "-vf", "scale=1280:-2,format=yuv420p",
-         "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "29", "-b:v", "0",
+        ["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
+         "-map", "0:v:0", "-map", "0:a:0?", *runtime_encoder("preview"),
          "-c:a", "aac", "-b:a", "160k", str(out)],
         check=True,
     )
@@ -39,7 +42,7 @@ def main() -> None:
     by_id = {c["id"]: c for c in data["clips"]}
     parts = [(cid, project / by_id[cid]["file"], out_dir / f"part-{cid}.mp4") for cid in data["clip_order"]]
 
-    with ThreadPoolExecutor(max_workers=2) as pool:
+    with ThreadPoolExecutor(max_workers=1) as pool:
         list(pool.map(lambda p: encode_part(p[1], p[2]), parts))
     print("parts encoded")
 

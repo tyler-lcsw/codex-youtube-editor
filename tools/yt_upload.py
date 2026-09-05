@@ -41,7 +41,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 REPO = Path(__file__).resolve().parent.parent   # core/ — the engine root, holds .youtube/ creds
-ROOT = REPO.parent                               # monorepo root — plan paths (video, description_file) are relative to this
+ROOT = REPO                                      # project-relative paths belong to this repository
 YT_DIR = REPO / ".youtube"
 CLIENT_SECRET = YT_DIR / "client_secret.json"
 TOKEN = YT_DIR / "token.json"

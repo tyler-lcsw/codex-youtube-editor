@@ -1,0 +1,3 @@
+profile = "hybrid"
+image_provider = "codex_builtin"
+# This profile is eligibility, not approval. A bounded approval receipt is required.

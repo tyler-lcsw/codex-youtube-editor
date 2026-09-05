@@ -53,7 +53,7 @@ full-screen animated backgrounds.
 | **Code / mono** | **JetBrains Mono** | 400 / 500 / 700 | terminal mockups, code, prompts, file paths, tech labels |
 | **Claude wordmark serif** | **Source Serif 4** (`FONT_EDITORIAL`) | 600 | "Claude …" wordmark clones (Claude Editor, Claude Code) — the Copernicus stand-in |
 
-All load from `@remotion/google-fonts` (see `remotion/src/fonts.ts`) — nothing to install.
+Fonts are bundled in `media/library/fonts` with OFL licenses and source hashes. `remotion/src/fonts.ts` loads them locally; keep both files aligned when changing typography.
 Headlines tight tracking; body normal; mono for anything literally code/terminal/paths.
 **Wordmark rule (video-5 creator feedback):** Claude wordmarks use Source Serif 4 at 600 — Spectral
 (`FONT_SERIF`) reads too thin/bookish next to the real Copernicus and is retired for wordmarks.

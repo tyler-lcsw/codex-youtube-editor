@@ -55,3 +55,12 @@ media/library/faces/*.webp
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local migration/test/model artifacts
+work/
+.pytest_cache/
+.envs/
+models/
+media/projects/
+
+media/generated/

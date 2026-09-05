@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react';
 // video-2 shared kit — the five factory blocks (no compositionConfig: not a shot).
 // The block row is the video's skeleton: it debuts in B3FiveBlocks and returns as a
 // progress spine in later beats (recon/lab/hands/brain), so the meta lives here once.
@@ -13,7 +14,7 @@ export type FactoryBlock = {
   name: string;
   sub: string; // what the narration names it as (revealed on its own cue)
   color: string;
-  Icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
+  Icon: LucideIcon;
 };
 
 export const BLOCKS: readonly FactoryBlock[] = [

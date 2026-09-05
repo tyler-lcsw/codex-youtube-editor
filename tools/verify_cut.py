@@ -78,7 +78,9 @@ def main() -> None:
 
     # intended tokens = raw-transcript words inside active keeps, in clip order
     intended, keep_of = [], []  # keep_of[i] = (clip id, keep index) for interior-gap mapping
-    for c in data["clips"]:
+    by_id = {c["id"]: c for c in data["clips"]}
+    for cid in data["clip_order"]:
+        c = by_id[cid]
         words = load_words(project, c["id"])
         for ki, k in enumerate(active_keeps(c)):
             for w in words:
@@ -86,8 +88,11 @@ def main() -> None:
                     intended.append(w)
                     keep_of.append((c["id"], ki))
 
-    rendered = json.loads((project / "work" / "transcripts" / f"{args.rendered}.json")
-                          .read_text(encoding="utf-8"))["words"]
+    rendered_document = json.loads((project / "work" / "transcripts" / f"{args.rendered}.json")
+                          .read_text(encoding="utf-8"))
+    rendered = rendered_document["words"]
+    from transcripts import validate_words
+    validate_words(rendered)
 
     a_words, a_idx = flatten(intended)
     b_words, b_idx = flatten(rendered)
@@ -140,75 +145,47 @@ def main() -> None:
         for t, g, x, y in gaps:
             L.append(f"  - {clock(t)} ({t:.2f}s) · {g:.2f}s · …{x} ⟂ {y}…")
 
-    # A/V drift: audio time of each keep's first matched rendered word vs the plan's
-    # video time for that word. Budget = per-segment video frame rounding (~20ms/seg).
-    drift_rows, drift_flags = [], 0
+    # Render-derived expected timing versus fresh recognition; ASR variance is a review
+    # finding, not proof of physical lip sync. Independent media landmarks remain needed.
+    from media_qa import confidence_findings, transcript_drift, require_render_binding
+    drift_flags = 0
+    drift_unchecked = True
     if args.style:
-        style = data["styles"][args.style]
-        probe = AudioProbe(project)
-        seg_plan = []  # (clip_id, raw_start, raw_end, cum_video_start, seg_index)
-        cum = 0.0
-        for c in data["clips"]:
-            words = load_words(project, c["id"])
-            for si, (s, e) in enumerate(plan_clip(c["id"], active_keeps(c), words, style, probe,
-                                                   c.get("cuts"))):
-                seg_plan.append((c["id"], s, e, cum, len(seg_plan)))
-                cum += e - s
-
-        # MUST match on clip too: raw times restart at 0 in every clip, so a bare time
-        # lookup returns the first coincidentally-overlapping segment (nearly always from
-        # clip #1) and reports nonsense offsets on any multi-clip project.
-        def plan_video_time(clip_id: str, raw_t: float):
-            for cid_, s, e, cv, si in seg_plan:
-                if cid_ == clip_id and s - 0.05 <= raw_t <= e + 0.05:
-                    return cv + (raw_t - s), si
-            return None, None
-
-        seen_keeps = set()
-        for j, w in enumerate(rendered):
-            k = render_keep[j]
-            if k is None or k in seen_keeps:
-                continue
-            seen_keeps.add(k)
-            raw_w = None
-            for i, kk in enumerate(keep_of):
-                if kk == k:
-                    raw_w = intended[i]
-                    break
-            if raw_w is None:
-                continue
-            vt, si = plan_video_time(k[0], raw_w["start"] / 1000)
-            if vt is None:
-                continue
-            at = w["start"] / 1000
-            budget = (si + 1) * 0.020 + 0.08
-            over = abs(at - vt) > budget
-            if over:
-                drift_flags += 1
-            drift_rows.append((at, at - vt, budget, w["text"], over))
-        if drift_flags:
-            L.append(f"- **A/V DRIFT — {drift_flags} keep(s) beyond the rounding budget** "
-                     f"(audio and video timelines are separating; check the renderer):")
+        mapping_path = project / 'work/edited-transcript.json'
+        manifest_path = project / 'work/render-manifest.json'
+        if mapping_path.exists() and manifest_path.exists():
+            mapping=json.loads(mapping_path.read_text());manifest=json.loads(manifest_path.read_text())
+            import hashlib
+            master=Path(manifest['master'])
+            digest=hashlib.sha256()
+            with master.open('rb') as stream:
+                for chunk in iter(lambda:stream.read(1024*1024),b''):digest.update(chunk)
+            if mapping.get('master_sha256') != digest.hexdigest() or manifest.get('master_sha256') != digest.hexdigest():
+                raise ValueError('Render mapping is stale; render again before verification')
+            require_render_binding(rendered_document,digest.hexdigest())
+            timing=transcript_drift(mapping['words'],rendered)
+            drift_flags=timing['flags'];drift_unchecked=not timing['matched']
+            L.append(f"- Render-derived word timing: {timing['matched']} matches, {drift_flags} beyond fixed 40 ms. Listen to flagged joins; ASR timing is not a physical A/V landmark.")
+            for row in timing['rows']:
+                if row['flag']:L.append(f"  - {clock(row['start_ms']/1000)}: {row['text']} offset {row['drift_ms']} ms")
         else:
-            L.append(f"- A/V drift check: OK ({len(drift_rows)} keeps within the frame-rounding budget). Worst offsets:")
-        for at, d, budget, txt, over in sorted(drift_rows, key=lambda r: -abs(r[1]))[: 6 if not drift_flags else 32]:
-            mark = ' <<<' if over else ''
-            L.append(f"  - {clock(at)} · audio-vs-plan {d:+.3f}s (budget ±{budget:.2f}s) · \"{txt}\"{mark}")
-
-    lowconf = [(w["start"] / 1000, w["text"], w.get("confidence", 1.0))
-               for w in rendered if w.get("confidence", 1.0) < 0.70]
+            L.append('- Timing NOT CHECKED: render manifest or mapped transcript missing.')
+    low_words, unknown = confidence_findings(rendered)
+    lowconf=[(w['start']/1000,w['text'],w['confidence']) for w in low_words]
     if lowconf:
-        L.append(f"- **{len(lowconf)} low-confidence rendered tokens** (< 0.70 — unclear audio in the deliverable):")
-        for t, txt, cf in lowconf:
-            L.append(f"  - {clock(t)} ({t:.2f}s) · conf {cf:.2f} · \"{txt}\"")
+        L.append(f'- {len(lowconf)} low-confidence tokens require listening review.')
+    if unknown:
+        L.append(f'- {len(unknown)} tokens have unknown ASR confidence; this provider does not supply calibrated scores. Do not interpret this as certain speech.')
+    if drift_unchecked:L.append('- Independent A/V sync is not established by this report; inspect measured audiovisual landmarks.')
 
     header = [f"Extra: {len(inserted)} · missing: {len(missing)} · heard differently: {len(replaced)} · "
               f"big interior pauses: {len(gaps)} · low-confidence: {len(lowconf)}"
               + (f" · A/V drift flags: {drift_flags}" if args.style else " · A/V drift: not checked (pass --style)"), ""]
-    if not (inserted or missing or replaced or gaps or lowconf or drift_flags):
+    if not (inserted or missing or replaced or gaps or lowconf or unknown or drift_flags or drift_unchecked):
         L.append("Clean — the render matches the intended cut word-for-word, no anomalies.")
 
     out = project / "work" / "analysis" / "verify-report.md"
+    out.parent.mkdir(parents=True,exist_ok=True)
     out.write_text("\n".join(L[:2] + header + L[2:]), encoding="utf-8")
     print("\n".join(header))
     print(f"wrote {out}")

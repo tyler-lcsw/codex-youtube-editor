@@ -59,7 +59,7 @@ def low_confidence(keeps: list, words: list, thr: float = 0.70) -> list:
     for k in keeps:
         for w in words:
             s, e = w["start"] / 1000, w["end"] / 1000
-            if k["s"] - 0.02 <= s and e <= k["e"] + 0.02 and w.get("confidence", 1.0) < thr:
+            if k["s"] - 0.02 <= s and e <= k["e"] + 0.02 and isinstance(w.get("confidence"), (int,float)) and w["confidence"] < thr:
                 out.append((s, w["text"], w.get("confidence", 1.0)))
     return out
 
