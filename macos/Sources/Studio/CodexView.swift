@@ -73,7 +73,6 @@ struct CodexView:View {
                 }.padding(12)
             }
         }.padding(24)}
-        .onChange(of:client.running) {old,new in if old && !new && !w.project.isEmpty {w.perform {try await w.refresh()}}}
     }
     func connect() {connecting=true;Task {defer{connecting=false};do {try await client.connect(binary:w.codexBinary)}catch{w.error=error.localizedDescription}}}
     func respond(_ q:CodexQuestion,_ allow:Bool) {do {try client.answer(q,allow:allow)}catch{w.error=error.localizedDescription}}

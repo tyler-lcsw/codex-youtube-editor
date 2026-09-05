@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import AppKit
 import UniformTypeIdentifiers
 import StudioCore
@@ -18,6 +19,8 @@ import StudioCore
     @Published var section="Brief & sources"
     let codex=CodexClient()
     private let selection=ProjectSelection()
+    private var codexObserver:AnyCancellable?
+    private var refreshPending=false
     var bridge:EngineBridge {EngineBridge(root:engine,python:python)}
     var assets:[[String:Any]] {data["assets"] as? [[String:Any]] ?? []}
     var revisions:[[String:Any]] {data["revisions"] as? [[String:Any]] ?? []}
@@ -32,11 +35,23 @@ import StudioCore
         python=argument("--python") ?? defaults.string(forKey:"python") ?? (root+"/.venv/bin/python")
         codexBinary=defaults.string(forKey:"codexBinary") ?? "/Applications/ChatGPT.app/Contents/Resources/codex"
         project=argument("--project") ?? defaults.string(forKey:"project") ?? ""
+        codexObserver=codex.$running.removeDuplicates().dropFirst().sink { [weak self] running in
+            if !running {Task { @MainActor [weak self] in self?.requestRefresh()}}
+        }
     }
     func persist() {let d=UserDefaults.standard;d.set(engine,forKey:"engine");d.set(python,forKey:"python");d.set(codexBinary,forKey:"codexBinary");d.set(project,forKey:"project")}
     func perform(_ body:@escaping () async throws -> Void) {
         guard !busy else {return};busy=true;error=nil
-        Task {do {try await body();persist()}catch{self.error=error.localizedDescription};busy=false}
+        Task {
+            do {try await body();persist()}catch{self.error=error.localizedDescription}
+            busy=false
+            if refreshPending {refreshPending=false;requestRefresh()}
+        }
+    }
+    func requestRefresh() {
+        guard !project.isEmpty else{return}
+        if busy {refreshPending=true;return}
+        perform {try await self.refresh()}
     }
     func request(_ method:String,_ params:[String:Any]=[:]) async throws {
         // Invalidate visible assessments before any potentially state-changing request.
