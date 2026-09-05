@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "stages": [
+    {"id":"intake","label":"Intake","requires":[]},
+    {"id":"source_understanding","label":"Source understanding","requires":["intake"]},
+    {"id":"editorial_strategy","label":"Editorial strategy","requires":["source_understanding"]},
+    {"id":"edit","label":"Edit","requires":["editorial_strategy"]},
+    {"id":"final_review","label":"Final review","requires":["edit"]}
+  ],
+  "routes": {
+    "editorial":["codex-astra","codex-sol","local-pair"],
+    "transcription":["local-qwen"],
+    "cleanup":["local-deepfilternet"],
+    "images":["local-klein","native-codex"],
+    "rendering":["local-ffmpeg","local-remotion"]
+  }
+}
