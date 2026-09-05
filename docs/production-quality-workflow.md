@@ -66,3 +66,12 @@ Every byte change to the authoritative rules file invalidates old reviews and re
 Use `production_quality status PROJECT` to inspect all gates; use `gate` for a nonzero exit when a phase fails. Persisted tracker labels are historical metadata: consumers deciding whether a production is currently complete must call `require_complete(project)`, which revalidates the policy and evidence.
 
 Software verifies coverage, dispositions, hashes, and action state. The responsible AI/reviewer must establish the truth and adequacy of the evidence. This is not an operating-system sandbox against arbitrary commands or dishonest attestations. Existing productions are not automatically certified under these rules; the generated Lighthouse exercise does not qualify editing authentic user footage.
+
+## Native Studio projects
+
+If `work/studio/project.json` exists, media actions also enforce the current editable
+Studio workflow prerequisites. `run` defaults to `--stage edit`; earlier preparation
+uses an explicit appropriate `--stage intake` or `--stage source_understanding`.
+Do not classify substantive cuts as intake to bypass source/strategy review. Final
+receipts also bind Studio inputs and prerequisite evidence; changed briefs, sources,
+workflow or feedback invalidate completion in both the app and CLI tracker.

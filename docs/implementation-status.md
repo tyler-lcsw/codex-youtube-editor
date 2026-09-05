@@ -48,3 +48,30 @@ all production skills require this workflow; tracker completion/ready writes req
 current receipt. See `docs/production-quality-workflow.md` for operation and enforcement
 boundaries. Existing outputs have not been retroactively certified. Full playback and
 listening, and authentic supplied-footage qualification, remain distinct requirements.
+
+## Native Mac production studio — implementation pending interactive acceptance
+
+Approved native application plan: `../plan/Mac Production Studio — Implementation Plan.html`.
+The app integrates intake/brief/resources, editable source-understanding workflow, native
+AVKit playback, provenance-bound frame/rectangle/range feedback, revision-specific
+resolution history, provider preferences, file-based handoff, and integrated Codex
+app-server with managed ChatGPT subscription authentication. No API-key route exists.
+
+Independent reviews corrected prerequisite-review revival, unrelated frame acceptance,
+invalid resolution IDs, failed project selection, Codex dispatch/completion ordering,
+stale brief reload, changed-file playback and shared annotation draft state. Media actions
+now enforce Studio workflow prerequisites; completion receipts bind Studio inputs and
+pre-final evidence so app and CLI cannot accept stale project context.
+
+Current verification: **142 Python tests passed, one publication test deselected; 12 native
+checks passed; skill audit passed; release .app built and ad-hoc signed.** Real native-client
+account read identified ChatGPT Pro and bounded Astra/Sol subscription responses passed.
+No API use, token copying, hosted media generation, remote-node setup or publication.
+
+The development app launched successfully, but native visual/playback/interaction
+acceptance is **pending**: the computer-use tool reported M4 locked and unable to unlock.
+The user was asked to unlock M4. Do not substitute the automated results for interactive
+acceptance or merge the app as qualified until that gate is completed. A synthetic
+Interface Demo production under `~/Movies/Codex Studio` is prepared for this UI check.
+It is not authentic-footage editorial qualification. Native image/plugin parity remains
+a capability-specific verification and scoped-approval boundary. See `mac-studio.md`.
