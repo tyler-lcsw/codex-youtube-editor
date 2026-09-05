@@ -39,7 +39,7 @@ render_state = {"running": False, "log": "", "ok": None}
 def run_render(style: str) -> None:
     render_state.update(running=True, log=f"rendering {style} preview...\n", ok=None)
     proc = subprocess.Popen(
-        [sys.executable, str(ROOT / "tools" / "render_cuts.py"), PROJECT.name,
+        [sys.executable, str(ROOT / "tools" / "render_cuts.py"), str(PROJECT.resolve()),
          "--style", style, "--mode", "preview"],
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, cwd=str(ROOT),
     )

@@ -4,7 +4,7 @@ Usage:
   python tools/render_cuts.py video-1 --style tight --mode preview
   python tools/render_cuts.py video-1 --style tight --mode final
 
-preview: 720p h264_nvenc, fast.  final: 4K60 10-bit hevc_nvenc, high quality.
+preview: 720p H.264. Final: source-size HEVC. Native Mac or CPU encoder.
 
 Segments come from cutlib.plan_clip: keeps are split into speech runs at pauses
 >= internal_gap, each run's tail is snapped to the audio floor (words finish
@@ -26,6 +26,11 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from fractions import Fraction
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from tools.jobs import file_hash, job_key
+from tools.run_state import atomic_json
+from tools.time_map import remap_word
 
 try:
     from .cutlib import AudioProbe, active_keeps, load_words, plan_clip
@@ -77,7 +82,7 @@ def video_duration(path: Path) -> float:
 def render_audio_segment(src: Path, start: float, dur: float, out: Path) -> None:
     """Raw audio cut to a SAMPLE-EXACT length matching the segment's video."""
     n = round(dur * SR)
-    fades = (f"atrim=end_sample={n},"
+    fades = (f"aresample={SR},apad,atrim=end_sample={n},"
              f"afade=t=in:d=0.01,afade=t=out:st={max(n / SR - 0.01, 0):.4f}:d=0.01")
     cmd = ["ffmpeg", "-y", "-loglevel", "error",
            "-ss", f"{start:.3f}", "-t", f"{dur + 0.2:.3f}", "-i", str(src),
@@ -101,12 +106,16 @@ def main() -> None:
     probe = AudioProbe(project)
 
     jobs = []  # (source file, (start, end))
+    clip_ids = []
+    source_words = {}
     by_id = {c["id"]: c for c in data["clips"]}
     for cid in data["clip_order"]:
         clip = by_id[cid]
         words = load_words(project, cid)
+        source_words[cid] = [{**w, "clip_id": cid, "id": w.get("id", f"{cid}:{i}")} for i,w in enumerate(words)]
         for seg in plan_clip(cid, active_keeps(clip), words, style, probe, clip.get("cuts")):
             jobs.append((project / clip["file"], seg))
+            clip_ids.append(cid)
 
     if not jobs:
         raise SystemExit("No active segments to render")
@@ -115,7 +124,8 @@ def main() -> None:
     total = sum(e - s for _, (s, e) in jobs)
     print(f"{args.style}/{args.mode}: {len(jobs)} segments, output ~ {total / 60:.1f} min")
 
-    seg_dir = project / "work" / "render" / f"{args.style}-{args.mode}"
+    render_key = job_key({"cuts": data, "words": source_words, "sources": {str(src): file_hash(src) for src in set(src for src,_ in jobs)}, "encoder": enc}, "render-v3")
+    seg_dir = project / "work" / "render" / f"{args.style}-{args.mode}-{render_key[:16]}"
     seg_dir.mkdir(parents=True, exist_ok=True)
     outs = [seg_dir / f"seg_{i:03d}.mp4" for i in range(len(jobs))]
 
@@ -180,11 +190,31 @@ def main() -> None:
     out_name = f"{'preview' if args.mode == 'preview' else 'master'}-{args.style}.mp4"
     out_path = project / "output" / out_name
     out_path.parent.mkdir(parents=True, exist_ok=True)  # first render of a fresh project
+    staged_output = seg_dir / out_name
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error",
                     "-i", str(video_concat), "-i", str(audio_concat),
                     "-map", "0:v", "-map", "1:a", "-c:v", "copy",
                     "-c:a", "aac", "-b:a", AUDIO_BITRATE[args.mode],
-                    str(out_path)], check=True)
+                    str(staged_output)], check=True)
+    if not is_finalized(staged_output):
+        raise RuntimeError("Final mux failed validation; previous output preserved")
+    staged_output.replace(out_path)
+    segments=[]; output_sample=0; output_frame=0
+    for cid, (src, (start, end)), part in zip(clip_ids, jobs, outs):
+        raw = subprocess.check_output(["ffprobe","-v","error","-select_streams","v:0","-show_entries","stream=nb_frames,avg_frame_rate","-of","json",str(part)])
+        st=json.loads(raw)["streams"][0]; fps=Fraction(st["avg_frame_rate"]); frames=int(st["nb_frames"])
+        samples=round(Fraction(frames*SR,1)/fps)
+        segments.append({"clip_id":cid,"source":str(src),"source_in_sample":round(start*SR),
+            "source_out_sample":round(start*SR)+samples,"source_sample_rate":SR,"output_sample_rate":SR,
+            "output_in_sample":output_sample,"output_out_sample":output_sample+samples,
+            "output_in_frame":output_frame,"output_out_frame":output_frame+frames,
+            "fps_num":fps.numerator,"fps_den":fps.denominator,"artifact":str(part),"sha256":file_hash(part)})
+        output_sample+=samples;output_frame+=frames
+    manifest={"schema_version":1,"render_key":render_key,"master":str(out_path),"master_sha256":file_hash(out_path),"segments":segments}
+    atomic_json(project/"work/render-manifest.json",manifest)
+    mapped=[w for words in source_words.values() for source in words for w in remap_word(source,segments)]
+    mapped.sort(key=lambda w:(w["start"],w["end"]))
+    atomic_json(project/"work/edited-transcript.json",{"schema_version":1,"words":mapped,"master_sha256":manifest["master_sha256"]})
     print(f"wrote {out_path}")
 
 

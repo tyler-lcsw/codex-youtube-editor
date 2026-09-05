@@ -3,6 +3,16 @@ name: thumbnail
 description: Dedicated YouTube thumbnail generator — interviews you for exactly the style elements you want (environment, text budget, extras, accent color), then renders high-contrast, vibrant, face-consistent thumbnails with an explicitly selected image provider and verifies every frame before showing it. Use whenever you want to create, redo, or iterate thumbnail variants for a video — "make a thumbnail", "new version of B", "more realistic", "less text", "put the app on the screen", "another angle for the test". Renders into videos/<project>$packaging/thumbs/. Works standalone or as the render engine for Stage 5 of $packaging (which owns titles, bets, and descriptions).
 ---
 
+## Current M4 provider workflow
+
+Read `AGENTS.md`, `docs/providers.md` and `docs/setup-macos.md`. Use the creative brief and composition guidance below while selecting an implemented provider explicitly.
+
+- Local generation/reference editing: `.venv/bin/python -m tools.media image --prompt-file P/prompt.txt --out P/media/image.png [--ref P/reference-copy.png]`. The qualified profile is at most 768×512 pixels (or equal-area portrait dimensions), one reference, with true native resolution recorded. Do not label an upscale as native generation or silently downsize a requested reference. Use deterministic typography/compositing for the final packaging canvas.
+- Bounded hybrid: prepare with `.venv/bin/python -m tools.codex_image_handoff prepare P --prompt-file P/prompt.txt --purpose thumbnail [--ref PATH]`. Obtain scoped user approval, reserve with `claim`, invoke the native Codex image tool, and `import` its returned local artifact. Never substitute a separate image API; record the tool's reported model or unknown.
+- Preserve the one locked title × three genuinely different thumbnail bets workflow. Inspect spelling, requested resemblance, composition and small-preview legibility. A native call or personal likeness review is not required to close the synthetic first-release setup.
+- Historical Gemini commands below are compatibility references. They require deliberate hosted selection and `--allow-cloud`; the absence of local capability does not authorize them. Large integrated image/identity workflows may be deferred under the first-release resource policy.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 
@@ -97,7 +107,7 @@ logos or lettering on the hardware" — otherwise you get a MacBook.
   passing a logo or app screenshot, re-include the face ref explicitly, and name each
   image's role in the prompt ("Image 1 = identity, Image 2 = the app").
 - `real-app-screen` source: pull a frame from the project's baked preview with ffmpeg, crop
-  to the window, save to `media/projects/<p>/` (reusable, committed path) — never screenshot
+  to the window, save to `media/projects/<p>/` (reusable local path, ignored by Git) — never screenshot
   by hand if the beat already exists in the video.
 
 ### 6 — Verify (every render, before the user sees it)

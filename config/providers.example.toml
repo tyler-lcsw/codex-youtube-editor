@@ -1,0 +1,3 @@
+profile = "local"
+# Model setup is explicit. No credential or download fallback.
+max_heavy_jobs = 1

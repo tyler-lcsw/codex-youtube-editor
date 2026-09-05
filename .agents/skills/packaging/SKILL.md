@@ -3,6 +3,16 @@ name: packaging
 description: Generates click-optimized YouTube packaging — 3 thumbnail bets under one fixed title, engineered for YouTube's built-in A/B/C thumbnail test, plus a value-forward description, then renders the thumbnails as real images. Use this whenever you want to package a long-form video or turn a video idea into titles and thumbnails. Triggers include how would you package this, title ideas for, thumbnail concept, package this video, A/B variations, and make this clickable. Calibrates to your channel's own CTR data if you have it. Long-form only, never Shorts. Not for non-YouTube copywriting.
 ---
 
+## Current M4 provider workflow
+
+Read `AGENTS.md`, `docs/providers.md` and `docs/setup-macos.md`. Use the creative brief and composition guidance below while selecting an implemented provider explicitly.
+
+- Local generation/reference editing: `.venv/bin/python -m tools.media image --prompt-file P/prompt.txt --out P/media/image.png [--ref P/reference-copy.png]`. The qualified profile is at most 768×512 pixels (or equal-area portrait dimensions), one reference, with true native resolution recorded. Do not label an upscale as native generation or silently downsize a requested reference. Use deterministic typography/compositing for the final packaging canvas.
+- Bounded hybrid: prepare with `.venv/bin/python -m tools.codex_image_handoff prepare P --prompt-file P/prompt.txt --purpose thumbnail [--ref PATH]`. Obtain scoped user approval, reserve with `claim`, invoke the native Codex image tool, and `import` its returned local artifact. Never substitute a separate image API; record the tool's reported model or unknown.
+- Preserve the one locked title × three genuinely different thumbnail bets workflow. Inspect spelling, requested resemblance, composition and small-preview legibility. A native call or personal likeness review is not required to close the synthetic first-release setup.
+- Historical Gemini commands below are compatibility references. They require deliberate hosted selection and `--allow-cloud`; the absence of local capability does not authorize them. Large integrated image/identity workflows may be deferred under the first-release resource policy.
+
+
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
 
 

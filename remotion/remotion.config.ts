@@ -6,4 +6,4 @@ Config.setPublicDir('../media');
 
 Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
-Config.setConcurrency(null); // auto
+Config.setConcurrency(1); // M4 shares 24 GiB with inference; opt in to more per render

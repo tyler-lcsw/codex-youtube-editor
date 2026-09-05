@@ -227,6 +227,10 @@ async function reencode(file, ffmpegBin) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args["help"]) { console.log("Hosted media tool: see source usage; generation requires --allow-cloud and explicit inputs."); return; }
+  if (!args["allow-cloud"] && !args["list-models"]) {
+    throw new Error("Hosted generation requires explicit --allow-cloud approval. Use python -m tools.media for qualified local providers.");
+  }
 
   if (args["list-models"]) {
     for (const [alias, m] of Object.entries(MODELS)) {

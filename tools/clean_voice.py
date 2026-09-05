@@ -6,14 +6,15 @@ Cleans the voice on a video's audio, gain-matches the result back to the source'
 ("denoise only, levels preserved"), and remuxes with the video stream COPIED (fast,
 non-destructive, keeps 4K60). Original file is never modified.
 
-Methods (A/B proven on video-1, which was shot outdoors with running water):
-  --method eleven   ElevenLabs Voice Isolator (default). Removes DYNAMIC broadband noise like
+Methods (upstream quality observations are not M4 qualification):
+  --method deepfilter  Local pinned DeepFilterNet3 (default).
+  --method eleven   ElevenLabs Voice Isolator (requires --allow-cloud). Removes DYNAMIC broadband noise like
                     water near-completely. ~1000 credits/min (~$1 for a 5.5-min video).
   --method rnnoise  Local RNNoise (ffmpeg arnndn, model via --model, default sh). Free/offline,
                     but only PARTIALLY removes water (spectral/RNN tools can't separate it).
 
 Usage:
-  python tools/clean_voice.py videos/video-1/reference/master.mp4                  # eleven
+  python tools/clean_voice.py videos/video-1/reference/master.mp4                  # local DeepFilterNet
   python tools/clean_voice.py videos/video-1/reference/master.mp4 --method rnnoise --model sh
   python tools/clean_voice.py IN.mp4 -o OUT.mp4 [--no-preserve-loudness] [--keep]
 
@@ -24,6 +25,8 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
+from pathlib import Path
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ISO_URL = "https://api.elevenlabs.io/v1/audio-isolation"
@@ -65,23 +68,28 @@ def main():
     args = sys.argv[1:]
     keep = "--keep" in args
     preserve = "--no-preserve-loudness" not in args
-    method = arg(args, "--method", "eleven")
+    method = arg(args, "--method", "deepfilter")
+    if method == "eleven" and "--allow-cloud" not in args:
+        sys.exit("ElevenLabs requires explicit --allow-cloud approval; local cleanup is available separately.")
     model = arg(args, "--model", "sh")
     out = arg(args, "-o")
-    skip = {out, method, model, arg(args, "--method"), arg(args, "--model")}
-    pos = [a for a in args if not a.startswith("-") and a not in skip]
-    if not pos or method not in ("eleven", "rnnoise"):
-        sys.exit("usage: clean_voice.py IN.mp4 [-o OUT.mp4] [--method eleven|rnnoise] [--model sh] "
+    value_indices = {i + 1 for i, value in enumerate(args) if value in ("-o", "--method", "--model")}
+    pos = [a for i, a in enumerate(args) if not a.startswith("-") and i not in value_indices]
+    if not pos or method not in ("eleven", "rnnoise", "deepfilter"):
+        sys.exit("usage: clean_voice.py IN.mp4 [-o OUT.mp4] [--method deepfilter|eleven|rnnoise] [--allow-cloud] [--model sh] "
                  "[--no-preserve-loudness] [--keep]")
     src = pos[0] if os.path.isabs(pos[0]) else os.path.join(ROOT, pos[0])
     if not out:
         base, ext = os.path.splitext(src)
-        suffix = "-clean" if method == "eleven" else f"-clean-{model}"
+        suffix = "-clean" if method == "eleven" else f"-clean-{model if method == 'rnnoise' else method}"
         out = base + suffix + ext
     out = out if os.path.isabs(out) else os.path.join(ROOT, out)
 
-    work = os.path.join(os.path.dirname(out), "_clean_tmp")
-    os.makedirs(work, exist_ok=True)
+    if Path(src).resolve() == Path(out).resolve():
+        sys.exit("Cleanup output must differ from the original")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    work = tempfile.mkdtemp(prefix="_clean_", dir=os.path.dirname(out))
+    staged = os.path.join(work, "completed" + Path(out).suffix)
     audio_in = os.path.join(work, "audio_in.wav")
 
     print(f"src: {os.path.relpath(src, ROOT)}   method: {method}" + (f" ({model})" if method == "rnnoise" else ""))
@@ -109,6 +117,10 @@ def main():
             body = open(iso, "rb").read()[:500].decode("utf-8", "ignore") if size else ""
             sys.exit(f"isolation failed (http {http}, {size} bytes): {body}")
         print(f"  isolated -> {size/1e6:.1f} MB, http {http}")
+    elif method == "deepfilter":
+        iso = os.path.join(work, "isolated.wav")
+        run([sys.executable, "-m", "tools.media", "denoise", "--audio", audio_in, "--out", iso],
+            cwd=ROOT, timeout=650)
     else:  # rnnoise (local): high-pass sub-90Hz rumble + RNNoise suppression
         mpath = os.path.join(ROOT, "tools", "models", "rnnoise", f"{model}.rnnn")
         if not os.path.exists(mpath):
@@ -139,9 +151,12 @@ def main():
     run(["ffmpeg", "-y", "-hide_banner", "-i", src, "-i", iso,
          "-filter_complex", f"[1:a]volume={gain:.2f}dB,apad[a]",
          "-map", "0:v:0", "-map", "[a]", "-shortest",
-         "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
+         "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", staged])
 
-    od = probe_dur(out)
+    od = probe_dur(staged)
+    if abs(od - dur) > 0.15:
+        sys.exit(f"Cleanup duration drift {od-dur:+.2f}s; previous output preserved, inspect {work}")
+    os.replace(staged, out)
     print(f"\ndone -> {os.path.relpath(out, ROOT)}  ({od:.1f}s, video copied, voice cleaned)")
     if abs(od - dur) > 0.15:
         print(f"  WARNING: duration drift {od-dur:+.2f}s vs source")

@@ -244,4 +244,9 @@ def main():
 
 
 if __name__ == "__main__":
+    if any(x in sys.argv for x in ('--help','-h')):
+        print(__doc__);sys.exit(0)
+    if '--allow-cloud' not in sys.argv and not any(x in sys.argv for x in ('--dry-run',)):
+        sys.exit('Hosted generation requires explicit --allow-cloud approval. Use python -m tools.media for qualified local providers.')
+    if '--allow-cloud' in sys.argv:sys.argv.remove('--allow-cloud')
     main()

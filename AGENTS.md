@@ -31,6 +31,8 @@ Project state and originals are durable. Preserve existing successful outputs on
 Personal footage, reference voices/faces, tokens and generated per-project assets are ignored
 by Git. Do not reuse the upstream author's private voice ID or likeness as defaults.
 Never publish or upload without explicit approval of the actual artifact/channel.
+Tyler explicitly waived publication testing; preserve the functionality and do not run
+publication tests or test uploads during this migration.
 
 ## Editing and review
 
@@ -48,3 +50,12 @@ focused TDD and coherent commits. Work on a dedicated branch. Update status and 
 actual evidence; a passing mocked adapter is not a completed local capability or release.
 No BMAD initialization. Keep upstream changes reviewable, preserve legacy formats and
 unknown fields, and do not enable new hosted dependencies during upstream merges.
+
+## Revised first release
+
+Follow `plan/M4 First Release — Runtime and Memory Decision.md` over conflicting original
+full-parity gates. The example video is not a completion benchmark. Qualify only comfortably
+fitting single-M4 models; target 12 GiB active inference, reserve 8 GiB for OS/apps and
+4 GiB contingency, and measure actual pressure/context. Future PAIR nodes do not pool RAM.
+Preserve larger-provider interfaces but defer their qualification; do not download large
+models to satisfy the superseded visual/quality bar. Test PAIR locally; no remote setup.

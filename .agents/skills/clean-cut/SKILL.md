@@ -28,7 +28,7 @@ Let `P` = the project (e.g. `video-1`). Clip **id** = a short handle (`0233`); e
    ElevenLabs
    Cloudflare
    ```
-3. **Transcribe** (needs `ASSEMBLYAI_API_KEY` in `.env`; verbatim, keeps fillers; auto-loads `work/keyterms.txt`):
+3. **Transcribe** (local Qwen MLX recognition/alignment; inspect fillers and timing uncertainty; auto-loads `work/keyterms.txt`):
    `python tools/transcribe.py P` → `P/work/transcripts/<id>.json`. `--clips 0233` for one, `--force` to redo. It prints how many keyterms it loaded — a "none" line means you haven't drafted them.
 4. **Readable take view** for analysis: `python tools/format_transcript.py P` → `P/work/analysis/takes-<id>.txt` (segments on >0.8s gaps, fillers tagged inline with timestamps).
 5. **Author `cuts.json`** (see schema below) by reading `takes-*.txt`: mark every span as a keep or a categorized cut, add fluff suggestions and judgment-call flags.
@@ -36,7 +36,7 @@ Let `P` = the project (e.g. `video-1`). Clip **id** = a short handle (`0233`); e
    `python tools/analyze_cut.py P [--style tight]` → `qa-report.md` (internal dead-air, clipped-tail risks, tiny fragments, fluff, hard entries at cut joins, **ghost speech** = untranscribed energy riding inside a keep, low-confidence kept tokens). Ghost/hard-entry checks exist because a transcript diff CANNOT see a mistimed token (clipped word onset) or an untranscribed false start ("and it—") that survives the cut — only energy-vs-token cross-checks catch them (a careful listen caught both before these checks existed).
    `python tools/make_review.py P` → `review.md` (per-clip keep/cut table + estimated length per style).
 7. **Editor proxy** (once): `python tools/make_proxy.py P` → `P/work/editor/{proxy.mp4, waveform.png, manifest.json}` (720p concat of raw clips + per-clip offsets).
-8. **Previews** (render BOTH, user picks): `python tools/render_cuts.py P --style tight --mode preview` and `--style natural` → `P/output/preview-<style>.mp4` (720p h264_nvenc).
+8. **Previews** (render BOTH, user picks): `python tools/render_cuts.py P --style tight --mode preview` and `--style natural` → `P/output/preview-<style>.mp4` (720p H.264 with VideoToolbox or CPU).
 8.5. **Machine verification of the render (MANDATORY after every preview render, before
    showing the user).** Extract the preview's WAV → `transcribe.py P --clips preview
    --force` → `python tools/verify_cut.py P` → `verify-report.md`. A second ASR pass
@@ -49,10 +49,10 @@ Let `P` = the project (e.g. `video-1`). Clip **id** = a short handle (`0233`); e
    both, now these tools do. Treat every finding as "listen here": explain each one or
    fix it — don't declare the cut good while the report has unexplained lines.
 9. **USER AUDIT** — this is a hard gate, same as the plan step. Open the editor: `python tools/editor/server.py P` → http://localhost:8765. User drags keep/cut edges, adds cuts (I/O + C), compares raw vs edited playback; Save rewrites cuts.json (backup to `work/analysis/backups/`, appended to `changes.log`); Render button re-runs a preview. Iterate until approved.
-10. **Final master**: `python tools/render_cuts.py P --style <chosen> --mode final` → `P/output/master-<style>.mp4` (4K60 10-bit hevc_nvenc). Two MANDATORY post-render steps:
-   - **A/V duration gate:** `ffprobe -show_entries stream=duration` on v:0 vs a:0 — they MUST be equal. verify_cut's A/V budget GROWS along the timeline (±2s by mid-video) and masks a real accumulating drift; the equal-duration check is the definitive one. (See the drift note under Notes.)
-   - **Playable/handoff transcode:** the 10-bit HEVC master won't play in most players or the IDE preview, and the HEVC final stamps frames ~0.1% fast on 59.94fps footage. Produce an 8-bit H.264 that fixes both by re-timing to true CFR: `ffmpeg -r <src_fps> -i master-<style>.mp4 -c:v libx264 -crf 19 -pix_fmt yuv420p -c:a aac master-<style>-h264.mp4` — the source fps BEFORE `-i` re-stamps every frame (no frame loss) so v:0==a:0. This is the file the user reviews AND the comp-native source downstream steps use.
-11. **Handoff spine — `edited-transcript.json`**: word times in the FINAL master timeline. Simplest robust path (what video-1 used): extract the master's WAV and `transcribe.py` it, then normalize to `{words:[{text,start,end}...]}` in ms. (A cuts.json time-remapper is the planned alternative.) This file is what `$make-tsx` reads to sync visuals to speech.
+10. **Final master**: `python tools/render_cuts.py P --style <chosen> --mode final` → `P/output/master-<style>.mp4` (source-resolution 10-bit HEVC with VideoToolbox or CPU). Two MANDATORY post-render steps:
+   - **Timing review:** use `work/render-manifest.json` and `work/edited-transcript.json` from the actual encoded segments. Unknown/zero-duration source timing must be corrected before cutting. Verify retained speech with fresh ASR and listen to flagged joins; equal stream durations alone do not prove lip sync.
+   - **Delivery compatibility:** retain the requested native master and make an H.264 review copy when needed. Inspect actual FPS/PTS and a representative frame before handing it off. Do not re-stamp FPS based on an old NVENC workaround without evidence.
+11. **Handoff spine:** use the render-derived `work/edited-transcript.json`. Its `master_sha256` binds words to the exact rendered master. Fresh ASR is independent QA and must not silently replace that mapping. Re-render/invalidate dependent cues when cuts change.
 
 Do steps 1–4 and 7 once; loop 5→6→8→9 until the cut is approved; then 10–11.
 
@@ -150,3 +150,5 @@ onset, not a real inflation.
 - **Always verify before handing off:** skim `review.md` / `qa-report.md`, and watch (or at least scrub) a preview — don't declare a cut good from the numbers alone.
 
 Handoff: an approved master + `edited-transcript.json` → **`$make-tsx`** (build the visual beats) and the rest of steps 2–5.
+
+For render-side QA use `.venv/bin/python -m tools.verify_render PROJECT --style natural` (or the selected style). It extracts the exact manifest master and binds independent ASR to its hash; an older transcript cannot establish current render timing.

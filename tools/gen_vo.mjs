@@ -25,7 +25,7 @@ import { execFile } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
 
-const VOICE_ID = "BTq6sz7H4zXMYN9OUp1X"; // Hasan-Pro (PVC)
+let VOICE_ID; // Explicit owner-provided voice only
 const MODEL_ID = "eleven_multilingual_v2"; // NEVER v3 — see header
 const SETTINGS = { stability: 0.55, similarity_boost: 0.8, style: 0.3, speed: 0.95 };
 
@@ -68,11 +68,17 @@ function probeDuration(file) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args["help"]) { console.log("Hosted media tool: see source usage; generation requires --allow-cloud and explicit inputs."); return; }
+  if (!args["allow-cloud"]) {
+    throw new Error("Hosted generation requires explicit --allow-cloud approval. Use python -m tools.media for qualified local providers.");
+  }
   if (!args.beats || !args["out-dir"]) die("usage: node tools/gen_vo.mjs --beats <beats.json> --out-dir <dir>");
 
   const beats = JSON.parse(await readFile(path.resolve(args.beats), "utf8"));
   const outDir = path.resolve(args["out-dir"]);
   await mkdir(outDir, { recursive: true });
+  VOICE_ID = args["voice-id"] || process.env.ELEVENLABS_VOICE_ID;
+  if (!VOICE_ID) throw new Error("Provide --voice-id or ELEVENLABS_VOICE_ID for your own voice.");
   const key = await loadEnvKey("ELEVENLABS_API_KEY");
 
   const manifest = { voice_id: VOICE_ID, model_id: MODEL_ID, settings: SETTINGS, recipe: "#18", beats: {} };

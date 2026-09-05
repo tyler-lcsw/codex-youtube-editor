@@ -1,6 +1,6 @@
 ---
 name: clean-audio
-description: Voice/audio cleanup step of the AI Video Editor pipeline — diagnose a video's background noise, pick the right denoise method, and produce a cleaned master (voice isolated, levels preserved, video stream copied). Use when the user wants to "clean the audio / voice", "remove background noise", "denoise", "isolate voice", fix outdoor/room/water/hum/hiss noise, run ElevenLabs Voice Isolator or local RNNoise, A/B denoise methods, or produce a cleaned master for a video-N in this repo. Covers diagnosing the noise (spectrogram + levels), choosing eleven vs rnnoise by noise type, the sample A/B, tools/clean_voice.py, preserving levels (RMS-match, not LUFS), and rewiring the pipeline to the clean master. Not the SFX/music mix (that is $suggest-sfx + the final-mix step) and not the cut (that is $clean-cut).
+description: Voice/audio cleanup step of the AI Video Editor pipeline — diagnose a video's background noise, pick the right denoise method, and produce a cleaned master (voice isolated, levels preserved, video stream copied). Use when the user wants to "clean the audio / voice", "remove background noise", "denoise", "isolate voice", fix outdoor/room/water/hum/hiss noise, run ElevenLabs Voice Isolator or local RNNoise, A/B denoise methods, or produce a cleaned master for a video-N in this repo. Covers diagnosing the noise (spectrogram + levels), local DeepFilterNet and optional RNNoise auditions, the sample A/B, tools/clean_voice.py, preserving levels (RMS-match, not LUFS), and rewiring the pipeline to the clean master. Not the SFX/music mix (that is $suggest-sfx + the final-mix step) and not the cut (that is $clean-cut).
 ---
 
 Read `AGENTS.md` and `docs/providers.md` first. Default to local media processing; hosted generation requires explicit approved scope. Check provider readiness before any generation command. Original provider examples below describe available compatibility paths, not permission to call them. Use project state and preserve prior approvals.
@@ -16,16 +16,11 @@ final loudness/limiting is the final-mix step's job, this step is "denoise only,
 The engine is **`tools/clean_voice.py`**; this skill is the judgment around it: diagnose → pick method
 → A/B → clean → rewire.
 
-## The two methods (pick by NOISE TYPE — this is the core decision)
+## Provider choice
 
-| Method | What it is | Use when | Cost |
-|---|---|---|---|
-| **`--method eleven`** | ElevenLabs Voice Isolator (cloud ML voice/noise separation) | **Dynamic, broadband noise in the voice band** — outdoor running water, wind, traffic, crowd, cafe. Local candidates require matched-level auditions on these cases; do not assume equivalent cleanup before testing. | ~1000 credits/min (~$1 for a 5.5-min video); needs `ELEVENLABS_API_KEY` |
-| **`--method rnnoise --model sh`** (or `cb`) | Local RNNoise via ffmpeg `arnndn` (models in `tools/models/rnnoise/`) | **Stationary / mild** noise (steady hiss, fan, some room tone). Free/offline. Only PARTIALLY removes dynamic noise. | free |
+Default to `--method deepfilter`: pinned DeepFilterNet3 runs locally in the isolated denoise environment. Retain `--method rnnoise --model sh` for a local comparison when FFmpeg includes `arnndn`. Hosted ElevenLabs isolation is an explicitly approved compatibility option requiring `--method eleven --allow-cloud`; noise type never grants approval.
 
-Proven on video-1 (shot outdoors with a stream): `afftdn` did ~nothing, RNNoise only partially darkened
-the water bed, **ElevenLabs removed it near-completely** (pauses to near-silence, voice + breaths intact).
-Rule of thumb: **stationary noise → try local first; dynamic broadband (water/wind/traffic) → ElevenLabs.**
+Audition a short sample, preserve video and original files, and report audible speech damage or remaining noise. The first release has functional local cleanup evidence, not proof of ElevenLabs-equivalent quality on every recording.
 
 ## Inputs (read/measure first, every time)
 
@@ -43,13 +38,13 @@ Rule of thumb: **stationary noise → try local first; dynamic broadband (water/
      the pure-noise RMS there vs speech RMS → the real SNR.
    - Spectrogram: `ffmpeg -i M -vn -lavfi showspectrumpic=s=1500x600:legend=1:scale=log out.png` and
      LOOK at it. Hum = steady horizontal lines (50/60Hz) → notch. Rumble = low band → high-pass. Broadband
-     bed that fills the voice band and fluctuates = dynamic (water/wind) → ElevenLabs. HF hiss = bright top band.
+     bed that fills the voice band and fluctuates = dynamic (water/wind) → audition DeepFilterNet first. HF hiss = bright top band.
    - Note if the export is already produced (compressed/normalized/peak-maxed) — it limits what's recoverable.
 2. **Decide the method with the user** from the diagnosis (table above). If unsure, A/B both.
 3. **A/B on a short sample FIRST** (prove before spending / committing): cut a ~15s pause-rich sample,
    run each candidate method, level-match them to each other, and compare — by ear (the real test) AND by
    spectrogram (pauses going dark = noise removed) and residual level. Let the user pick.
-4. **Clean the full master:** `python tools/clean_voice.py videos/video-N/reference/<cut>.mp4 --method <chosen> [--model sh]`
+4. **Clean the full master:** `python tools/clean_voice.py videos/video-N/reference/<cut>.mp4 --method deepfilter [--model sh]`
    → `<cut>-clean.mp4` (or `-clean-<model>.mp4`). Video stream COPIED (fast, non-destructive, keeps 4K60).
 5. **Levels are preserved by RMS-match, not LUFS** (the tool does this). Never match integrated LUFS —
    it is gated and inflated by the removed noise, and over-boosts the voice into clipping. The clean file

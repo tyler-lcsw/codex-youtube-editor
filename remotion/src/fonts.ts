@@ -1,13 +1,25 @@
-// Brand 3-font system, loaded from Google Fonts (bundled by Remotion at render time).
-// Nothing to install — swap a family here and every shot follows. `/brand-setup` rewrites
-// this file alongside brand.ts and brand.md; keep all three in sync if you edit by hand.
-import { loadFont as loadDisplay } from '@remotion/google-fonts/SpaceGrotesk';
-import { loadFont as loadBody } from '@remotion/google-fonts/Inter';
-import { loadFont as loadMono } from '@remotion/google-fonts/JetBrainsMono';
-import { loadFont as loadSerif } from '@remotion/google-fonts/Spectral';
+// Vendored Latin fonts; render without Google Fonts requests.
+// Keep fonts, brand.ts and brand.md aligned when changing the brand.
+import {cancelRender, continueRender, delayRender, staticFile} from 'remotion';
 
-export const FONT_DISPLAY = loadDisplay('normal', { weights: ['500', '600', '700'], subsets: ['latin'] }).fontFamily;
-export const FONT_BODY = loadBody('normal', { weights: ['400', '500', '600'], subsets: ['latin'] }).fontFamily;
-export const FONT_MONO = loadMono('normal', { weights: ['400', '500', '700'], subsets: ['latin'] }).fontFamily;
-// serif for the Claude Code wordmark clone (close match to the app's serif) — not a brand font
-export const FONT_SERIF = loadSerif('normal', { weights: ['500', '600'], subsets: ['latin'] }).fontFamily;
+export const FONT_DISPLAY = 'Space Grotesk';
+export const FONT_BODY = 'Inter';
+export const FONT_MONO = 'JetBrains Mono';
+export const FONT_SERIF = 'Spectral';
+
+if (typeof document !== 'undefined') {
+  const handle = delayRender('Load bundled brand fonts');
+  const families: Array<[string, string, number[]]> = [
+    [FONT_DISPLAY, 'SpaceGrotesk', [500, 600, 700]],
+    [FONT_BODY, 'Inter', [400, 500, 600]],
+    [FONT_MONO, 'JetBrainsMono', [400, 500, 700]],
+    [FONT_SERIF, 'Spectral', [500, 600]],
+  ];
+  Promise.all(families.flatMap(([family, file, weights]) => weights.map(async (weight) => {
+    const face = new FontFace(family, `url(${staticFile(`library/fonts/${file}-${weight}.woff2`)})`, {
+      weight: String(weight), style: 'normal',
+    });
+    const fontSet = document.fonts as FontFaceSet & {add: (font: FontFace) => FontFaceSet};
+    fontSet.add(await face.load());
+  }))).then(() => continueRender(handle)).catch(cancelRender);
+}

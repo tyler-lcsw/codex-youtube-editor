@@ -21,7 +21,7 @@ Three files that **must stay in sync**, and this skill is the only thing that sh
 |---|---|---|
 | `brand.md` | the contract, in prose | every step-2+ skill (`$make-tsx`, `$suggest-sfx`, `$packaging`) |
 | `remotion/src/brand.ts` | the same tokens as code — `COLORS`, `GRADIENT`, `RADIUS`, `SHADOW`, `EASINGS`, `BRAND` | every shot |
-| `remotion/src/fonts.ts` | the font families, loaded from `@remotion/google-fonts` | every shot |
+| `remotion/src/fonts.ts` | the font families, loaded from licensed local files in `media/library/fonts` | every shot |
 
 **They drift silently.** `brand.md` says indigo, `brand.ts` says teal, and nothing errors — the docs
 just quietly stop describing the videos. That's why one skill writes all three in one pass.
@@ -65,31 +65,9 @@ writing because the answers "seem clear."
 
 ---
 
-### Stage 3 — Hard gate: the fonts must actually exist
+### Stage 3 — Verify and bundle fonts
 
-**Fonts are the #1 way this breaks the build.** `fonts.ts` imports from `@remotion/google-fonts`, so
-a family that isn't in that package fails to resolve. A local/purchased/system font will not work —
-if they name one, tell them plainly and pick the closest Google family.
-
-**Verify before writing. Both checks, every font:**
-
-```bash
-cd remotion
-
-# 1. Does the family exist? (PascalCase, no spaces: "Space Grotesk" -> SpaceGrotesk)
-ls node_modules/@remotion/google-fonts/dist/esm/ | grep -i "^Poppins\."
-
-# 2. Does it HAVE the weights you're about to request?
-grep -oE '"[0-9]{3}":' node_modules/@remotion/google-fonts/dist/esm/Poppins.mjs | sort -u
-```
-
-~1,800 families are available, so there is almost always a good match.
-
-**The weight trap is real, not theoretical.** Space Grotesk stops at 700 — no 800/900. Oswald stops
-at 700. Requesting a weight the family doesn't ship gives you a silent fallback or a broken render,
-and you won't notice until a headline looks wrong. **Check, then request only what exists.**
-
----
+Use licensed font files with known family/weight metadata. The baseline OFL fonts are in `media/library/fonts`, with hashes and source URLs in `sources.json`. Local or purchased fonts can work if the user has the appropriate license; never silently replace their typeface. Add selected files and license metadata, update `fonts.ts` FontFace registrations, and keep brand.md and brand.ts consistent. Verify a rendered proof with external networking denied.
 
 ### Stage 4 — Contrast gate
 
@@ -176,7 +154,7 @@ Finally, render one real example shot (`EndCard` is the fastest) to confirm noth
   failure mode this skill exists to prevent.
 - **Change values, never keys.** Every shot imports the token names. Renaming a color role breaks 29
   files at once.
-- **Fonts must be verified in `@remotion/google-fonts` before writing** — family AND weights.
+- **Fonts must be bundled and licensed before offline rendering** — verify family and weights against local font files.
 - **The palette must clear the contrast gate**, judged by usage. Below 3:1 is not shippable.
 - **Delivery fps must match the camera**, not the brand's preference.
 - **Don't touch brand.md §8.** It's structure, not style.

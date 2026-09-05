@@ -1,5 +1,12 @@
 # Codex YouTube Editor Implementation Plan
 
+## First-release scope revision — September 5, 2026
+
+Tyler superseded full visual parity as the first-release completion gate. The supplied video is background research only. The controlling criteria and runtime shortlist are in [M4 First Release — Runtime and Memory Decision.md](M4%20First%20Release%20%E2%80%94%20Runtime%20and%20Memory%20Decision.md).
+
+Qualify models only on this single 24 GiB M4, with room for macOS, context and normal apps. PAIR routes independent requests; future 16 GiB Macs do not enlarge one model's memory allocation. Preserve resource-heavy feature interfaces but defer their local quality qualification when they exceed this release's envelope. Publication remains present and its testing is waived. The task inventory below remains the longer-term roadmap; conflicting full-parity gates do not block the first release.
+
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Use superpowers:subagent-driven-development only if the user selects delegation. Steps use checkbox syntax for tracking. This document authorizes no implementation by itself.
 
 **Goal:** Preserve the fork's complete editing and extended generation workflows under Codex, with local media providers, an approved hybrid image route, Mac-first execution and an optional GPU worker.
@@ -333,7 +340,7 @@ def test_changed_video_invalidates_approval():
 - [ ] Run tests. Implement stable project IDs, exact match-before-create, duplicate detection, stage filtering, local script display, dry-run/apply and explicit resync. Treat ambiguous title matches as review cases. Keep optional Notion synchronization separate and preserve its existing metadata mapping.
 - [ ] Correct upload paths for this repository. Preserve title, description, tags, category, thumbnail, privacy and scheduling fields. Store upload receipt/video ID and support retrying metadata/thumbnail steps without creating duplicate videos. Keep OAuth credentials outside logs/source.
 - [ ] Require QA and review receipts matching the exact video and packaging hashes; changed renders invalidate them. Default to private. Do not remove explicit public/scheduling capabilities, but require deliberate publication approval. Document manual YouTube Studio A/B testing separately; writing three files does not start an experiment automatically.
-- [ ] Test dry-run without Google dependencies or credentials, mocked resumable upload/thumbnail errors and local tracker updates. Run `python -m pytest tests/test_tracker.py tests/test_publish_gate.py -q`. Perform one real private upload only after explicit authorization for that test video/channel; verify the returned channel/video/privacy and thumbnail. Document current YouTube API constraints from official docs at implementation time. Commit.
+- [ ] Test local tracker updates with `python -m pytest tests/test_tracker.py -q`. Publication functionality remains retained; Tyler waived publication testing, including mocked upload tests and real private uploads.
 
 **Pass:** Local organization works offline; supported publish metadata and analytics remain available through explicit YouTube operations. QA instructions are enforced, not merely described in prose.
 
@@ -386,6 +393,6 @@ python tools/run_acceptance.py --profile local --model gpt-5.6-sol --fixture sho
 
 ## Execution handoff
 
-The recommended next implementation action is Task 1, followed by local runtime preflight and the feasibility portions of Tasks 3–5 plus small trials drawn from Tasks 7, 9 and 10. The confirmed project base and execution host is this local M4, m4-mini.local, with 24 GB unified memory. Use the supplied video as the visual benchmark, retain Remotion, and qualify the highest-risk audio/image/avatar candidates before bulk adapter implementation. The hostname and project location are verified; later personal test assets are just-in-time inputs. MBP access is neither required nor authorized. This planning turn installs no media stack, changes no fork code, uploads nothing and makes no claim that local quality parity is already proven.
+The recommended next implementation action is Task 1, followed by local runtime preflight and the feasibility portions of Tasks 3–5 plus small trials drawn from Tasks 7, 9 and 10. The confirmed project base and execution host is this local M4, m4-mini.local, with 24 GB unified memory. Retain Remotion and qualify only single-M4 candidates under the revised first-release criteria; the supplied video is not a completion benchmark. The hostname and project location are verified; later personal test assets are just-in-time inputs. MBP access is neither required nor authorized. This planning turn installs no media stack, changes no fork code, uploads nothing and makes no claim that local quality parity is already proven.
 
 If the user chooses execution, proceed inline with Superpowers executing-plans and review each independent task. Subagent-driven execution remains an alternative if the user explicitly selects it. No recurring monitoring or automatic upstream merge job is part of this plan.

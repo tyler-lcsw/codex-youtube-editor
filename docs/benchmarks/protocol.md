@@ -1,8 +1,8 @@
 # Benchmark protocol
 
-Visual target: https://www.youtube.com/watch?v=AfBRRsGSKe4. Tyler identifies the entire
+Historical reference (not a first-release success benchmark): https://www.youtube.com/watch?v=AfBRRsGSKe4. Tyler identifies the entire
 visible production as made with the existing workflow. Exact per-asset production provenance
-has not been independently established. Use original/cleared content to recreate the techniques.
+has not been independently established. Use original/cleared fixtures for functional verification; recreation is not required for first release.
 
 | Reference window | Case to compare | Mapping status |
 |---|---|---|
@@ -14,7 +14,7 @@ has not been independently established. Use original/cleared content to recreate
 Initial clock fixture has 640×360 frame numbers, rational FPS, 48 kHz 50 ms audio pulses
 at integer seconds and matching visual flashes. Raw PCM positions are authoritative;
 AAC delivery priming requires measured QA rather than equating container durations.
-Human corpus target: 10–15 minutes, 200 annotated word boundaries, fillers, multiple takes,
+Later quality-parity corpus target (not a first-release blocker): 10–15 minutes, 200 annotated word boundaries, fillers, multiple takes,
 noise, accents and proper nouns. Finished reference video does not replace raw ground truth.
 Quality thresholds: median word error <=40 ms, p95 <=100 ms; zero accepted harmful cuts;
 SFX onset <=1 output frame; landmark A/V drift <=40 ms with no duration-dependent allowance.

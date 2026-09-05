@@ -1,6 +1,6 @@
 # Feature parity inventory
 
-Baseline source paths below refer to the pinned upstream commit. All creative/provider acceptance remains pending unless backed by a receipt in implementation-status.md.
+Baseline source paths below refer to the pinned upstream commit. This is the preserved full roadmap, not a claim that every provider is qualified in the first release. Current functional results and explicit deferrals are in implementation-status.md and benchmarks/first-release.md. Publication testing is waived.
 
 | Capability to preserve | Existing implementation | Migration acceptance |
 |---|---|---|

@@ -1,5 +1,12 @@
 # Codex YouTube Editor — Design and Research
 
+## First-release scope revision — September 5, 2026
+
+Tyler superseded full visual parity as the first-release completion gate. The supplied video is background research only. The controlling criteria and runtime shortlist are in [M4 First Release — Runtime and Memory Decision.md](M4%20First%20Release%20%E2%80%94%20Runtime%20and%20Memory%20Decision.md).
+
+Qualify models only on this single 24 GiB M4, with room for macOS, context and normal apps. PAIR routes independent requests; future 16 GiB Macs do not enlarge one model's memory allocation. Preserve resource-heavy feature interfaces but defer their local quality qualification when they exceed this release's envelope. Publication remains present and its testing is waived. The task inventory below remains the longer-term roadmap; conflicting full-parity gates do not block the first release.
+
+
 Prepared September 5, 2026. Status: proposed design; implementation has not started. Method: Superpowers brainstorming and writing-plans, adapted to the requested planning-only deliverable. Target chosen by Tyler: **local Apple M4 Mac (m4-mini.local) with 24 GB unified memory, with an optional additional GPU worker**. Remotion retention is a confirmed requirement.
 
 ## Recommendation
