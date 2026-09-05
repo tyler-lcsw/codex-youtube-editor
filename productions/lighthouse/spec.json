@@ -1,0 +1,92 @@
+{
+  "title": "The Little Robot Who Brought the Light Back",
+  "slug": "lighthouse",
+  "format": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "target_duration_seconds": [
+      40,
+      65
+    ]
+  },
+  "premise": "One evening, a little lighthouse keeper discovers that one loose connection has stopped the beacon. A patient repair brings the harbor home.",
+  "audience": "General audience; original miniature animated story, no sales pitch.",
+  "visual_direction": "Storybook cinematic miniature, teal twilight, orange robot, cream lighthouse, warm amber resolution. Large readable typography. Images are illustrations, not footage of a real event.",
+  "voice": "Fictional synthetic narrator using the existing macOS-synthesized local test reference. No personal voice or likeness.",
+  "beats": [
+    {
+      "id": "arrival",
+      "text": "Every evening, Pip lit the little lighthouse. Its warm beam guided the last boat home."
+    },
+    {
+      "id": "failure",
+      "text": "But tonight, the harbor went dark. Pip pressed the switch again. Nothing. Out on the water, a tiny light was waiting."
+    },
+    {
+      "id": "diagnosis",
+      "text": "Pip stopped guessing and followed the signal. The battery was full. The lamp was ready. Between them, one connection had come loose."
+    },
+    {
+      "id": "repair",
+      "text": "With one careful click, Pip joined both ends. Then came the longest second of the night.",
+      "audio_asset": "repair-v2",
+      "seed": 17
+    },
+    {
+      "id": "home",
+      "text": "The beacon swept across the waves. The boat answered, and turned toward home. Pip did not need more power. Just one small connection.",
+      "audio_asset": "home-v2",
+      "seed": 17
+    }
+  ],
+  "editorial_plan": "Generate five voice beats, transcribe and align, preserve spoken content, compress only unnecessary gaps. Insert a one-second silent anticipation beat before the beacon reveal; add intentional sound design there. Derive cue times from rendered segment mappings. Reframe a self-contained vertical ending with an opening context card.",
+  "capabilities": {
+    "live_local": [
+      "PAIR bounded editorial JSON",
+      "reference TTS and scripted pause",
+      "ASR and forced alignment",
+      "cut planning and native preview/final exports",
+      "DeepFilterNet cleanup",
+      "local image generation and one-reference editing",
+      "Remotion typography, 2D animation and library components",
+      "fictional screenshot screencast",
+      "cutaway, alpha overlay, split and insert",
+      "crossfade, punch-in and color grade",
+      "procedural SFX catalog and ducked mix",
+      "original deterministic music bed and stems",
+      "proxy and local editor",
+      "independent render transcript QA",
+      "three thumbnails, description and chapter packaging",
+      "vertical short",
+      "local tracker",
+      "artifact hashes and resumable production steps"
+    ],
+    "retained_not_invoked": [
+      "publication and analytics: user waived tests and did not authorize upload",
+      "native Codex hosted image handoff: requires scoped approval; local integrated assets chosen",
+      "avatar and model-generated video: deferred for this M4 profile",
+      "arbitrary model-generated music/SFX: deferred; original procedural score is explicitly a bounded composition",
+      "multi-node PAIR and large/multi-reference image generation: deferred",
+      "personal branding/likeness: no identity assets provided; project-specific fictional art direction"
+    ]
+  },
+  "acceptance": [
+    "Complete cohesive horizontal film and standalone vertical excerpt",
+    "Every executed capability linked to a concrete artifact or receipt",
+    "No clipped speech, invalid timestamp silently repaired, missing frame assets or accidental external generation",
+    "Inspect representative frames at each story beat and effect boundary",
+    "Decode outputs, compare durations and speech, measure final loudness and true peak",
+    "Deliver music, SFX and narration stems, three thumbnails, cue sheet, specification and review report",
+    "Explicitly distinguish automated technical QA from human listening and creative acceptance"
+  ],
+  "resources": {
+    "host": "M4 only",
+    "unified_memory_gib": 24,
+    "active_inference_limit_gib": 12,
+    "heavy_concurrency": 1,
+    "hosted_generation": false,
+    "publication": false
+  },
+  "rights": "Generate original project imagery and original deterministic score. Do not reuse upstream ElevenLabs catalog music because its account-specific license does not establish this fork's redistribution rights. Vendored fonts retain their licenses. Record synthetic voice reference origin."
+}

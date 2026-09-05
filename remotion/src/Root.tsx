@@ -1,13 +1,22 @@
 import React from 'react';
 import { Composition } from 'remotion';
 import { shots } from './registry.gen';
+import {useBundledFonts} from './fonts';
+
+const fontReadyShots = shots.map(({Comp, config}) => ({
+  config,
+  Comp: function FontReadyComposition() {
+    useBundledFonts();
+    return <Comp />;
+  },
+}));
 
 // Every shot file exports `compositionConfig` + a default component. gen-registry.mjs
 // discovers them into registry.gen. This maps each to a <Composition>.
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      {shots.map(({ Comp, config }) => (
+      {fontReadyShots.map(({ Comp, config }) => (
         <Composition
           key={config.id}
           id={config.id}

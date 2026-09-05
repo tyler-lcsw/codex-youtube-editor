@@ -84,3 +84,9 @@ Use the app-bundled Codex CLI 0.153.4 or newer for Astra/Sol; Homebrew CLI 0.146
 Render QA: `.venv/bin/python -m tools.verify_render PROJECT --style natural` extracts the exact manifest master and binds fresh ASR to its hash. Unresolved word timing fails explicitly and requires review/re-alignment; unknown confidence remains unknown.
 
 Timeline export validation and failure preservation are described in [timeline compatibility](timeline-compatibility.md). Existing output remains intact when a bake fails.
+
+### Longer production checks
+
+On the qualified FFmpeg 9 runtime, file-backed filter graphs use `-/filter_complex`; the removed `-filter_complex_script` flag is not supported. Stem export is covered by an actual delayed-cue integration test. Audio cutting decodes presentation-time samples before trimming, avoiding AAC zero-seek priming shifts; `render-v4` invalidates earlier segment caches.
+
+Remotion font loading is gated when a composition mounts. The longer lighthouse vertical render exercises this beyond the previous module-time gate's 28-second failure. See `../productions/lighthouse/Execution Report.md` for the production evidence and resource limits.

@@ -1,0 +1,1 @@
+Give a short title for a gentle story about a little robot who repairs a lighthouse and guides a boat home. Return only JSON with one string key title. At most eight words in the title.

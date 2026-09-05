@@ -1,0 +1,15 @@
+{
+  "title": "The Little Robot Who Brought the Light Back",
+  "format": "Horizontal original short film; separate vertical adaptation",
+  "promise": "A complete illustrated story about a small lighthouse keeper finding one missing connection and guiding a boat home.",
+  "audience": "General audience, miniature animation and gentle storytelling",
+  "conversion_target": "None",
+  "calibration": "No channel baseline or CTR prediction. These are three untested visual options, not a claimed winner.",
+  "variants": [
+    {"id":"A","text":"ONE TINY FIX","asset":"pip","lever":"Character and small action","honesty":"Pip visibly closes the cable connection in the film."},
+    {"id":"B","text":"HOME AGAIN","asset":"restored","lever":"Warm emotional resolution","honesty":"The final narration and restored beacon pay off the homeward journey."},
+    {"id":"C","text":"A LIGHT AWAY","asset":"dark","lever":"Concrete visual stakes","honesty":"The unlit lighthouse and waiting boat establish the actual problem."}
+  ],
+  "style_exceptions": "Original narrative film, so no artificial money/free claims, presenter face, sales pitch or CTR target. A is a useful first review choice for character visibility, not an A/B test winner.",
+  "publication": "Not performed; approval of the actual artifact and channel still required."
+}
