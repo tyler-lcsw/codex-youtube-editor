@@ -1,0 +1,180 @@
+{
+  "status": "technical_checks_passed",
+  "artifacts": [
+    {
+      "file": "videos/lighthouse/output/The Little Lighthouse.mp4",
+      "sha256": "72b90f2dc9d0308ffef5f7e9c60c142c9ef33eb5f1379b53cd8287493fed5c40",
+      "size": 6794706,
+      "frames": 1216,
+      "video_duration_s": 40.533333,
+      "audio_duration_s": 40.530667,
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "loudness": {
+        "input_i": "-18.01",
+        "input_tp": "-3.99",
+        "input_lra": "2.40",
+        "input_thresh": "-28.61",
+        "output_i": "-18.05",
+        "output_tp": "-3.99",
+        "output_lra": "2.30",
+        "output_thresh": "-28.67",
+        "normalization_type": "dynamic",
+        "target_offset": "0.05"
+      }
+    },
+    {
+      "file": "videos/lighthouse/output/The Little Lighthouse \u2014 Vertical.mp4",
+      "sha256": "270a1924b23a72adc2cbbf149da92521a887d6f3af69c5923899108cc34e4234",
+      "size": 4078829,
+      "frames": 612,
+      "video_duration_s": 20.4,
+      "audio_duration_s": 20.4,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "loudness": {
+        "input_i": "-18.21",
+        "input_tp": "-4.05",
+        "input_lra": "2.90",
+        "input_thresh": "-28.93",
+        "output_i": "-17.48",
+        "output_tp": "-3.86",
+        "output_lra": "3.40",
+        "output_thresh": "-28.24",
+        "normalization_type": "dynamic",
+        "target_offset": "-0.52"
+      }
+    },
+    {
+      "file": "videos/lighthouse/output/voice-track.wav",
+      "sha256": "a0e502e20547b622c3d8143b433c7065e7e97582d9812993f3cc27c1b8afe583",
+      "samples": 1945600,
+      "sample_rate": "48000"
+    },
+    {
+      "file": "videos/lighthouse/output/sfx-track.wav",
+      "sha256": "b20ec98efb3eb598e0701f2f8703d89b41b7cc6c317d174b79f6fc9c21b1f5c3",
+      "samples": 1945600,
+      "sample_rate": "48000"
+    },
+    {
+      "file": "videos/lighthouse/output/music-track.wav",
+      "sha256": "3c9cbaef7e749c42b92062e8754735c5bd2d56bd58b53c0da1459a8d811388b0",
+      "samples": 1945600,
+      "sample_rate": "48000"
+    },
+    {
+      "file": "videos/lighthouse/packaging/thumbs/A.jpg",
+      "sha256": "34bf2f2914ef4287da5cabe73493730a05e01c640d222a490fef29313668df76",
+      "size": 98973
+    },
+    {
+      "file": "videos/lighthouse/packaging/thumbs/B.jpg",
+      "sha256": "67bbdf42beb6bb634861bcfe24c0321d754c68f819e207cefbe3b3cdf11400d6",
+      "size": 132949
+    },
+    {
+      "file": "videos/lighthouse/packaging/thumbs/C.jpg",
+      "sha256": "70e107075c75c94cb5d09b09e8a3be9ac134d0d0dd5dc9cd2d72e75555a3e3fd",
+      "size": 92603
+    }
+  ],
+  "human_listening": "Not performed by this automated run; no human creative acceptance claim.",
+  "publication": "Not invoked or tested.",
+  "final_speech_qa": {
+    "expected_tokens": 97,
+    "recognized_tokens": 97,
+    "sequence_identical": true,
+    "unresolved_final_alignment": [
+      {
+        "text": "a",
+        "start": 12640,
+        "end": 12640,
+        "needs_review": true
+      }
+    ],
+    "source_media_sha256": "72b90f2dc9d0308ffef5f7e9c60c142c9ef33eb5f1379b53cd8287493fed5c40",
+    "input_audio_sha256": "ad7e116403e9e452616f8782162fb09614521acd6574472a5c119d7ad1ee1753"
+  },
+  "source_audio_mapping": {
+    "measurement": "Decoded source/master audio alignment, within +/-100 ms search; <=1 ms lag and >0.95 correlation required. Not physical lip sync or listening acceptance.",
+    "segments": [
+      {
+        "clip": "arrival",
+        "best_lag_samples_16k": 0,
+        "best_lag_ms": 0.0,
+        "zero_lag_correlation": 0.9999959266654961
+      },
+      {
+        "clip": "failure",
+        "best_lag_samples_16k": 0,
+        "best_lag_ms": 0.0,
+        "zero_lag_correlation": 0.9937700685603077
+      },
+      {
+        "clip": "diagnosis",
+        "best_lag_samples_16k": 0,
+        "best_lag_ms": 0.0,
+        "zero_lag_correlation": 0.9936419010580472
+      },
+      {
+        "clip": "repair",
+        "best_lag_samples_16k": 0,
+        "best_lag_ms": 0.0,
+        "zero_lag_correlation": 0.9950554652837711
+      },
+      {
+        "clip": "home",
+        "best_lag_samples_16k": 0,
+        "best_lag_ms": 0.0,
+        "zero_lag_correlation": 0.9942967626253448
+      }
+    ]
+  },
+  "visual_review": {
+    "horizontal_seconds": [
+      1.5,
+      9,
+      15.5,
+      22,
+      24.5,
+      25.5,
+      30.1,
+      32,
+      38
+    ],
+    "vertical_seconds": [
+      1,
+      6,
+      17
+    ],
+    "thumbnail_variants": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  "tests": "97 passed, 1 publication test deselected",
+  "cache": {
+    "status": "passed",
+    "unchanged_assets": 21,
+    "provider_invocations": 0
+  },
+  "editor": {
+    "data_status": 200,
+    "keys": [
+      "cuts",
+      "manifest"
+    ],
+    "range_status": 206,
+    "bytes": 1024,
+    "save": {
+      "saved": true,
+      "backup": "backups/cuts-20260905-144943.json"
+    }
+  }
+}

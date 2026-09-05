@@ -1,0 +1,78 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>The Little Lighthouse — Production Specification</title><style>body{max-width:1040px;margin:60px auto;padding:0 32px;background:#0c202a;color:#e9e8da;font:18px/1.65 system-ui}h1,h2{color:#ffbd69}h1{font-size:44px}section{border-top:1px solid #36535b;padding:20px 0}pre{white-space:pre-wrap;font:inherit}small{color:#9eb8bc}</style><small>LOCAL PRODUCTION • EXECUTION SPECIFICATION</small><h1>The Little Lighthouse</h1><p>An original story about a small connection that brings a boat home.</p><section><h2>Title</h2><pre>The Little Robot Who Brought the Light Back</pre></section><section><h2>Slug</h2><pre>lighthouse</pre></section><section><h2>Format</h2><pre>{
+  &quot;width&quot;: 1920,
+  &quot;height&quot;: 1080,
+  &quot;fps&quot;: 30,
+  &quot;target_duration_seconds&quot;: [
+    40,
+    65
+  ]
+}</pre></section><section><h2>Premise</h2><pre>One evening, a little lighthouse keeper discovers that one loose connection has stopped the beacon. A patient repair brings the harbor home.</pre></section><section><h2>Audience</h2><pre>General audience; original miniature animated story, no sales pitch.</pre></section><section><h2>Visual Direction</h2><pre>Storybook cinematic miniature, teal twilight, orange robot, cream lighthouse, warm amber resolution. Large readable typography. Images are illustrations, not footage of a real event.</pre></section><section><h2>Voice</h2><pre>Fictional synthetic narrator using the existing macOS-synthesized local test reference. No personal voice or likeness.</pre></section><section><h2>Beats</h2><pre>[
+  {
+    &quot;id&quot;: &quot;arrival&quot;,
+    &quot;text&quot;: &quot;Every evening, Pip lit the little lighthouse. Its warm beam guided the last boat home.&quot;
+  },
+  {
+    &quot;id&quot;: &quot;failure&quot;,
+    &quot;text&quot;: &quot;But tonight, the harbor went dark. Pip pressed the switch again. Nothing. Out on the water, a tiny light was waiting.&quot;
+  },
+  {
+    &quot;id&quot;: &quot;diagnosis&quot;,
+    &quot;text&quot;: &quot;Pip stopped guessing and followed the signal. The battery was full. The lamp was ready. Between them, one connection had come loose.&quot;
+  },
+  {
+    &quot;id&quot;: &quot;repair&quot;,
+    &quot;text&quot;: &quot;With one careful click, Pip joined both ends. Then came the longest second of the night.&quot;,
+    &quot;audio_asset&quot;: &quot;repair-v2&quot;,
+    &quot;seed&quot;: 17
+  },
+  {
+    &quot;id&quot;: &quot;home&quot;,
+    &quot;text&quot;: &quot;The beacon swept across the waves. The boat answered, and turned toward home. Pip did not need more power. Just one small connection.&quot;,
+    &quot;audio_asset&quot;: &quot;home-v2&quot;,
+    &quot;seed&quot;: 17
+  }
+]</pre></section><section><h2>Editorial Plan</h2><pre>Generate five voice beats, transcribe and align, preserve spoken content, compress only unnecessary gaps. Insert a one-second silent anticipation beat before the beacon reveal; add intentional sound design there. Derive cue times from rendered segment mappings. Reframe a self-contained vertical ending with an opening context card.</pre></section><section><h2>Capabilities</h2><pre>{
+  &quot;live_local&quot;: [
+    &quot;PAIR bounded editorial JSON&quot;,
+    &quot;reference TTS and scripted pause&quot;,
+    &quot;ASR and forced alignment&quot;,
+    &quot;cut planning and native preview/final exports&quot;,
+    &quot;DeepFilterNet cleanup&quot;,
+    &quot;local image generation and one-reference editing&quot;,
+    &quot;Remotion typography, 2D animation and library components&quot;,
+    &quot;fictional screenshot screencast&quot;,
+    &quot;cutaway, alpha overlay, split and insert&quot;,
+    &quot;crossfade, punch-in and color grade&quot;,
+    &quot;procedural SFX catalog and ducked mix&quot;,
+    &quot;original deterministic music bed and stems&quot;,
+    &quot;proxy and local editor&quot;,
+    &quot;independent render transcript QA&quot;,
+    &quot;three thumbnails, description and chapter packaging&quot;,
+    &quot;vertical short&quot;,
+    &quot;local tracker&quot;,
+    &quot;artifact hashes and resumable production steps&quot;
+  ],
+  &quot;retained_not_invoked&quot;: [
+    &quot;publication and analytics: user waived tests and did not authorize upload&quot;,
+    &quot;native Codex hosted image handoff: requires scoped approval; local integrated assets chosen&quot;,
+    &quot;avatar and model-generated video: deferred for this M4 profile&quot;,
+    &quot;arbitrary model-generated music/SFX: deferred; original procedural score is explicitly a bounded composition&quot;,
+    &quot;multi-node PAIR and large/multi-reference image generation: deferred&quot;,
+    &quot;personal branding/likeness: no identity assets provided; project-specific fictional art direction&quot;
+  ]
+}</pre></section><section><h2>Acceptance</h2><pre>[
+  &quot;Complete cohesive horizontal film and standalone vertical excerpt&quot;,
+  &quot;Every executed capability linked to a concrete artifact or receipt&quot;,
+  &quot;No clipped speech, invalid timestamp silently repaired, missing frame assets or accidental external generation&quot;,
+  &quot;Inspect representative frames at each story beat and effect boundary&quot;,
+  &quot;Decode outputs, compare durations and speech, measure final loudness and true peak&quot;,
+  &quot;Deliver music, SFX and narration stems, three thumbnails, cue sheet, specification and review report&quot;,
+  &quot;Explicitly distinguish automated technical QA from human listening and creative acceptance&quot;
+]</pre></section><section><h2>Resources</h2><pre>{
+  &quot;host&quot;: &quot;M4 only&quot;,
+  &quot;unified_memory_gib&quot;: 24,
+  &quot;active_inference_limit_gib&quot;: 12,
+  &quot;heavy_concurrency&quot;: 1,
+  &quot;hosted_generation&quot;: false,
+  &quot;publication&quot;: false
+}</pre></section><section><h2>Rights</h2><pre>Generate original project imagery and original deterministic score. Do not reuse upstream ElevenLabs catalog music because its account-specific license does not establish this fork&#x27;s redistribution rights. Vendored fonts retain their licenses. Record synthetic voice reference origin.</pre></section></html>

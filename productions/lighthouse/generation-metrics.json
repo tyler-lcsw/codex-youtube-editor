@@ -1,0 +1,145 @@
+[
+  {
+    "asset": "home.provenance",
+    "provider": "qwen_tts_mlx",
+    "model": {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit",
+      "revision": "50f45ef0047cde7e84c2ef04326acb8ada2436a7",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 3.5704448750038864,
+      "peak_mlx_bytes": 6267984775
+    }
+  },
+  {
+    "asset": "failure.provenance",
+    "provider": "qwen_tts_mlx",
+    "model": {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit",
+      "revision": "50f45ef0047cde7e84c2ef04326acb8ada2436a7",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 3.2996905420004623,
+      "peak_mlx_bytes": 6402240549
+    }
+  },
+  {
+    "asset": "dark.provenance",
+    "provider": "flux2_klein_mflux",
+    "model": {
+      "repo": "mflux-community/flux2-klein-4b-mflux-q4",
+      "revision": "77090341902cb5f9217f05c664ff604236ca18cc",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 25.108644916996127,
+      "peak_mlx_bytes": 7903729616
+    }
+  },
+  {
+    "asset": "home-v2.provenance",
+    "provider": "qwen_tts_mlx",
+    "model": {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit",
+      "revision": "50f45ef0047cde7e84c2ef04326acb8ada2436a7",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 3.7821082919981563,
+      "peak_mlx_bytes": 6446460277
+    }
+  },
+  {
+    "asset": "arrival.provenance",
+    "provider": "qwen_tts_mlx",
+    "model": {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit",
+      "revision": "50f45ef0047cde7e84c2ef04326acb8ada2436a7",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 3.3189824579894776,
+      "peak_mlx_bytes": 6009630031
+    }
+  },
+  {
+    "asset": "diagnosis.provenance",
+    "provider": "qwen_tts_mlx",
+    "model": {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit",
+      "revision": "50f45ef0047cde7e84c2ef04326acb8ada2436a7",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 3.622757167002419,
+      "peak_mlx_bytes": 6357251185
+    }
+  },
+  {
+    "asset": "harbor.provenance",
+    "provider": "flux2_klein_mflux",
+    "model": {
+      "repo": "mflux-community/flux2-klein-4b-mflux-q4",
+      "revision": "77090341902cb5f9217f05c664ff604236ca18cc",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 15.11500445799902,
+      "peak_mlx_bytes": 7835572944
+    }
+  },
+  {
+    "asset": "restored.provenance",
+    "provider": "flux2_klein_mflux",
+    "model": {
+      "repo": "mflux-community/flux2-klein-4b-mflux-q4",
+      "revision": "77090341902cb5f9217f05c664ff604236ca18cc",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 25.111535834003007,
+      "peak_mlx_bytes": 7903729616
+    }
+  },
+  {
+    "asset": "pip.provenance",
+    "provider": "flux2_klein_mflux",
+    "model": {
+      "repo": "mflux-community/flux2-klein-4b-mflux-q4",
+      "revision": "77090341902cb5f9217f05c664ff604236ca18cc",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 15.103177500001038,
+      "peak_mlx_bytes": 7835599568
+    }
+  },
+  {
+    "asset": "repair-v2.provenance",
+    "provider": "qwen_tts_mlx",
+    "model": {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit",
+      "revision": "50f45ef0047cde7e84c2ef04326acb8ada2436a7",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 3.254726416998892,
+      "peak_mlx_bytes": 5911487447
+    }
+  },
+  {
+    "asset": "repair.provenance",
+    "provider": "qwen_tts_mlx",
+    "model": {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-8bit",
+      "revision": "50f45ef0047cde7e84c2ef04326acb8ada2436a7",
+      "license": "apache-2.0 (original model; conversion provenance recorded separately)"
+    },
+    "metrics": {
+      "elapsed_s": 3.073527833999833,
+      "peak_mlx_bytes": 5985101117
+    }
+  }
+]

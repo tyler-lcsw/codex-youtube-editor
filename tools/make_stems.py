@@ -36,7 +36,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ffmpeg's -filter_complex can outgrow the Windows command-line limit once a plan has ~100
-# cues, so every graph in this tool is written to a file and passed with -filter_complex_script.
+# cues, so graphs use the file-backed -/filter_complex option syntax.
 SCRATCH = os.path.join(ROOT, ".stems_tmp")
 
 
@@ -64,7 +64,7 @@ def run(cmd, graph=None, tag=""):
         gp = os.path.join(SCRATCH, f"graph_{tag or 'x'}.txt")
         with open(gp, "w", encoding="utf-8") as f:
             f.write(graph)
-        cmd = cmd + ["-filter_complex_script", gp]
+        cmd = cmd + ["-/filter_complex", gp]
     r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if r.returncode != 0:
         sys.stderr.write("\nFFMPEG FAILED:\n  " + " ".join(cmd[:40]) + " ...\n" + r.stdout[-4000:] + "\n")

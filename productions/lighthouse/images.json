@@ -1,0 +1,24 @@
+[
+  {
+    "id": "harbor",
+    "seed": 27,
+    "prompt": "A cinematic miniature storybook illustration of a small cream lighthouse with a dark lantern on a rocky island above a calm dark teal ocean at blue twilight. One tiny wooden boat far away on the right, warm orange running light. Beautiful handcrafted clay and paper textures, wide panoramic composition, gentle atmosphere, no text, no letters, no logos."
+  },
+  {
+    "id": "pip",
+    "seed": 19,
+    "prompt": "A charming small orange rounded robot lighthouse keeper, two large circular dark eyes, stubby arms, standing next to a brass lamp and an open electrical box on a wooden table inside a cream lighthouse. Two separated blue cable ends on the table. Dark teal twilight through a round window. Cinematic handcrafted miniature storybook, warm amber rim light, beautiful clear simple shapes, no writing or letters."
+  },
+  {
+    "id": "restored",
+    "seed": 27,
+    "ref": "harbor",
+    "prompt": "Keep this same miniature lighthouse island and little boat composition. Illuminate the lighthouse lantern with a brilliant warm amber light. A broad soft golden beam shines across the dark teal ocean toward the little boat. Warm hopeful twilight, cinematic handmade storybook illustration, no text."
+  },
+  {
+    "id": "dark",
+    "seed": 31,
+    "ref": "harbor",
+    "prompt": "Keep the exact same lighthouse island and boat scene. The lighthouse lantern is completely extinguished, black and unlit, no light in its glass, no glow from the tower. The tiny orange running light on the boat stays on. Everything else remains the same dark teal miniature nighttime ocean scene."
+  }
+]

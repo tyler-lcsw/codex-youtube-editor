@@ -1,0 +1,1 @@
+Return JSON only: {"motif":"warm amber light","repair_cue":"soft click"}. This is the chosen motif and sound for a fictional lighthouse repair story.

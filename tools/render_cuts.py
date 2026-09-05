@@ -82,10 +82,14 @@ def video_duration(path: Path) -> float:
 def render_audio_segment(src: Path, start: float, dur: float, out: Path) -> None:
     """Raw audio cut to a SAMPLE-EXACT length matching the segment's video."""
     n = round(dur * SR)
-    fades = (f"aresample={SR},apad,atrim=end_sample={n},"
+    # Decode presentation-time AAC before trimming. Input-side -ss 0 can discard
+    # encoder priming twice and advance speech by one AAC frame (1024 samples).
+    first = round(start * SR)
+    fades = (f"aresample={SR},atrim=start_sample={first}:end_sample={first+n},"
+             f"asetpts=PTS-STARTPTS,apad,atrim=end_sample={n},"
              f"afade=t=in:d=0.01,afade=t=out:st={max(n / SR - 0.01, 0):.4f}:d=0.01")
     cmd = ["ffmpeg", "-y", "-loglevel", "error",
-           "-ss", f"{start:.3f}", "-t", f"{dur + 0.2:.3f}", "-i", str(src),
+           "-i", str(src),
            "-vn", "-ar", str(SR), "-ac", "1", "-af", fades,
            "-c:a", "pcm_s16le", str(out)]
     subprocess.run(cmd, check=True)
@@ -124,7 +128,7 @@ def main() -> None:
     total = sum(e - s for _, (s, e) in jobs)
     print(f"{args.style}/{args.mode}: {len(jobs)} segments, output ~ {total / 60:.1f} min")
 
-    render_key = job_key({"cuts": data, "words": source_words, "sources": {str(src): file_hash(src) for src in set(src for src,_ in jobs)}, "encoder": enc}, "render-v3")
+    render_key = job_key({"cuts": data, "words": source_words, "sources": {str(src): file_hash(src) for src in set(src for src,_ in jobs)}, "encoder": enc}, "render-v4")
     seg_dir = project / "work" / "render" / f"{args.style}-{args.mode}-{render_key[:16]}"
     seg_dir.mkdir(parents=True, exist_ok=True)
     outs = [seg_dir / f"seg_{i:03d}.mp4" for i in range(len(jobs))]

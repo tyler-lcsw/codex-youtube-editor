@@ -1,0 +1,18 @@
+{
+  "pair": {
+    "model": "qwen3.5-9b",
+    "endpoint": "http://127.0.0.1:1234/v1",
+    "attempts": 2,
+    "max_output_tokens": 1024,
+    "result": "Both rejected: truncated model answer. No reasoning content accepted as answer. Script authored by Codex; PAIR editorial assistance unsuccessful.",
+    "actual_context_length": 92672,
+    "parallel": 1
+  },
+  "upstream_music": "Not reused: catalog rights tied to upstream author's ElevenLabs account.",
+  "synthetic_reference": "work/benchmarks/speech.wav, created previously with macOS say; exact reference text retained in reference.txt.",
+  "pair_4b": {
+    "model": "qwen3.5-4b",
+    "attempts": 1,
+    "result": "Truncated title suggestion; no final JSON accepted. Model unloaded."
+  }
+}
