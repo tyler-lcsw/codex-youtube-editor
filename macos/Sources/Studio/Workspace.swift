@@ -39,12 +39,14 @@ import StudioCore
         Task {do {try await body();persist()}catch{self.error=error.localizedDescription};busy=false}
     }
     func request(_ method:String,_ params:[String:Any]=[:]) async throws {
+        // Invalidate visible assessments before any potentially state-changing request.
+        workflow=[:];quality=[:]
         data=try await bridge.request(method,project:project,params:params);dataRevision += 1
+        workflow=try await bridge.request("workflow",project:project)
+        quality=try await bridge.request("quality",project:project)
     }
     func refresh() async throws {
         try await request("open")
-        workflow=try await bridge.request("workflow",project:project)
-        quality=try await bridge.request("quality",project:project)
     }
     func newProject() {
         guard !busy && !codex.running else {error="Wait for the current action or stop the Codex task before changing projects.";return}
