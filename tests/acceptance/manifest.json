@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "profile": "codex",
+  "models": ["gpt-6-astra", "gpt-5.6-sol"],
+  "fixtures": {
+    "discovery": {"prompt": "prompts/discovery.md", "review": ["Correct skill and local command routing", "Scoped native approval", "M4 memory boundary and publication waiver"]},
+    "timeline": {"prompt": "prompts/timeline.md", "review": ["Master versus final-output frame clocks", "Version/parameter rejection", "Failure preserves export", "CSS versus FFmpeg grading"]},
+    "resume": {"prompt": "prompts/resume.md", "review": ["Reservation versus actual generation uncertainty", "Reference and artifact hashes", "Worker cancellation", "Utility versus integrated orchestration"]}
+  },
+  "limits": "Read-only, at most eight repository files and 350 words per prompt. Completion is not quality approval. Full media, identity, hosted calls and multi-node acceptance are separate."
+}

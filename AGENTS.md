@@ -59,3 +59,11 @@ fitting single-M4 models; target 12 GiB active inference, reserve 8 GiB for OS/a
 4 GiB contingency, and measure actual pressure/context. Future PAIR nodes do not pool RAM.
 Preserve larger-provider interfaces but defer their qualification; do not download large
 models to satisfy the superseded visual/quality bar. Test PAIR locally; no remote setup.
+
+## Autonomous continuation
+
+Tyler authorized continuing development and automatically merging PRs after review and
+appropriate validation, without pausing between features, PR steps or tasks. Continue
+within the approved project scope; stop only when specific feedback/intervention is
+required. This does not authorize hosted generation outside its scoped approval,
+publication, additional-node setup or reopening the deferred full-parity benchmark.
