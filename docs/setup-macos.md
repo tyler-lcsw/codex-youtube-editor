@@ -82,3 +82,5 @@ Publication testing is explicitly waived. No upload should be performed during s
 Use the app-bundled Codex CLI 0.153.4 or newer for Astra/Sol; Homebrew CLI 0.146.0 was rejected by the service for Astra. On this installation the bundled binary is `/Applications/ChatGPT.app/Contents/Resources/codex`.
 
 Render QA: `.venv/bin/python -m tools.verify_render PROJECT --style natural` extracts the exact manifest master and binds fresh ASR to its hash. Unresolved word timing fails explicitly and requires review/re-alignment; unknown confidence remains unknown.
+
+Timeline export validation and failure preservation are described in [timeline compatibility](timeline-compatibility.md). Existing output remains intact when a bake fails.

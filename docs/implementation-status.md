@@ -19,10 +19,12 @@ Execution authorized September 5, 2026, including model downloads/use. Publicati
 | Tracker/publication | Local tracker persistence/filter/resync tests; publication retained | Publication tests/uploads waived |
 | Upstream | Original docs preserved, extension boundaries and merge procedure documented | Future upstream features need capability-specific qualification |
 
-Verification: 65 pytest tests passed (one publication test explicitly excluded), skill audit, Remotion TypeScript check and npm audit. Live evidence includes the 3.3-second synthetic edit → cleanup → Remotion cutaway → ducked SFX export and locally generated images. See the benchmark report for exact observations and limitations. No hosted media generation or publication occurred.
+Verification: 78 pytest tests passed (one publication test explicitly excluded), skill audit, Remotion TypeScript check and npm audit. Live evidence includes the 3.3-second synthetic edit → cleanup → Remotion cutaway → ducked SFX export and locally generated images. See the benchmark report for exact observations and limitations. No hosted media generation or publication occurred.
 
 The next production video still needs the user's actual brand/reference inputs and ordinary editorial review. It is not necessary to recreate the original example video or set up additional PAIR nodes to use this release.
 
 ## Post-merge continuation
 
 The setup/audit follow-up automates pinned DeepFilterNet archive installation and adds a read-only upstream comparison CLI. Archive hashes/path safety and unchanged-checkout audit behavior have focused regressions. The real pinned archive verified successfully, and the baseline-to-merge comparison produced a receipt. Full timeline-effect implementations and resource-heavy qualification remain outside this follow-up; the audit makes future upstream changes reviewable without enabling them automatically.
+
+The next compatibility step adds the legacy timeline schema, preserves unknown fields/reused shot assets, rejects unsupported extension declarations and stages final bake output. A real legacy fixture retained identical decoded picture/audio hashes. See `timeline-compatibility.md`. Declarative crossfade/punch-in/grade handlers remain pending; this step establishes validation rather than claiming those effects are implemented.

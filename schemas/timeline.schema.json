@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex editor legacy timeline and extension declarations",
+  "type": "object",
+  "required": ["master", "preview", "shots"],
+  "additionalProperties": true,
+  "properties": {
+    "master": {"type": "string", "minLength": 1},
+    "remotion_out": {"type": "string"},
+    "preview": {
+      "type": "object", "required": ["end_s"], "additionalProperties": true,
+      "properties": {
+        "end_s": {"type": "number", "exclusiveMinimum": 0},
+        "width": {"type": "integer", "minimum": 2},
+        "height": {"type": "integer", "minimum": 2},
+        "fps": {"type": "integer", "minimum": 1},
+        "out": {"type": "string", "minLength": 1},
+        "audio": {"type": "boolean"},
+        "vcodec_seg": {"type": "array", "items": {"type": "string"}},
+        "vcodec_out": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "shots": {"type": "array", "items": {"$ref": "#/$defs/shot"}},
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": true,
+        "required": ["id", "version", "target", "start_frame", "end_frame", "parameters", "time_policy"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "version": {"type": "integer", "minimum": 1},
+          "target": {"type": "string", "minLength": 1},
+          "start_frame": {"type": "integer", "minimum": 0},
+          "end_frame": {"type": "integer", "minimum": 1},
+          "parameters": {"type": "object"},
+          "time_policy": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "shot": {
+      "type": "object", "required": ["id", "type"], "additionalProperties": true,
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "type": {"enum": ["cutaway", "overlay", "split", "insert"]},
+        "master_in_s": {"type": "number", "minimum": 0},
+        "master_out_s": {"type": "number", "exclusiveMinimum": 0},
+        "master_at_s": {"type": "number", "minimum": 0},
+        "duration_s": {"type": "number", "exclusiveMinimum": 0},
+        "gain_db": {"type": "number"},
+        "master_crop_cx": {"type": "number", "minimum": 0, "maximum": 1},
+        "master_crop_cy": {"type": "number", "minimum": 0, "maximum": 1},
+        "master_crop_zoom": {"type": "number", "minimum": 1},
+        "master_box": {
+          "type": "object", "required": ["x", "y", "w", "h"], "additionalProperties": true,
+          "properties": {
+            "x": {"type": "number"}, "y": {"type": "number"},
+            "w": {"type": "number", "exclusiveMinimum": 0},
+            "h": {"type": "number", "exclusiveMinimum": 0}
+          }
+        }
+      },
+      "allOf": [
+        {"if": {"properties": {"type": {"const": "insert"}}},
+         "then": {"required": ["master_at_s", "duration_s"]},
+         "else": {"required": ["master_in_s", "master_out_s"]}},
+        {"if": {"properties": {"type": {"const": "split"}}},
+         "then": {"required": ["master_box"]}}
+      ]
+    }
+  }
+}
