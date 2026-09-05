@@ -34,6 +34,8 @@ import os
 import subprocess
 import sys
 import shutil
+import tempfile
+from pathlib import Path
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -67,12 +69,21 @@ def main():
     with open(tl_path, "r", encoding="utf-8") as f:
         tl = json.load(f)
 
+    sys.path.insert(0, ROOT)
+    from tools.timeline_extensions import apply_timeline_extensions, validate_bake_settings
+    if end_override is not None:
+        tl["preview"]["end_s"] = end_override
+    tl = apply_timeline_extensions(tl)
+    validate_bake_settings(tl)
+
     master = proj(tl["master"])                                     # project data -> CWD
     out_dir = os.path.join(ROOT, tl.get("remotion_out", "remotion/out"))  # engine -> ROOT
     pv = tl["preview"]
     END = end_override if end_override is not None else float(pv["end_s"])
     W, H, FPS = int(pv["width"]), int(pv["height"]), int(pv["fps"])
     out_path = proj(pv["out"])                                      # project data -> CWD
+    if Path(out_path).resolve() == Path(master).resolve():
+        raise ValueError("Bake output must differ from the original master")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     # Encoder is overridable from the timeline's preview block. The 1080p30 defaults below are
     # what every preview bake has always used; a 4K60 bake needs the GPU (libx264 at 4K60 is
@@ -126,10 +137,8 @@ def main():
         bounds.add(ins["at"])
     bounds = sorted(b for b in bounds if 0.0 <= b <= END)
 
-    scratch = os.path.join(os.path.dirname(out_path), "_bake_tmp")
-    if os.path.exists(scratch):
-        shutil.rmtree(scratch)
-    os.makedirs(scratch)
+    scratch = tempfile.mkdtemp(prefix="_bake_", dir=os.path.dirname(out_path))
+    staged_output = os.path.join(scratch, "completed" + Path(out_path).suffix)
 
     seg_files = []
     total_ins = sum(i["dur"] for i in inserts)
@@ -249,13 +258,16 @@ def main():
     cmd += [*VOUT, "-pix_fmt", "yuv420p", "-r", str(FPS)]
     if WITH_AUDIO:
         cmd += ["-c:a", "aac", "-b:a", "192k"]
-    cmd += ["-t", f"{TOTAL:.4f}", "-movflags", "+faststart", out_path]
+    cmd += ["-t", f"{TOTAL:.4f}", "-movflags", "+faststart", staged_output]
     run(cmd)
 
+    dur = run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+               "-of", "default=nw=1:nk=1", staged_output]).strip()
+    if abs(float(dur) - TOTAL) > max(1 / FPS, 0.04):
+        raise ValueError(f"Bake duration differs from timeline: {dur}s vs {TOTAL}s; previous output preserved")
+    os.replace(staged_output, out_path)
     if not keep:
         shutil.rmtree(scratch)
-    dur = run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-               "-of", "default=nw=1:nk=1", out_path]).strip()
     print(f"done -> {os.path.relpath(out_path, ROOT)}  ({dur}s)")
 
 
