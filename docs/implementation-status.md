@@ -183,3 +183,7 @@ authorized source. It rejects universal duration/cut/effect rules, cross-platfor
 engagement scores, advertising-to-organic transfer, and automatic center-crop workflows.
 No short-form capability, upload, publication test, authoritative rule, or provider changed
 in this research pass.
+
+### Application name (September 6, 2026)
+
+Renamed visible branding, the window/application name, Codex client title and build output to **Codex Media Studio**. The existing bundle identifier, executable, project folders and diagnostic paths remain stable so saved settings and existing productions continue to work.

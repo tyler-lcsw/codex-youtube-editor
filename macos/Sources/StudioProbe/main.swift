@@ -10,7 +10,7 @@ Task { @MainActor in
         let root=FileManager.default.currentDirectoryPath
         let models=ProcessInfo.processInfo.arguments.contains("--account-only") ? [] : ["gpt-6-astra","gpt-5.6-sol"]
         for model in models {
-            let id=try await client.send(text:"This is a bounded Codex Studio subscription integration test. Do not use tools, read files, change files, or produce media. Reply with exactly STUDIO_SUBSCRIPTION_OK.",engine:root,project:root,model:model,readOnly:true)
+            let id=try await client.send(text:"This is a bounded Codex Media Studio subscription integration test. Do not use tools, read files, change files, or produce media. Reply with exactly STUDIO_SUBSCRIPTION_OK.",engine:root,project:root,model:model,readOnly:true)
             let deadline=Date().addingTimeInterval(120)
             while client.running && Date()<deadline {try await Task.sleep(nanoseconds:200_000_000)}
             guard !client.running else {try? await client.interrupt();throw StudioError("Model probe timed out")}

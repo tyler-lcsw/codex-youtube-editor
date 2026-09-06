@@ -50,7 +50,7 @@ Technical checks do not replace complete playback and listening review.
 
 ## Mac production app
 
-[Codex Studio](docs/mac-studio.md) consolidates footage/context intake, editable workflow
+[Codex Media Studio](docs/mac-studio.md) consolidates footage/context intake, editable workflow
 stages, native playback, frame and time-range annotations, revision feedback, resource
 preferences and subscription-authenticated Codex. Build the development app with
 `.venv/bin/python tools/build_studio_app.py`. Read the [approved plan](plan/Mac%20Production%20Studio%20%E2%80%94%20Implementation%20Plan.html) for scope and acceptance.
