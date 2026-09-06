@@ -1,0 +1,313 @@
+[
+  {
+    "seconds": 23,
+    "tab": "Start here",
+    "title": "From raw footage\nto a reviewed edit",
+    "subtitle": "Codex Media Studio • Quick-start tutorial",
+    "steps": [
+      "Follow one example: edit a short desk-setup video.",
+      "Text-led walkthrough • pause whenever you need."
+    ],
+    "cards": [
+      [
+        "1  BRIEF",
+        "Tell the editor what matters."
+      ],
+      [
+        "2  HANDOFF",
+        "Use desktop Codex while sign-in is unresolved."
+      ],
+      [
+        "3  REVIEW",
+        "Give precise feedback on each revision."
+      ]
+    ],
+    "tip": "Illustrated workflow — not a screen recording."
+  },
+  {
+    "seconds": 22,
+    "tab": "Brief & sources",
+    "title": "01  Create a production",
+    "subtitle": "Keep one project folder for one video.",
+    "steps": [
+      "Choose New. Name the folder “Desk setup”.",
+      "Choose Import footage or documents, or drop your files.",
+      "Wait for import to finish; check the listed sources."
+    ],
+    "cards": [
+      [
+        "NEW",
+        "Desk setup"
+      ],
+      [
+        "IMPORT FOOTAGE OR DOCUMENTS",
+        "desk-setup-raw.mp4"
+      ],
+      [
+        "ORIGINALS",
+        "Studio copies files into the production."
+      ]
+    ],
+    "tip": "Example filenames are illustrative. Originals stay intact."
+  },
+  {
+    "seconds": 30,
+    "tab": "Brief & sources",
+    "title": "02  Give the edit a purpose",
+    "subtitle": "A useful brief describes the result, not just “make it better”.",
+    "steps": [
+      "Fill in audience, takeaway, length and tone.",
+      "Use Keep or emphasize for details that must survive.",
+      "Add editing context, then choose Save brief."
+    ],
+    "cards": [
+      [
+        "AUDIENCE / TAKEAWAY",
+        "Beginners • a clearer, more comfortable desk"
+      ],
+      [
+        "LENGTH / TONE",
+        "About 3 minutes • calm and practical"
+      ],
+      [
+        "KEEP / CONTEXT",
+        "Keep the warning. Use the corrected second take."
+      ]
+    ],
+    "tip": "Save before switching tabs. Refresh does not save draft text."
+  },
+  {
+    "seconds": 27,
+    "tab": "Brief & sources",
+    "title": "03  Explain your references",
+    "subtitle": "A link needs a role and a reason.",
+    "steps": [
+      "Enter a descriptive Label and the resource URL.",
+      "Choose Source, Reference or Background; select Add link.",
+      "Explain which part matters in your brief."
+    ],
+    "cards": [
+      [
+        "SOURCE",
+        "Material that belongs in this edit"
+      ],
+      [
+        "REFERENCE",
+        "An example of the pace or look you want"
+      ],
+      [
+        "BACKGROUND",
+        "Context that helps the editor understand"
+      ]
+    ],
+    "tip": "Adding a link records it; it does not download or analyze it."
+  },
+  {
+    "seconds": 25,
+    "tab": "Resources",
+    "title": "04  Choose your resources",
+    "subtitle": "Selections are preferences, not setup or permission.",
+    "steps": [
+      "Keep local tools for transcription, cleanup and rendering.",
+      "Choose Remotion when the edit needs motion graphics.",
+      "Ask Codex to check readiness before generation."
+    ],
+    "cards": [
+      [
+        "LOCAL DEFAULTS",
+        "Qwen transcription • DeepFilterNet cleanup"
+      ],
+      [
+        "RENDERING",
+        "FFmpeg assembly • Remotion graphics"
+      ],
+      [
+        "OPTIONAL IMAGES",
+        "Native Codex images need scoped approval."
+      ]
+    ],
+    "tip": "Run one heavy local model at a time. A selection installs nothing."
+  },
+  {
+    "seconds": 30,
+    "tab": "Export handoff",
+    "title": "05  Continue in desktop Codex",
+    "subtitle": "Use this route while Studio sign-in remains unresolved.",
+    "steps": [
+      "Save your brief, resource choices and feedback.",
+      "Choose Export handoff; its text is copied for you.",
+      "Paste it into desktop Codex and add the example request."
+    ],
+    "cards": [
+      [
+        "EXAMPLE REQUEST",
+        "Read this handoff and inspect my sources."
+      ],
+      [
+        "BEFORE CUTTING",
+        "Document source understanding and an edit strategy."
+      ],
+      [
+        "FIRST OUTPUT",
+        "Make a short representative preview, then register it as a revision."
+      ]
+    ],
+    "tip": "Export handoff sends context, not a video. Use subscription Codex."
+  },
+  {
+    "seconds": 29,
+    "tab": "Understanding",
+    "title": "06  Understand before cutting",
+    "subtitle": "The editor should explain the source and the proposed changes.",
+    "steps": [
+      "Read the source understanding and edit strategy.",
+      "Check that the argument, warning and conclusion survive.",
+      "Ask Codex to record actual evidence for each stage."
+    ],
+    "cards": [
+      [
+        "INTAKE → UNDERSTANDING",
+        "What is here, and what does it mean?"
+      ],
+      [
+        "EDITORIAL STRATEGY → EDIT",
+        "What will change, and why?"
+      ],
+      [
+        "FINAL REVIEW",
+        "Are the actual delivery files ready?"
+      ]
+    ],
+    "tip": "Evidence records real work. It does not make an unfinished check pass."
+  },
+  {
+    "seconds": 29,
+    "tab": "Review",
+    "title": "07  Review a real revision",
+    "subtitle": "A completed render is the start of review.",
+    "steps": [
+      "Choose Refresh after Codex registers the preview.",
+      "Select the output in Viewing, then play it with sound.",
+      "Use Add revision if you need to register an output yourself."
+    ],
+    "cards": [
+      [
+        "VIEWING",
+        "Source or a specific output revision"
+      ],
+      [
+        "WATCH + LISTEN",
+        "Meaning • timing • readable graphics • clear speech"
+      ],
+      [
+        "COMPARE",
+        "Select versions one at a time."
+      ]
+    ],
+    "tip": "Review the rendered file, not only a transcript or still image."
+  },
+  {
+    "seconds": 31,
+    "tab": "Review",
+    "title": "08  Leave precise feedback",
+    "subtitle": "Point to the problem and describe the intended result.",
+    "steps": [
+      "Seek to the issue; choose Pause & annotate.",
+      "Optionally draw a region or enter a range end in seconds.",
+      "Write what should change and why; choose Save annotation."
+    ],
+    "cards": [
+      [
+        "EXAMPLE NOTE",
+        "The label covers the cable connection."
+      ],
+      [
+        "REQUESTED CHANGE",
+        "Move it above the desk; keep the connection visible."
+      ],
+      [
+        "BOUND TO THIS VERSION",
+        "The captured frame and time stay with this revision."
+      ]
+    ],
+    "tip": "Capture first. A rectangle alone does not save a comment."
+  },
+  {
+    "seconds": 30,
+    "tab": "Review",
+    "title": "09  Check the correction",
+    "subtitle": "Feedback acceptance is your decision.",
+    "steps": [
+      "Export a fresh handoff and ask Codex for the correction.",
+      "Play the replacement revision and inspect the change.",
+      "On the original note, choose its Replacement revision and add Resolution notes."
+    ],
+    "cards": [
+      [
+        "ADDRESSED",
+        "The correction has been made."
+      ],
+      [
+        "READY FOR REVIEW",
+        "It is waiting for your inspection."
+      ],
+      [
+        "ACCEPT CORRECTION / REOPEN",
+        "Accept only after review, or explain what still needs work."
+      ]
+    ],
+    "tip": "Each status change needs notes. Codex must not accept for you."
+  },
+  {
+    "seconds": 28,
+    "tab": "Codex & QA",
+    "title": "10  Export after quality review",
+    "subtitle": "Technical checks and creative acceptance are separate.",
+    "steps": [
+      "Ask desktop Codex to validate the final file and record QA.",
+      "Watch the whole export at normal speed with audio.",
+      "Keep unresolved findings visible and request fixes."
+    ],
+    "cards": [
+      [
+        "TECHNICAL",
+        "Decode • dimensions • duration • timing"
+      ],
+      [
+        "CREATIVE",
+        "Meaning • legibility • sound • full playback"
+      ],
+      [
+        "DELIVERY",
+        "Save the final MP4. Publication is a separate decision."
+      ]
+    ],
+    "tip": "Nothing in this walkthrough authorizes an upload."
+  },
+  {
+    "seconds": 34,
+    "tab": "How to Use",
+    "title": "Keep the guide beside you",
+    "subtitle": "Start with a small preview. Improve one revision at a time.",
+    "steps": [
+      "Choose How to Use and search for a task or control.",
+      "Use Help for this tab to keep your current draft underneath.",
+      "Copy an example, adapt it, and paste it into Codex."
+    ],
+    "cards": [
+      [
+        "76 TOPICS",
+        "Every tab • all 18 production skills"
+      ],
+      [
+        "READ THE AVAILABILITY NOTES",
+        "Retained or deferred does not mean ready to run."
+      ],
+      [
+        "NEXT STEP",
+        "Import your own footage and write a meaningful brief."
+      ]
+    ],
+    "tip": "This film explains the workflow; it does not qualify raw-footage editing."
+  }
+]

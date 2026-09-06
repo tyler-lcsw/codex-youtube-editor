@@ -214,3 +214,18 @@ The tutorial assessment and chapter outline are in
 first film demonstrates authentic footage editing, with a separate explanation of skills
 that are deferred or require specific inputs. Production policy and actual audiovisual QA
 still govern any later recording. Publication testing/uploads were not performed.
+
+## Illustrated tutorial render — September 6
+
+A 5:38 text-led tutorial is rendered and registered in the local Studio project
+`~/Movies/Codex Studio/Studio Tutorial September 6`. It uses Remotion, procedural
+chapter cues, a real exported Codex handoff, revision registration and the quality
+coordinator. See `../productions/studio-tutorial/Execution Report.md` and its editable
+scene/renderer sources. It teaches desktop handoff while the user's in-app authentication
+issue remains unresolved; it does not claim a successful login or real-footage qualification.
+
+Corrected MP4 passed full decode, 1080p30/10,140-frame/duration checks, decoded chapter
+cue checks and frame inspection. Self-review found silent-track selection; explicit
+FFmpeg maps repaired it without re-rendering the picture. Full normal-speed audiovisual
+review, cue listening and owner acceptance remain pending; no completion receipt or
+publication was issued. Media stays outside Git; reproducible sources are versioned.

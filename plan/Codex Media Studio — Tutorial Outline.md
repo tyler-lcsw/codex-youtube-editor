@@ -43,3 +43,11 @@ Use brief text explanations and links to the corresponding Production skills art
 Choose a short source clip that can be shared, an intended narration method, and a clear edit objective before media production begins. The raw-footage workflow still needs authentic audiovisual qualification; existing synthetic fixtures do not settle that requirement.
 
 Register a Studio project and read the current production rules before production, at editing checkpoints and at final QA. Run media actions through the quality coordinator. Check every instruction against the installed app, verify text legibility at delivery size, listen to the entire soundtrack, watch the whole export, independently check retained speech, and record actual evidence. A render exit code is not acceptance. Publication remains a separate explicit decision.
+
+## September 6 execution update
+
+The user requested a render while reporting in-app authentication still unavailable.
+A 5:38 **illustrated text-led** tutorial was therefore produced using desktop Codex handoff,
+with no invented screen recording or voice reference. Actual render/check results and
+pending audiovisual review are documented in `../productions/studio-tutorial/Execution Report.md`.
+The authentic-footage recording described above remains a separate future exercise.
