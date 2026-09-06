@@ -15,7 +15,7 @@ p.testUnknownApprovalCannotBecomeAnAcceptance()
 try ReviewTests().testLetterboxCoordinatesAndReverseDrag()
 testAnnotationDraftsAndSavedContextStayIndependent()
 Task { @MainActor in
-    do { try await testTransportDisconnectResolvesPendingRequests(); try await testAccountSwitchToAPIPreventsTurnDispatch(); try await testUncertainDispatchKeepsTurnLockAndPersistsThreadFirst(); try await testFailedProjectOpenPreservesIdentityAndRejectsOverlap(); try await testObservedCompletionWinsOverDelayedDispatchTimeout(); print("13 native core checks passed"); exit(0) }
+    do { try await testAccountCheckCannotClearAnInFlightLoginStart(); try await testLoginStartTimeoutClosesUnownedCallback(); try await testLoginSuccessClearsLinkAndRefreshesAccount(); try await testCancelAndRetryIgnoreOldCompletion(); try await testLoginRefreshFailureIsVisible(); try await testLoginFailureIsVisible(); try await testRepeatedSignInDoesNotReplacePendingCallback(); try await testExistingSubscriptionSkipsBrowserLogin(); try await testTransportDisconnectResolvesPendingRequests(); try await testAccountSwitchToAPIPreventsTurnDispatch(); try await testUncertainDispatchKeepsTurnLockAndPersistsThreadFirst(); try await testFailedProjectOpenPreservesIdentityAndRejectsOverlap(); try await testObservedCompletionWinsOverDelayedDispatchTimeout(); print("21 native core checks passed"); exit(0) }
     catch { print(error); exit(1) }
 }
 RunLoop.main.run()

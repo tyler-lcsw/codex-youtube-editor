@@ -115,3 +115,16 @@ actions. Fresh checks: 142 Python tests, publication excluded; 13 native checks;
 build/skill audit; independent review approved. This supersedes the earlier blocked
 basic-interaction gate. Computer-use helper failures on some views remain an external
 automation limitation; authentic-footage editing and final creative QA are still separate.
+
+### Studio authentication recovery (September 6, 2026)
+
+A reported browser login/retry failure exposed missing automatic account checks and
+incomplete login lifecycle handling. Existing managed credentials were verified live
+by Connect in the old app, then detected automatically on launch in the rebuilt app.
+Studio now prevents overlapping logins, tracks pending links across tabs, supports
+explicit account checks/cancellation, matches completion IDs, surfaces failure/refresh
+errors and cleans up unknown callback state after start timeout. Structured auth logs
+exclude credential and URL contents. Native regressions: 21 checks; Python: 142 passed,
+publication excluded. Real isolated Codex login-start/cancel verified listener creation
+and release. The owner's exact earlier localhost error and fresh browser completion
+remain unverified; no credentials were reset. See the interactive test log.

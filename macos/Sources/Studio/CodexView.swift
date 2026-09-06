@@ -7,24 +7,31 @@ struct CodexView:View {
     @State private var prompt=""
     @AppStorage("studioCodexModel") private var model="gpt-6-astra"
     @State private var answers=[String:String]()
-    @State private var connecting=false
-    @State private var loginURL:URL?
     var body:some View {
         ScrollView {VStack(alignment:.leading,spacing:18) {
             GroupBox("ChatGPT subscription") {
                 VStack(alignment:.leading,spacing:12) {
                     HStack {Label(client.accountLabel,systemImage:client.subscription ? "checkmark.seal" : "person.crop.circle");Spacer()
-                        Button(connecting ? "Connecting…" : "Connect") {connect()}.accessibilityLabel("Connect").disabled(connecting || client.running)
-                        Button("Sign in with ChatGPT") {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};let url=try await client.signIn();loginURL=url;NSWorkspace.shared.open(url)} catch {w.error=error.localizedDescription}}}.accessibilityLabel("Sign in with ChatGPT").disabled(client.running || connecting)
+                        Button(client.connecting ? "Checking…" : "Check sign-in") {connect()}.accessibilityLabel("Check sign-in").disabled(client.connecting || client.running || (client.signingIn && client.loginURL == nil))
+                        Button("Sign in with ChatGPT") {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};if let url=try await client.signIn() {NSWorkspace.shared.open(url)}} catch {w.error=error.localizedDescription}}}.accessibilityLabel("Sign in with ChatGPT").disabled(client.running || client.connecting || client.signingIn || client.subscription)
                     }
-                    if let loginURL {Link("Open ChatGPT sign-in",destination:loginURL);Text(loginURL.absoluteString).font(.caption).lineLimit(3).textSelection(.enabled)}
+                    if client.signingIn {
+                        Text("Waiting for browser sign-in. Keep Studio open until authentication is confirmed.")
+                        if let url=client.loginURL {
+                            HStack {
+                                Link("Reopen current sign-in",destination:url)
+                                Button("Cancel sign-in") {Task {do {try await client.cancelSignIn()}catch {w.error=error.localizedDescription}}}.accessibilityLabel("Cancel sign-in")
+                            }
+                        }
+                        Text("If localhost reports an error, use Check sign-in first. If still signed out, cancel here and start a new attempt; do not reload an old callback page.").font(.caption).foregroundStyle(.secondary)
+                    }
                     Text("Subscription access only. No API key or API billing fallback.").font(.caption).foregroundStyle(.secondary)
                     DisclosureGroup("Local application paths") {
                         TextField("Engine repository",text:$w.engine).accessibilityLabel("Engine repository").textFieldStyle(.roundedBorder)
                         TextField("Python executable",text:$w.python).accessibilityLabel("Python executable").textFieldStyle(.roundedBorder)
                         TextField("Codex executable",text:$w.codexBinary).accessibilityLabel("Codex executable").textFieldStyle(.roundedBorder)
                         Button("Save paths") {w.persist()}.accessibilityLabel("Save paths")
-                    }.disabled(client.running || w.busy || connecting)
+                    }.disabled(client.running || w.busy || client.connecting || client.signingIn)
                 }.padding(12)
             }
             GroupBox("Production task") {
@@ -73,8 +80,9 @@ struct CodexView:View {
                 }.padding(12)
             }
         }.padding(24)}
+        .task {if !client.connected && !client.connecting {connect()}}
     }
-    func connect() {connecting=true;Task {defer{connecting=false};do {try await client.connect(binary:w.codexBinary)}catch{w.error=error.localizedDescription}}}
+    func connect() {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};try await client.checkSignIn()}catch{w.error=error.localizedDescription}}}
     func respond(_ q:CodexQuestion,_ allow:Bool) {do {try client.answer(q,allow:allow)}catch{w.error=error.localizedDescription}}
     func send() {
         let instruction=prompt,project=w.project,engine=w.engine,selectedModel=model
