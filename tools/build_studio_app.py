@@ -36,7 +36,7 @@ def assemble(executable,engine,output,sign=True):
     if not (engine/'tools/studio.py').is_file():raise ValueError('Choose the production engine repository')
     if output.suffix!='.app':raise ValueError('Output must be an .app bundle')
     output.parent.mkdir(parents=True,exist_ok=True)
-    stage=Path(tempfile.mkdtemp(prefix='.studio-bundle-',dir=output.parent))/'Codex Studio.app'
+    stage=Path(tempfile.mkdtemp(prefix='.studio-bundle-',dir=output.parent))/'Codex Media Studio.app'
     try:
         contents=stage/'Contents';binary=contents/'MacOS/CodexStudio';binary.parent.mkdir(parents=True)
         shutil.copy2(executable,binary)
@@ -45,7 +45,7 @@ def assemble(executable,engine,output,sign=True):
             shutil.copy2(ROOT/'macos/Resources'/name,resources/name)
         (contents/'Info.plist').write_bytes(plistlib.dumps({
             'CFBundleExecutable':'CodexStudio','CFBundleIdentifier':'local.tyler.codex-studio',
-            'CFBundleName':'Codex Studio','CFBundleDisplayName':'Codex Studio',
+            'CFBundleName':'Codex Media Studio','CFBundleDisplayName':'Codex Media Studio',
             'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.1.0','CFBundleVersion':'1',
             'LSMinimumSystemVersion':'14.0','NSHighResolutionCapable':True,
             'StudioEnginePath':str(engine),
@@ -64,7 +64,7 @@ def assemble(executable,engine,output,sign=True):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--engine',type=Path,default=ROOT);p.add_argument('--output',type=Path,default=ROOT/'work/apps/Codex Studio.app')
+    p.add_argument('--engine',type=Path,default=ROOT);p.add_argument('--output',type=Path,default=ROOT/'work/apps/Codex Media Studio.app')
     p.add_argument('--checks',action='store_true');p.add_argument('--probe',action='store_true');p.add_argument('--account-only',action='store_true')
     a=p.parse_args()
     if a.checks or a.probe or a.account_only:

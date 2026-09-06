@@ -6,17 +6,17 @@ import StudioCore
     @StateObject private var workspace=Workspace()
     init() {
         Diagnostics.shared?.captureRuntimeErrors()
-        if Diagnostics.shared == nil {NSLog("Codex Studio could not open its diagnostics folder.")}
+        if Diagnostics.shared == nil {NSLog("Codex Media Studio could not open its diagnostics folder.")}
         NSSetUncaughtExceptionHandler {exception in
             Diagnostics.shared?.record("uncaught_exception",detail:exception.name.rawValue)
         }
         Diagnostics.shared?.importCrashReports(from:FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/DiagnosticReports"))
     }
     var body: some Scene {
-        WindowGroup("Codex Studio") {
+        WindowGroup("Codex Media Studio") {
             StudioWindow().environmentObject(workspace).frame(minWidth:1100,minHeight:740)
                 .task {NSApp.setActivationPolicy(.regular);NSApp.activate(ignoringOtherApps:true)
-                    for window in NSApp.windows where window.title == "Codex Studio" {
+                    for window in NSApp.windows where window.title == "Codex Media Studio" {
                         Diagnostics.shared?.record("window_focus_before",detail:"key=\(window.isKeyWindow) canKey=\(window.canBecomeKey) visible=\(window.isVisible)")
                         window.makeKeyAndOrderFront(nil)
                         Diagnostics.shared?.record("window_focus_after",detail:"key=\(window.isKeyWindow)")
@@ -41,7 +41,7 @@ struct StudioWindow:View {
                     if let url=Bundle.main.url(forResource:"StudioMark",withExtension:"png"),let mark=NSImage(contentsOf:url) {
                         Image(nsImage:mark).resizable().frame(width:42,height:42).accessibilityHidden(true)
                     }
-                    Text("CODEX STUDIO").font(.headline).tracking(1)
+                    Text("Codex Media Studio").font(.headline).lineLimit(2)
                 }
                 Text(w.title).font(.title2.bold())
                 Text("A clear path from footage to finished story.").foregroundStyle(.secondary)

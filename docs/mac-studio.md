@@ -1,4 +1,4 @@
-# Codex Studio for Mac
+# Codex Media Studio for Mac
 
 A developmental native workspace around the existing production engine. It retains Remotion, local inference, source files, provider approvals, and authoritative production QA. Codex uses ChatGPT sign-in and subscription access exclusively. There is no API-key entry or API fallback.
 
@@ -8,7 +8,7 @@ On M4 with the existing Python environment, FFmpeg and Swift command-line tools:
 
 ```sh
 .venv/bin/python tools/build_studio_app.py
-open 'work/apps/Codex Studio.app'
+open 'work/apps/Codex Media Studio.app'
 ```
 
 The bundle is ad-hoc signed for local development, not notarized for distribution. It contains the native executable and an engine path, not your footage, credentials, Python environment or model weights. Choose another engine/Python/Codex path in Codex & QA if the checkout moves. The default Codex executable is the desktop application's bundled CLI. Source requires Swift 6.3 package tooling, with Swift 5 language mode and macOS 14+ APIs.
@@ -104,3 +104,5 @@ The editable source is `macos/Brand/PrecisionCut.svg`; theme tokens are in
 `.venv/bin/python tools/build_studio_icons.py` (macOS `iconutil` and librsvg's
 `rsvg-convert` required only for regeneration). Normal app builds simply bundle the
 committed resources. No external service is required to build or display the identity.
+
+The application brand is **Codex Media Studio**. Its bundle identifier, internal executable name, saved preferences, existing project location (`~/Movies/Codex Studio`) and diagnostic location (`~/Library/Logs/Codex Studio`) remain stable for continuity. Existing projects need no migration.
