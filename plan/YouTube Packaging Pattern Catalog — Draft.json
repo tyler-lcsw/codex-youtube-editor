@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "catalog_id": "codex-studio-youtube-packaging-patterns",
+  "catalog_version": "0.1.0-draft",
+  "status": "research-draft-not-production-policy",
+  "target": {
+    "platform": "YouTube",
+    "format": "long-form",
+    "primary_surfaces": ["home", "suggested", "subscriptions", "search"],
+    "objective": "an accurate title-thumbnail promise that earns both the click and continued viewing"
+  },
+  "platform_contract": {
+    "current_as_of": "2026-09-06",
+    "ab_test_variants_maximum": 3,
+    "supported_test_modes": ["title-only", "thumbnail-only", "title-and-thumbnail"],
+    "winner_metric": "watch_time",
+    "notes": "YouTube's current native experiment can test titles, thumbnails, or their combinations and chooses by watch time. This supersedes the repository packaging skill's thumbnail-only assumption; implementation must feature-detect or version the contract."
+  },
+  "evidence_levels": {
+    "platform_guidance": "Current first-party YouTube guidance.",
+    "observational_research": "Quantitative association; not causal proof for a channel.",
+    "practice_consensus": "Recurring professional pattern that needs channel calibration.",
+    "case_observation": "Directly observed in the cited channel sample; intention and effect remain unproven."
+  },
+  "patterns": [
+    {
+      "id": "joint-promise",
+      "name": "Title and thumbnail as one promise",
+      "goal": ["appeal", "expectation-setting", "satisfaction"],
+      "use": "Assign each component a distinct job: the title names the subject/value with enough context; the image and short overlay add a visual claim, tension, relationship, or interpretation.",
+      "avoid": ["verbatim duplication", "contradictory promises", "a thumbnail beat absent from the video"],
+      "required_inputs": ["video premise", "opening payoff", "audience", "discovery surface"],
+      "evaluation": ["cold-viewer expectation test", "intro promise audit", "native watch-time A/B test"],
+      "evidence": ["platform_guidance", "practice_consensus"]
+    },
+    {
+      "id": "searchable-title",
+      "name": "Search-readable title",
+      "goal": ["relevance", "findability", "expectation-setting"],
+      "use": "Place the most important accurate entities and topic phrases early enough to survive truncation; state what happened, what is analyzed, or what the viewer will learn.",
+      "avoid": ["keyword stuffing", "tags pasted into prose", "burying the main entity after branding", "unsupported certainty"],
+      "required_inputs": ["verified names/entities", "topic language", "search-versus-browse intent"],
+      "evaluation": ["query-to-title relevance", "truncation preview", "accuracy and defamation-risk review"],
+      "evidence": ["platform_guidance", "case_observation"]
+    },
+    {
+      "id": "intrigue-title",
+      "name": "Browse-oriented intrigue title",
+      "goal": ["appeal", "curiosity"],
+      "use": "Frame a truthful tension, consequence, contrast, or unanswered question while retaining a specific noun or event.",
+      "avoid": ["withheld subject", "sensational implication unsupported by the video", "shock without information"],
+      "required_inputs": ["story tension", "known resolution", "audience familiarity"],
+      "evaluation": ["specificity test", "promise-versus-payoff audit", "native watch-time A/B test"],
+      "evidence": ["platform_guidance", "practice_consensus"]
+    },
+    {
+      "id": "recognition-template",
+      "name": "Stable channel-recognition template",
+      "goal": ["brand_recognition", "browse-speed-identification", "trust"],
+      "use": "Hold a small set of stable tokens—type family, text zone, creator/logo anchor, border/accent behavior, and compositional rhythm—while changing the story image and hook.",
+      "avoid": ["making every topic visually identical", "brand marks larger than the story", "locking a weak template forever"],
+      "required_inputs": ["brand tokens", "safe areas", "browse-wall comparison", "template version"],
+      "evaluation": ["masked-title channel recognition test", "small-preview legibility", "within-channel test history"],
+      "evidence": ["platform_guidance", "practice_consensus", "case_observation"]
+    },
+    {
+      "id": "semantic-hero",
+      "name": "Topic-specific hero subject",
+      "goal": ["immediate_comprehension", "relevance", "visual_interest"],
+      "use": "Give the person, object, place, or evidence central to this story most of the visual area.",
+      "avoid": ["generic stock imagery", "a creator face unrelated to the specific story", "collages with no hierarchy"],
+      "required_inputs": ["source/provenance", "verified identity", "topic-to-image mapping"],
+      "evaluation": ["one-second subject identification", "truthfulness", "crop quality across devices"],
+      "evidence": ["platform_guidance", "observational_research", "case_observation"]
+    },
+    {
+      "id": "creator-signature-inset",
+      "name": "Small creator signature inset",
+      "goal": ["brand_recognition", "authorship", "trust"],
+      "use": "Use a consistent, subordinate creator portrait as a channel signature when the story subject—not the host—should dominate.",
+      "avoid": ["forcing a face when it consumes needed semantic space", "unlicensed likeness", "misrepresenting participation"],
+      "required_inputs": ["approved creator portrait", "identity consent", "template anchor"],
+      "evaluation": ["recognition at browse size", "semantic subject remains dominant", "identity accuracy"],
+      "evidence": ["case_observation", "practice_consensus"]
+    },
+    {
+      "id": "short-interpretive-overlay",
+      "name": "Short interpretive overlay",
+      "goal": ["curiosity", "tone", "complementary_information"],
+      "use": "Add a brief phrase, label, metaphor, or pun that interprets the story rather than restating the full title.",
+      "avoid": ["unreadable copy", "too many text zones", "a joke that distorts a serious claim", "keyword duplication without added meaning"],
+      "required_inputs": ["locked pair concept", "tone", "text-safe zone"],
+      "evaluation": ["spelling", "one-second read", "title-thumbnail complement test", "tone and dignity review"],
+      "evidence": ["platform_guidance", "case_observation", "practice_consensus"]
+    },
+    {
+      "id": "high-contrast-text-zone",
+      "name": "Consistent high-contrast text zone",
+      "goal": ["legibility", "recognition", "hierarchy"],
+      "use": "Reserve a predictable region with strong foreground/background separation and a readable type family.",
+      "avoid": ["text over uncontrolled detail", "too-small type", "all-caps paragraphs", "critical content under duration/UI overlays"],
+      "required_inputs": ["delivery-size previews", "safe-area map", "font license"],
+      "evaluation": ["mobile and desktop browse preview", "contrast/readability review", "thumbnail-wall comparison"],
+      "evidence": ["platform_guidance", "observational_research", "case_observation"]
+    },
+    {
+      "id": "controlled-template-evolution",
+      "name": "Controlled template evolution",
+      "goal": ["continued_recognition", "adaptation", "creative_range"],
+      "use": "Version templates deliberately: retain enough signature tokens to remain recognizable while testing a meaningful change in hierarchy, imagery, or text treatment.",
+      "avoid": ["untracked redesigns", "simultaneous changes that cannot be interpreted", "treating brand consistency as immunity from testing"],
+      "required_inputs": ["template version history", "test hypothesis", "representative old/new browse wall"],
+      "evaluation": ["recognition comparison", "native A/B result", "qualitative audience feedback"],
+      "evidence": ["platform_guidance", "case_observation", "practice_consensus"]
+    },
+    {
+      "id": "diverse-packaging-test",
+      "name": "Three genuinely different packaging hypotheses",
+      "goal": ["learning", "appeal", "satisfaction"],
+      "use": "Test up to three distinct title, thumbnail, or pair hypotheses whose differences are large enough to answer a question.",
+      "avoid": ["three colorways of the same concept", "changing the live package mid-test", "calling an inconclusive result a winner", "optimizing CTR alone"],
+      "required_inputs": ["current YouTube test mode", "hypothesis per variant", "eligibility", "baseline package"],
+      "evaluation": ["YouTube watch-time test result", "statistical result label", "audience-composition caveat", "recorded learning"],
+      "evidence": ["platform_guidance"]
+    },
+    {
+      "id": "honest-curiosity",
+      "name": "Honest curiosity and dignity",
+      "goal": ["trust", "appeal", "policy_compliance"],
+      "use": "Create interest through real tension and specificity without inventing evidence, overstating guilt, demeaning subjects, or promising a beat the video does not contain.",
+      "avoid": ["misleading imagery", "fabricated quotes", "graphic shock", "certainty beyond the source", "impersonation"],
+      "required_inputs": ["source verification", "legal/ethical review proportional to topic", "video promise"],
+      "evaluation": ["claim trace", "policy review", "intro payoff", "owner approval"],
+      "evidence": ["platform_guidance"]
+    }
+  ],
+  "case_studies": [
+    {
+      "id": "dr-grande-current-grid-2026-09-06",
+      "source": "https://www.youtube.com/@DrGrande/videos",
+      "sample": {
+        "latest_titles": 30,
+        "latest_title_character_range": [90, 100],
+        "latest_title_median_characters": 96,
+        "titles_with_analysis_suffix": 14,
+        "visual_rows_inspected": 4,
+        "note": "Counts describe the current loaded grid at inspection time; they do not establish performance causality."
+      },
+      "direct_observations": [
+        "Current thumbnails repeatedly use a black upper-left text block with large condensed white uppercase lettering.",
+        "The central/right field is dominated by story-specific people, objects, places, or a small collage.",
+        "A small, consistent Dr. Grande portrait appears near the upper-right as an authorship signature while the story subject remains dominant.",
+        "A small DR. GRANDE wordmark appears near the lower-left.",
+        "Overlay phrases are usually compact interpretive hooks or puns such as AFFAIR ON RETAINER, ROO THE DAY, CLOSING TIME, DEGREE OF DECEPTION, and TRASH TALK; they complement rather than reproduce the long descriptive title.",
+        "Current titles heavily use named entities, roles/relationships, concrete actions, consequences, and sometimes an Analysis/Update suffix.",
+        "The popular grid includes an older template centered on Dr. Grande, with a bottom brand strip and different text treatment, showing recognizable brand evolution rather than one immutable layout."
+      ],
+      "inferences": [
+        "The repeated corner anchors and typography likely enable pre-reading channel recognition.",
+        "The long title performs much of the search/relevance work, while the thumbnail performs rapid recognition, story identification, and interpretive intrigue.",
+        "A subordinate creator inset can preserve channel identity without displacing the case subject."
+      ],
+      "cannot_conclude": [
+        "The template caused any video's view count.",
+        "The title length or Analysis suffix is optimal for another channel.",
+        "A face, black text block, pun, or fixed corner placement universally improves CTR or watch time.",
+        "The creator's intended keyword strategy without channel-side analytics or an interview."
+      ]
+    }
+  ],
+  "profile_contract": {
+    "identity_tokens": ["template_id", "template_version", "logo_or_wordmark", "creator_signature", "font_roles", "anchor_zones", "accent_palette"],
+    "content_slots": ["semantic_hero", "supporting_context", "overlay_hook", "title", "subtitle_or_suffix"],
+    "scope": ["platform", "surface", "format", "audience", "discovery_intent"],
+    "review": ["honesty", "brand_recognition", "small-preview_legibility", "spelling", "identity", "provenance", "policy", "title_thumbnail_complement"],
+    "learning": ["variant_hypothesis", "test_mode", "watch_time_result", "result_certainty", "audience_context", "owner_interpretation"]
+  },
+  "sources": [
+    {"id": "youtube-title-thumbnail-tips", "url": "https://support.google.com/youtube/answer/12340300", "type": "platform_guidance"},
+    {"id": "youtube-ab-testing", "url": "https://support.google.com/youtube/answer/16391400", "type": "platform_guidance"},
+    {"id": "youtube-search", "url": "https://support.google.com/youtube/answer/16090438", "type": "platform_guidance"},
+    {"id": "youtube-thumbnail-policy", "url": "https://support.google.com/youtube/answer/9229980", "type": "platform_policy"},
+    {"id": "youtube-thumbnail-technical", "url": "https://support.google.com/youtube/answer/72431", "type": "platform_guidance"},
+    {"id": "branded-thumbnail-observational-study", "url": "https://www.sciencedirect.com/science/article/pii/S0167923622000914", "type": "observational_research"},
+    {"id": "dr-grande-channel", "url": "https://www.youtube.com/@DrGrande/videos", "type": "direct_case_observation"}
+  ]
+}
