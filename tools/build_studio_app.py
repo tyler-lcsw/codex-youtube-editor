@@ -40,10 +40,13 @@ def assemble(executable,engine,output,sign=True):
     try:
         contents=stage/'Contents';binary=contents/'MacOS/CodexStudio';binary.parent.mkdir(parents=True)
         shutil.copy2(executable,binary)
+        resources=contents/'Resources';resources.mkdir()
+        for name in ('AppIcon.icns','StudioMark.png'):
+            shutil.copy2(ROOT/'macos/Resources'/name,resources/name)
         (contents/'Info.plist').write_bytes(plistlib.dumps({
             'CFBundleExecutable':'CodexStudio','CFBundleIdentifier':'local.tyler.codex-studio',
             'CFBundleName':'Codex Studio','CFBundleDisplayName':'Codex Studio',
-            'CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.1.0','CFBundleVersion':'1',
+            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.1.0','CFBundleVersion':'1',
             'LSMinimumSystemVersion':'14.0','NSHighResolutionCapable':True,
             'StudioEnginePath':str(engine),
         }))

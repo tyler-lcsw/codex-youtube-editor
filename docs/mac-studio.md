@@ -89,3 +89,18 @@ require a resolution note; only allowed transitions are enabled, and resolving a
 requires a replacement revision. The backend still independently validates each change.
 
 Authentication diagnostics record account-check outcomes, login start/completion/cancellation and connection failures. They omit email addresses, tokens, login URLs and callback parameters. Detailed protocol errors are displayed in the app; they are not copied into structured authentication logs. A login-start timeout closes only Studio's owned app-server connection because no login ID is available to cancel safely. Stored credentials remain intact.
+
+## Visual identity
+
+The approved Precision Cut direction uses ivory (`#F5EBDD`), coral (`#F36B4F`),
+and graphite (`#303234`). The app includes a Dock/Finder/About icon, sidebar brand
+mark, native navigation symbols, text-and-symbol state badges and guided empty states.
+Dynamic UI colors follow macOS appearance; text and buttons use contrast-adjusted coral
+shades. Video production colors remain project-specific.
+
+See [the visual identity and asset inventory](../plan/Codex%20Studio%20%E2%80%94%20Visual%20Identity.html).
+The editable source is `macos/Brand/PrecisionCut.svg`; theme tokens are in
+`macos/Sources/Studio/StudioTheme.swift`. Regenerate committed icon resources with
+`.venv/bin/python tools/build_studio_icons.py` (macOS `iconutil` and librsvg's
+`rsvg-convert` required only for regeneration). Normal app builds simply bundle the
+committed resources. No external service is required to build or display the identity.

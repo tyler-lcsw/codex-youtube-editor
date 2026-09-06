@@ -14,6 +14,7 @@ struct IntakeView:View {
     var body:some View {
         ScrollView {
             VStack(alignment:.leading,spacing:22) {
+                if w.project.isEmpty {StudioEmptyState(symbol:"folder.badge.plus",title:"Create your first production",detail:"Choose New to make a project, or Open to continue an existing production.")}
                 Text("Start with your footage and intent.").font(.title2.weight(.semibold))
                 Text("The source stays intact. Your brief and references guide the edit; the AI’s interpretation is reviewed before substantive cuts.").foregroundStyle(.secondary)
                 GroupBox("Editing brief") {
@@ -24,12 +25,12 @@ struct IntakeView:View {
                             }
                         }
                         Button("Save brief") {let brief=fields;w.perform {try await w.request("update_brief",["brief":brief]);dirty=false;try await w.refresh();load();w.notice="Brief saved; dependent reviews reassessed."}}.accessibilityLabel("Save brief").disabled(w.project.isEmpty || (dirty && briefChanged))
-                        if dirty && briefChanged {Text("The saved brief changed. Reload it before saving your draft.").foregroundStyle(.orange);Button("Reload saved brief"){load()}.accessibilityLabel("Reload saved brief")}
+                        if dirty && briefChanged {Text("The saved brief changed. Reload it before saving your draft.").foregroundStyle(StudioTheme.accent);Button("Reload saved brief"){load()}.accessibilityLabel("Reload saved brief")}
                     }.padding(12)
                 }
                 GroupBox("Footage and documents") {
                     VStack(alignment:.leading,spacing:12) {
-                        Label("Drop files here, or choose files to import",systemImage:"square.and.arrow.down").frame(maxWidth:.infinity,minHeight:70).background(.mint.opacity(0.08)).clipShape(RoundedRectangle(cornerRadius:10))
+                        Label("Drop files here, or choose files to import",systemImage:"square.and.arrow.down").frame(maxWidth:.infinity,minHeight:70).background(StudioTheme.coral.opacity(0.08)).clipShape(RoundedRectangle(cornerRadius:10))
                             .onDrop(of:[UTType.fileURL.identifier],isTargeted:nil) {providers in
                                 guard !w.busy else {return false}
                                 let group=DispatchGroup(),lock=NSLock();var urls=[URL]()
