@@ -229,3 +229,16 @@ cue checks and frame inspection. Self-review found silent-track selection; expli
 FFmpeg maps repaired it without re-rendering the picture. Full normal-speed audiovisual
 review, cue listening and owner acceptance remain pending; no completion receipt or
 publication was issued. Media stays outside Git; reproducible sources are versioned.
+
+### Fresh subscription sign-in and visible account checks (September 6, 2026)
+
+Fresh browser authorization was completed by the owner in the installed app using an
+isolated temporary Codex profile. Studio automatically recognized Pro; bounded native-client
+requests with both Astra and Sol completed using the new login. The old localhost error
+was not reproduced. Earlier fresh-login verification gaps above are superseded by this run.
+
+Check sign-in previously refreshed the account without visible feedback after connection.
+It now shows progress and a timestamped confirmation, signed-out instruction or failure
+beside the button. Duplicate checks are suppressed. A reproduced archived-project-conversation
+failure now restores that exact conversation and retries resume once, preserving authentication.
+Validation: 28 native checks; 151 Python tests plus 33 subtests (publication test excluded).

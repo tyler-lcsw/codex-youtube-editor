@@ -605,7 +605,7 @@
         "Keep Studio open until the subscription is confirmed."
       ],
       "notes": [
-        "The account label shows the result; Checking… and waiting text mean the operation is still in progress.",
+        "Check sign-in shows progress, then a timestamped confirmation or sign-in instruction below the buttons. A failed check displays its error there. Checking an existing subscription does not open the browser.",
         "Sign-in and path controls may be disabled during a task or authentication attempt."
       ]
     },
@@ -621,7 +621,8 @@
         "If still signed out, choose Cancel sign-in, then start Sign in with ChatGPT again."
       ],
       "notes": [
-        "Do not repeatedly reload an old localhost callback. Cancel ends the current attempt; it does not add an API fallback."
+        "Do not repeatedly reload an old localhost callback. Cancel ends the current attempt; it does not add an API fallback.",
+        "If your account already shows a subscription, a task error is not necessarily a sign-in problem. When Codex reports that this production’s saved conversation is archived, Studio restores that same conversation and resumes it once. Other task errors remain visible."
       ]
     },
     {
