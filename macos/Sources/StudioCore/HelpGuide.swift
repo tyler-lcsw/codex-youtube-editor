@@ -9,6 +9,18 @@ public struct HelpArticle: Codable, Identifiable, Equatable {
     public let steps: [String]
     public let notes: [String]
     public let prompt: String?
+    enum CodingKeys: String, CodingKey {case id, section, title, summary, status, steps, notes, prompt}
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decode(String.self, forKey: .id)
+        section = try values.decode(String.self, forKey: .section)
+        title = try values.decode(String.self, forKey: .title)
+        summary = try values.decode(String.self, forKey: .summary)
+        status = try values.decode(String.self, forKey: .status)
+        steps = try values.decode([String].self, forKey: .steps)
+        notes = try values.decode([String].self, forKey: .notes)
+        prompt = values.contains(.prompt) ? try values.decode(String.self, forKey: .prompt) : nil
+    }
 }
 
 public struct HelpGuide: Codable, Equatable {
@@ -27,7 +39,7 @@ public struct HelpGuide: Codable, Equatable {
         guard Self.nonempty(title), !articles.isEmpty else {throw HelpGuideError("Guide title and articles are required.")}
         var ids = Set<String>()
         for article in articles {
-            guard article.id.range(of: "^[a-z0-9]+(?:-[a-z0-9]+)*$", options: .regularExpression) != nil,
+            guard article.id.range(of: "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*\\z", options: .regularExpression) != nil,
                   ids.insert(article.id).inserted else {throw HelpGuideError("Invalid or duplicate article ID: \(article.id).")}
             guard Self.sections.contains(article.section),
                   [article.title, article.summary, article.status].allSatisfy(Self.nonempty),

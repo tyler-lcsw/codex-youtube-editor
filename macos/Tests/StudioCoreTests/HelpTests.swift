@@ -15,7 +15,7 @@ func testHelpValidation() throws {
         var bad=fixture;var articles=bad["articles"] as! [[String:Any]];articles[0][key]="  ";bad["articles"]=articles
         XCTAssertThrowsError(try HelpGuide.decode(helpData(bad)))
     }
-    for badID in ["Bad-ID","bad_id","-bad","bad--id"] {
+    for badID in ["Bad-ID","bad_id","-bad","bad--id","1-review","review\n"] {
         var bad=fixture;var articles=bad["articles"] as! [[String:Any]];articles[0]["id"]=badID;bad["articles"]=articles
         XCTAssertThrowsError(try HelpGuide.decode(helpData(bad)))
     }
@@ -30,6 +30,8 @@ func testHelpValidation() throws {
     bad=fixture;articles=bad["articles"] as! [[String:Any]];articles[0]["section"]="Unknown section";bad["articles"]=articles
     XCTAssertThrowsError(try HelpGuide.decode(helpData(bad)))
     bad=fixture;articles=bad["articles"] as! [[String:Any]];articles[0].removeValue(forKey:"notes");bad["articles"]=articles
+    XCTAssertThrowsError(try HelpGuide.decode(helpData(bad)))
+    bad=fixture;articles=bad["articles"] as! [[String:Any]];articles[0]["prompt"]=NSNull();bad["articles"]=articles
     XCTAssertThrowsError(try HelpGuide.decode(helpData(bad)))
     let decoded=try HelpGuide.decode(helpData(fixture))
     XCTAssertEqual(try HelpGuide.decode(JSONEncoder().encode(decoded)),decoded)
