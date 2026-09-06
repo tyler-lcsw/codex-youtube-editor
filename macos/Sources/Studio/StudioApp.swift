@@ -28,12 +28,14 @@ import StudioCore
                     }
                 }
         }.defaultSize(width:1360,height:880)
-        .commands {CommandGroup(after:.help) {Button("Open Diagnostic Logs") {if let folder=Diagnostics.shared?.directory {NSWorkspace.shared.open(folder)}}.accessibilityLabel("Open Diagnostic Logs")}}
+        .commands {CommandGroup(after:.help) {Button("How to Use") {workspace.section="How to Use"}.accessibilityLabel("How to Use");Button("Open Diagnostic Logs") {if let folder=Diagnostics.shared?.directory {NSWorkspace.shared.open(folder)}}.accessibilityLabel("Open Diagnostic Logs")}}
     }
 }
 struct StudioWindow:View {
     @EnvironmentObject var w:Workspace
-    let sections=["Brief & sources","Understanding","Review","Resources","Codex & QA"]
+    @State private var helpSection: String?
+    @State private var showingHelp = false
+    let sections=["Brief & sources","Understanding","Review","Resources","Codex & QA","How to Use"]
     var body:some View {
         NavigationSplitView {
             VStack(alignment:.leading,spacing:20) {
@@ -54,6 +56,7 @@ struct StudioWindow:View {
                 HStack {
                     VStack(alignment:.leading) {Text(w.section).font(.title.bold());Text(w.project.isEmpty ? "Create a production to begin" : w.project).font(.caption).foregroundStyle(.secondary).lineLimit(1)}
                     Spacer()
+                    Button("Help for this tab",systemImage:"questionmark.circle") {helpSection=w.section;showingHelp=true}.accessibilityLabel("Help for this tab")
                     if w.busy {ProgressView().controlSize(.small)}
                     Button("Refresh",systemImage:"arrow.clockwise") {w.perform {try await w.refresh()}}.accessibilityLabel("Refresh").disabled(w.project.isEmpty || w.busy)
                     Button("Export handoff",systemImage:"square.and.arrow.up") {w.perform {_ = try await w.handoff()}}.accessibilityLabel("Export handoff").disabled(w.project.isEmpty || w.busy)
@@ -61,6 +64,7 @@ struct StudioWindow:View {
                 Divider()
                 Group {
                     switch w.section {
+                    case "How to Use":HelpView(engine:w.engine)
                     case "Understanding":UnderstandingView()
                     case "Review":ReviewView()
                     case "Resources":ResourcesView()
@@ -71,6 +75,14 @@ struct StudioWindow:View {
                 if !w.notice.isEmpty {Text(w.notice).font(.caption).foregroundStyle(.secondary).padding(8)}
             }.background(StudioTheme.canvas)
         }.tint(StudioTheme.accent).foregroundStyle(StudioTheme.text).groupBoxStyle(StudioPanelStyle())
+        .sheet(isPresented:$showingHelp) {
+            VStack(spacing:0) {
+                HStack {Text("Help · \(helpSection ?? w.section)").font(.title2.bold());Spacer();Button("Done") {showingHelp=false}.accessibilityLabel("Done").keyboardShortcut(.cancelAction)}.padding(24)
+                Divider()
+                HelpView(engine:w.engine,initialSection:helpSection ?? w.section)
+            }.frame(minWidth:900,minHeight:620).background(StudioTheme.canvas)
+                .foregroundStyle(StudioTheme.text).tint(StudioTheme.accent).groupBoxStyle(StudioPanelStyle())
+        }
         .onReceive(NotificationCenter.default.publisher(for:NSApplication.willTerminateNotification)) {_ in Diagnostics.shared?.record("session_ended")}
         .alert("Action needs attention",isPresented:Binding(get:{w.error != nil},set:{if !$0 {w.error=nil}})) {Button("OK"){w.error=nil}.accessibilityLabel("OK")} message:{Text(w.error ?? "")}
     }
