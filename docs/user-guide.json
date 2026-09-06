@@ -1,0 +1,1297 @@
+{
+  "schema_version": 1,
+  "title": "How to Use Codex Media Studio",
+  "articles": [
+    {
+      "id": "create-production",
+      "section": "Getting started",
+      "title": "Create a production",
+      "summary": "A production folder keeps your brief, sources, revisions and review records together.",
+      "status": "Available",
+      "steps": [
+        "Choose New in the sidebar.",
+        "Choose a folder name and location in Create production folder, then confirm.",
+        "Check the production name and folder shown in Studio."
+      ],
+      "notes": [
+        "The suggested location is Movies/Codex Studio in your home folder. Cancel leaves your current selection unchanged.",
+        "Wait for any current action, or stop the running Codex task, before changing projects."
+      ]
+    },
+    {
+      "id": "open-production",
+      "section": "Getting started",
+      "title": "Continue an existing production",
+      "summary": "Open the production folder itself to recover its saved state.",
+      "status": "Available",
+      "steps": [
+        "Choose Open.",
+        "Select your existing production folder and confirm.",
+        "Check its name and folder before editing."
+      ],
+      "notes": [
+        "Opening fails safely if the folder is not a valid production; do not create a replacement over valuable files.",
+        "The app remembers the last saved project selection. Unsaved screen drafts are not a recovery system."
+      ]
+    },
+    {
+      "id": "find-your-way",
+      "section": "Getting started",
+      "title": "Move through the workspace",
+      "summary": "The sidebar follows the production process.",
+      "status": "Available",
+      "steps": [
+        "Start with Brief & sources, then Understanding.",
+        "Use Review for playback and feedback, Resources for preferences, and Codex & QA to request work and inspect checks.",
+        "Use How to Use whenever you need instructions."
+      ],
+      "notes": [
+        "Most editing and generation features are requested in Codex & QA; Studio is not a full timeline editor with one button per skill.",
+        "Save drafts before switching tabs or projects. Help for this tab opens over the current screen so you can read without leaving it."
+      ]
+    },
+    {
+      "id": "save-and-refresh",
+      "section": "Getting started",
+      "title": "Know what is saved",
+      "summary": "Explicit save buttons matter. Refresh reads current saved project records.",
+      "status": "Available",
+      "steps": [
+        "Use Save brief, Add link, Save annotation, Record evidence or the relevant status button to store the change you are making.",
+        "Wait for completion and check any notice or error.",
+        "Choose Refresh to reload saved project state after outside work."
+      ],
+      "notes": [
+        "Refresh does not save unfinished text. Brief drafts are preserved during refresh unless you explicitly reload them; switching screens can discard other local drafts.",
+        "Resource choices save when selected. The Codex model choice is remembered separately. Prompt text, evidence selections and resolution notes are not project autosave."
+      ]
+    },
+    {
+      "id": "export-handoff",
+      "section": "Getting started",
+      "title": "Hand the current project to Codex",
+      "summary": "Export handoff creates a current project summary and copies its text.",
+      "status": "Available",
+      "steps": [
+        "Save the brief and feedback you want included.",
+        "Choose Export handoff.",
+        "Paste the copied text into the intended Codex conversation if you are working outside Studio."
+      ],
+      "notes": [
+        "Send to Codex prepares this handoff automatically. The handoff includes saved sources, brief, routes and version-bound feedback.",
+        "Export handoff exports instructions and context, not a finished video."
+      ]
+    },
+    {
+      "id": "first-edit",
+      "section": "Getting started",
+      "title": "Start a first edit",
+      "summary": "Begin with source understanding and a small preview.",
+      "status": "Available",
+      "steps": [
+        "Create a production, import footage and save a brief.",
+        "In Codex & QA, ask Codex to explain the source and prepare an edit strategy before cutting.",
+        "Read the findings, then request a representative preview.",
+        "Review the actual video and add specific feedback before a full edit."
+      ],
+      "notes": [
+        "Short synthetic examples prove parts of the tools work. They do not qualify every kind of raw footage or a finished creative result.",
+        "Codex is online; context and review material sent to it are not an offline-only workflow."
+      ],
+      "prompt": "Read my saved brief and sources. Document source understanding and an edit strategy, flag uncertainty, and propose a short representative preview before substantive cutting."
+    },
+    {
+      "id": "brief-audience",
+      "section": "Brief & sources",
+      "title": "Describe your audience",
+      "summary": "Use Audience to explain who the viewer is and what they already know.",
+      "status": "Available",
+      "steps": [
+        "Open Brief & sources.",
+        "Enter your guidance in Audience.",
+        "Choose Save brief."
+      ],
+      "notes": [
+        "Example: Beginners who have never edited a video.",
+        "The brief guides Codex; it does not itself perform edits."
+      ]
+    },
+    {
+      "id": "brief-purpose",
+      "section": "Brief & sources",
+      "title": "State the takeaway",
+      "summary": "Use What should the viewer understand? to explain the one idea or outcome viewers should leave with.",
+      "status": "Available",
+      "steps": [
+        "Open Brief & sources.",
+        "Enter your guidance in “What should the viewer understand?”.",
+        "Choose Save brief."
+      ],
+      "notes": [
+        "Example: How to leave useful frame-specific feedback.",
+        "The brief guides Codex; it does not itself perform edits."
+      ]
+    },
+    {
+      "id": "brief-length",
+      "section": "Brief & sources",
+      "title": "Set a length goal",
+      "summary": "Use Desired length to explain a target duration or range.",
+      "status": "Available",
+      "steps": [
+        "Open Brief & sources.",
+        "Enter your guidance in Desired length.",
+        "Choose Save brief."
+      ],
+      "notes": [
+        "Example: About three minutes; preserve the full demonstration.",
+        "The brief guides Codex; it does not itself perform edits."
+      ]
+    },
+    {
+      "id": "brief-tone",
+      "section": "Brief & sources",
+      "title": "Choose tone and pacing",
+      "summary": "Use Tone and pacing to explain the feeling and pace you want.",
+      "status": "Available",
+      "steps": [
+        "Open Brief & sources.",
+        "Enter your guidance in Tone and pacing.",
+        "Choose Save brief."
+      ],
+      "notes": [
+        "Example: Warm and clear; keep natural pauses around important points.",
+        "The brief guides Codex; it does not itself perform edits."
+      ]
+    },
+    {
+      "id": "brief-required",
+      "section": "Brief & sources",
+      "title": "Protect important content",
+      "summary": "Use Keep or emphasize to explain anything that must remain or deserves emphasis.",
+      "status": "Available",
+      "steps": [
+        "Open Brief & sources.",
+        "Enter your guidance in Keep or emphasize.",
+        "Choose Save brief."
+      ],
+      "notes": [
+        "Example: Keep the warning, the result and the final explanation.",
+        "The brief guides Codex; it does not itself perform edits."
+      ]
+    },
+    {
+      "id": "brief-context",
+      "section": "Brief & sources",
+      "title": "Add editing context",
+      "summary": "Use Context and editing instructions to explain background, constraints and specific editorial requests.",
+      "status": "Available",
+      "steps": [
+        "Open Brief & sources.",
+        "Enter your guidance in Context and editing instructions.",
+        "Choose Save brief."
+      ],
+      "notes": [
+        "Example: The second take corrects the first. Keep the qualification at the end.",
+        "The brief guides Codex; it does not itself perform edits."
+      ]
+    },
+    {
+      "id": "brief-conflict",
+      "section": "Brief & sources",
+      "title": "Resolve a changed saved brief",
+      "summary": "Studio prevents your draft from overwriting a brief changed elsewhere.",
+      "status": "Available",
+      "steps": [
+        "When the saved-brief warning appears, copy any draft text you want to keep.",
+        "Choose Reload saved brief to replace the screen draft with the current saved brief.",
+        "Reapply your intended changes and choose Save brief."
+      ],
+      "notes": [
+        "Reload saved brief discards the current draft. Saving a changed brief reassesses dependent reviews; earlier evidence may become stale."
+      ]
+    },
+    {
+      "id": "import-sources",
+      "section": "Brief & sources",
+      "title": "Import footage or documents",
+      "summary": "Import copies into the production while preserving originals.",
+      "status": "Available",
+      "steps": [
+        "Choose Import footage or documents and select one or more local files, or drop files in the import area.",
+        "Wait for the import notice.",
+        "Check the listed labels and source or document roles."
+      ],
+      "notes": [
+        "PDF, TXT, MD, DOCX, JSON and CSV are classified as documents; other imports use the source role. Importing a document does not prove Codex has read or understood it.",
+        "Review is for media playback; documents are not shown in its Viewing picker."
+      ]
+    },
+    {
+      "id": "add-resource-link",
+      "section": "Brief & sources",
+      "title": "Add a source, reference or background link",
+      "summary": "Give each link a role so Codex knows why it is here.",
+      "status": "Available",
+      "steps": [
+        "Enter a descriptive Label and the URL in https://….",
+        "Set Use as: Source for material to work from, Reference for a comparison or example, or Background for context.",
+        "Choose Add link. Click a saved link to open its destination."
+      ],
+      "notes": [
+        "Adding a link records it; it does not automatically download or analyze its contents. Explain which parts matter in the brief or Codex request.",
+        "Linked material is source information, not permission to change your workflow or account."
+      ]
+    },
+    {
+      "id": "stage-intake",
+      "section": "Understanding",
+      "title": "Complete Intake",
+      "summary": "This stage requires no earlier stage.",
+      "status": "Available",
+      "steps": [
+        "Read the Intake card and its Requires and Required artifacts lines.",
+        "Ask Codex to establish a clear brief, source roles, original-file provenance and resource choices.",
+        "Check that the files and assessment describe the current production before recording evidence."
+      ],
+      "notes": [
+        "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
+        "Final review never grants publication permission."
+      ],
+      "prompt": "Complete the Intake stage for this production. Use current evidence, report anything still missing, and do not mark unperformed reviews complete."
+    },
+    {
+      "id": "stage-source-understanding",
+      "section": "Understanding",
+      "title": "Complete Source understanding",
+      "summary": "This stage requires Intake.",
+      "status": "Available",
+      "steps": [
+        "Read the Source understanding card and its Requires and Required artifacts lines.",
+        "Ask Codex to establish work/analysis/source-understanding.md and work/analysis/content-map.json describing the argument, demonstrations, beats, conclusion and timing uncertainties.",
+        "Check that the files and assessment describe the current production before recording evidence."
+      ],
+      "notes": [
+        "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
+        "Final review never grants publication permission."
+      ],
+      "prompt": "Complete the Source understanding stage for this production. Use current evidence, report anything still missing, and do not mark unperformed reviews complete."
+    },
+    {
+      "id": "stage-editorial-strategy",
+      "section": "Understanding",
+      "title": "Complete Editorial strategy",
+      "summary": "This stage requires Source understanding.",
+      "status": "Available",
+      "steps": [
+        "Read the Editorial strategy card and its Requires and Required artifacts lines.",
+        "Ask Codex to establish work/edit-plan.md explaining cuts, retained meaning, timing, graphics, sound and a representative preview.",
+        "Check that the files and assessment describe the current production before recording evidence."
+      ],
+      "notes": [
+        "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
+        "Final review never grants publication permission."
+      ],
+      "prompt": "Complete the Editorial strategy stage for this production. Use current evidence, report anything still missing, and do not mark unperformed reviews complete."
+    },
+    {
+      "id": "stage-edit",
+      "section": "Understanding",
+      "title": "Complete Edit",
+      "summary": "This stage requires Editorial strategy.",
+      "status": "Available",
+      "steps": [
+        "Read the Edit card and its Requires and Required artifacts lines.",
+        "Ask Codex to establish actual reviewed revisions, timing records and evidence for each media action.",
+        "Check that the files and assessment describe the current production before recording evidence."
+      ],
+      "notes": [
+        "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
+        "Final review never grants publication permission."
+      ],
+      "prompt": "Complete the Edit stage for this production. Use current evidence, report anything still missing, and do not mark unperformed reviews complete."
+    },
+    {
+      "id": "stage-final-review",
+      "section": "Understanding",
+      "title": "Complete Final review",
+      "summary": "This stage requires Edit.",
+      "status": "Available",
+      "steps": [
+        "Read the Final review card and its Requires and Required artifacts lines.",
+        "Ask Codex to establish registered delivery files and a current work/quality/completion.json receipt with audiovisual and technical findings resolved.",
+        "Check that the files and assessment describe the current production before recording evidence."
+      ],
+      "notes": [
+        "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
+        "Final review never grants publication permission."
+      ],
+      "prompt": "Complete the Final review stage for this production. Use current evidence, report anything still missing, and do not mark unperformed reviews complete."
+    },
+    {
+      "id": "record-stage-evidence",
+      "section": "Understanding",
+      "title": "Record evidence that already exists",
+      "summary": "Record completed stage evidence stores an assessment, not a substitute for work.",
+      "status": "Available",
+      "steps": [
+        "Choose Stage under Record completed stage evidence.",
+        "Explain what was established and where it is documented.",
+        "Choose Select evidence files and select the actual evidence files.",
+        "Check the selected paths, then choose Record evidence."
+      ],
+      "notes": [
+        "A reason and at least one evidence file are required. Required artifacts and earlier stages must be current.",
+        "Ask Codex to perform routine checks and record its findings; do not fill in passing evidence for work no one reviewed."
+      ]
+    },
+    {
+      "id": "read-workflow",
+      "section": "Understanding",
+      "title": "Read the authoritative workflow",
+      "summary": "The stage definitions come from a local editable workflow file.",
+      "status": "Available",
+      "steps": [
+        "Choose Open authoritative workflow.",
+        "Read the stage instructions and allowed routes in the opened file.",
+        "If a workflow change is needed, describe it to Codex and reassess affected reviews afterward."
+      ],
+      "notes": [
+        "The file is config/studio-workflow.json in the engine repository. Editing it changes the workflow; opening it only displays it."
+      ]
+    },
+    {
+      "id": "review-media",
+      "section": "Review",
+      "title": "Play a source or revision",
+      "summary": "Viewing selects the exact version you want to review.",
+      "status": "Available",
+      "steps": [
+        "Choose a source or revision in Viewing.",
+        "Use the inline player controls to play, pause and seek.",
+        "Choose another item in Viewing to compare versions."
+      ],
+      "notes": [
+        "Feedback stays attached to its original version. The unresolved count covers the entire production, not just the selected item.",
+        "Switching selected media clears frame/region/transcript selections. Save the current annotation first. Playback pauses when you leave Review."
+      ]
+    },
+    {
+      "id": "add-revision",
+      "section": "Review",
+      "title": "Add a rendered revision",
+      "summary": "A revision is an output version, separate from original footage.",
+      "status": "Available",
+      "steps": [
+        "Choose Add revision.",
+        "Select the rendered media file you want reviewed.",
+        "Choose the new version in Viewing."
+      ],
+      "notes": [
+        "Codex can also register actual output revisions. Importing a revision alone does not certify its quality or resolve earlier feedback."
+      ]
+    },
+    {
+      "id": "annotate-frame",
+      "section": "Review",
+      "title": "Leave a frame or time-range note",
+      "summary": "Pause & annotate captures a real frame from the selected version.",
+      "status": "Available",
+      "steps": [
+        "Seek to the issue and choose Pause & annotate.",
+        "Wait for Frame captured for this version and check the displayed time.",
+        "Enter a comment in “What should change here, and why?”.",
+        "For a range, enter Optional range end (seconds) after the captured start time; leave it blank for a single moment.",
+        "Choose Save annotation."
+      ],
+      "notes": [
+        "A captured frame and comment are required. Times are seconds in the form 12.5; invalid or out-of-range values need correction.",
+        "The captured presentation time can differ slightly from the requested time. The saved note records this exact version and frame."
+      ]
+    },
+    {
+      "id": "annotate-region",
+      "section": "Review",
+      "title": "Mark an area of the picture",
+      "summary": "Draw region adds a rectangle to your captured frame.",
+      "status": "Available",
+      "steps": [
+        "Choose Pause & annotate first.",
+        "Turn on Draw region and drag over the relevant part of the picture.",
+        "Use Clear region to remove the box or draw again to replace it.",
+        "Add your comment and choose Save annotation."
+      ],
+      "notes": [
+        "The rectangle follows the picture area, including portrait video; black margins are not the target. Drawing mode temporarily covers player interaction.",
+        "A box alone does not save an annotation."
+      ]
+    },
+    {
+      "id": "transcript-anchors",
+      "section": "Review",
+      "title": "Attach a note to spoken words",
+      "summary": "Transcript anchors are optional word links for a matching rendered version.",
+      "status": "Available",
+      "steps": [
+        "Expand Transcript anchors after selecting media.",
+        "If words appear, toggle the words that belong with your note.",
+        "Capture the frame, add the comment and choose Save annotation."
+      ],
+      "notes": [
+        "Words appear only when the render-derived transcript matches the exact media hash. A source transcript or older render transcript is not enough.",
+        "If no matching transcript appears, use frame/time notes and ask Codex to create or repair the matching render transcript. Word selection does not edit speech."
+      ]
+    },
+    {
+      "id": "inspect-feedback",
+      "section": "Review",
+      "title": "Find a saved note",
+      "summary": "Feedback on this version shows the notes attached to the selected media.",
+      "status": "Available",
+      "steps": [
+        "Select the original reviewed version in Viewing.",
+        "Click a note’s time to seek and pause at that moment.",
+        "Inspect its text, saved frame, region, range end and transcript IDs when present.",
+        "Expand History to see recorded status changes."
+      ],
+      "notes": [
+        "If the file is missing or changed, historical feedback can remain visible but it is not proof that the current file is the original reviewed media."
+      ]
+    },
+    {
+      "id": "resolve-feedback",
+      "section": "Review",
+      "title": "Move a correction through review",
+      "summary": "Each status change needs fresh Resolution notes.",
+      "status": "Available",
+      "steps": [
+        "Expand Resolve or reopen on the original note.",
+        "Choose the actual Replacement revision and enter Resolution notes explaining the correction.",
+        "For an open note, choose Addressed. Then add notes again and choose Ready for review.",
+        "Play the replacement revision and inspect the correction. Return to the original note, add notes, and choose Accept correction only when you accept it."
+      ],
+      "notes": [
+        "Allowed changes: open → addressed; addressed → ready for review or open; ready for review → accepted, addressed or open; accepted → open.",
+        "Addressed, Ready for review and Accept correction require a replacement revision. Codex must never accept owner feedback on the owner’s behalf."
+      ]
+    },
+    {
+      "id": "reopen-feedback",
+      "section": "Review",
+      "title": "Reopen a correction",
+      "summary": "Use Reopen when a previously handled issue still needs work.",
+      "status": "Available",
+      "steps": [
+        "Find the note on its originally reviewed version.",
+        "Expand Resolve or reopen and write Resolution notes explaining why it needs more work.",
+        "Choose Reopen."
+      ],
+      "notes": [
+        "Reopen is available from addressed, ready for review or accepted. It does not require a replacement revision.",
+        "Status buttons are disabled when the transition is invalid, notes are blank, a required revision is missing or an action is busy."
+      ]
+    },
+    {
+      "id": "choose-resources",
+      "section": "Resources",
+      "title": "Set project resource preferences",
+      "summary": "Provider preference records your preferred tool for each kind of work.",
+      "status": "Available",
+      "steps": [
+        "Open a production and choose Resources.",
+        "Choose a Provider preference in each relevant group.",
+        "Wait for the save to complete before sending the next Codex task."
+      ],
+      "notes": [
+        "Choices are saved with this project and included in handoffs. They do not start generation, download models, establish readiness or approve hosted use.",
+        "Use one heavy local inference job at a time on the 24 GiB M4. Other workers are not configured automatically."
+      ]
+    },
+    {
+      "id": "route-editorial",
+      "section": "Resources",
+      "title": "Choose editorial resources",
+      "summary": "Available choices in Editorial.",
+      "status": "Available with limits",
+      "steps": [
+        "Open Resources and find Editorial.",
+        "Choose the appropriate Provider preference:",
+        "codex-astra: prefer Astra for editorial assistance.",
+        "codex-sol: prefer Sol for editorial assistance.",
+        "local-pair: request bounded local assistance."
+      ],
+      "notes": [
+        "Result: your project stores this preference.",
+        "The actual Send to Codex model is chosen separately in Codex & QA. These preferences do not replace that picker.",
+        "Local PAIR has short functional checks; useful editorial output, long contexts, multiple nodes and full Codex equivalence are not qualified."
+      ]
+    },
+    {
+      "id": "route-transcription",
+      "section": "Resources",
+      "title": "Choose transcription resources",
+      "summary": "Available choices in Transcription.",
+      "status": "Available with limits",
+      "steps": [
+        "Open Resources and find Transcription.",
+        "Choose the appropriate Provider preference:",
+        "local-qwen: local speech recognition and alignment."
+      ],
+      "notes": [
+        "Result: your project stores this preference.",
+        "Check uncertain words and timing against the recording. Unknown confidence is not a high-confidence result."
+      ]
+    },
+    {
+      "id": "route-cleanup",
+      "section": "Resources",
+      "title": "Choose cleanup resources",
+      "summary": "Available choices in Cleanup.",
+      "status": "Available with limits",
+      "steps": [
+        "Open Resources and find Cleanup.",
+        "Choose the appropriate Provider preference:",
+        "local-deepfilternet: local voice cleanup."
+      ],
+      "notes": [
+        "Result: your project stores this preference.",
+        "Listen to a comparison before retaining cleanup; difficult-noise equivalence is not established."
+      ]
+    },
+    {
+      "id": "route-images",
+      "section": "Resources",
+      "title": "Choose images resources",
+      "summary": "Available choices in Images.",
+      "status": "Available with limits",
+      "steps": [
+        "Open Resources and find Images.",
+        "Choose the appropriate Provider preference:",
+        "local-klein: bounded local image generation or editing.",
+        "native-codex: request a separately approved native image handoff."
+      ],
+      "notes": [
+        "Result: your project stores this preference.",
+        "Klein is qualified only up to 393216 pixels, such as 768×512, with at most one reference.",
+        "Native Codex needs capability verification and approval of purpose, references and bounded iterations. No separate paid API fallback is authorized by this choice."
+      ]
+    },
+    {
+      "id": "route-rendering",
+      "section": "Resources",
+      "title": "Choose rendering resources",
+      "summary": "Available choices in Rendering.",
+      "status": "Available with limits",
+      "steps": [
+        "Open Resources and find Rendering.",
+        "Choose the appropriate Provider preference:",
+        "local-ffmpeg: prefer local cutting, compositing and encoding tools.",
+        "local-remotion: prefer local authored motion graphics."
+      ],
+      "notes": [
+        "Result: your project stores this preference.",
+        "Both rendering engines remain available together. Choose according to the intended edit; neither choice certifies the output."
+      ]
+    },
+    {
+      "id": "sign-in",
+      "section": "Codex & QA",
+      "title": "Connect your ChatGPT subscription",
+      "summary": "Studio uses ChatGPT sign-in without an API-key fallback.",
+      "status": "Available",
+      "steps": [
+        "Open Codex & QA and choose Check sign-in.",
+        "If still signed out, choose Sign in with ChatGPT and complete the browser flow.",
+        "Keep Studio open until the subscription is confirmed."
+      ],
+      "notes": [
+        "The account label shows the result; Checking… and waiting text mean the operation is still in progress.",
+        "Sign-in and path controls may be disabled during a task or authentication attempt."
+      ]
+    },
+    {
+      "id": "recover-sign-in",
+      "section": "Codex & QA",
+      "title": "Recover browser sign-in",
+      "summary": "Use the current sign-in attempt, not an old callback page.",
+      "status": "Available",
+      "steps": [
+        "Use Reopen current sign-in if you closed the browser tab.",
+        "If localhost shows an error, return to Studio and choose Check sign-in first.",
+        "If still signed out, choose Cancel sign-in, then start Sign in with ChatGPT again."
+      ],
+      "notes": [
+        "Do not repeatedly reload an old localhost callback. Cancel ends the current attempt; it does not add an API fallback."
+      ]
+    },
+    {
+      "id": "choose-codex-model",
+      "section": "Codex & QA",
+      "title": "Choose the model for your next task",
+      "summary": "Codex model controls the model actually used by Send to Codex.",
+      "status": "Available",
+      "steps": [
+        "Choose GPT-6 Astra or GPT-5.6 Sol under Production task.",
+        "Enter your request and send it when ready."
+      ],
+      "notes": [
+        "Astra is recommended; Sol is supported. Both passed bounded workflow discovery, not identical long-form creative acceptance.",
+        "This choice is remembered by the app and is separate from the project Editorial provider preference. It cannot be changed while a task runs."
+      ]
+    },
+    {
+      "id": "send-task",
+      "section": "Codex & QA",
+      "title": "Ask Codex to do production work",
+      "summary": "Write the outcome, inputs and limits in everyday language.",
+      "status": "Available",
+      "steps": [
+        "Save relevant changes in your project first.",
+        "Enter the next edit or analysis request under Production task.",
+        "Choose Send to Codex and follow Working…, the task ID and the response text.",
+        "After completion, review the saved result and refreshed project state."
+      ],
+      "notes": [
+        "Sending requires an open project, a confirmed subscription, nonblank text and no busy action or running task.",
+        "The brief, sources, provider choices and feedback accompany the request. There is no individual native button for each production skill."
+      ]
+    },
+    {
+      "id": "stop-task",
+      "section": "Codex & QA",
+      "title": "Stop a running task",
+      "summary": "Stop task requests an interruption.",
+      "status": "Available",
+      "steps": [
+        "Choose Stop task while Codex is working.",
+        "Wait for the task state to settle and inspect any response or error.",
+        "Ask Codex to report completed files and unfinished work before continuing."
+      ],
+      "notes": [
+        "Stopping does not undo files already written or guarantee universal resume. Earlier successful artifacts should be preserved.",
+        "For an interrupted native image request, recover the existing output before considering another approved request."
+      ]
+    },
+    {
+      "id": "answer-codex",
+      "section": "Codex & QA",
+      "title": "Answer a question or approval request",
+      "summary": "Codex needs your response appears when a task is waiting.",
+      "status": "Available",
+      "steps": [
+        "Read the displayed request details.",
+        "For questions, fill the answer fields and choose Send answers.",
+        "For an action request, choose Approve this action only for the described scope, or choose Decline."
+      ],
+      "notes": [
+        "Copying an example or selecting a route is not approval. Approval of one action does not authorize unrelated hosted generation or publication.",
+        "If details are unclear, decline and describe the intended boundary in your next request."
+      ]
+    },
+    {
+      "id": "qa-findings",
+      "section": "Codex & QA",
+      "title": "Read production QA findings",
+      "summary": "Before, During and After track separate quality gates.",
+      "status": "Available",
+      "steps": [
+        "Expand Before, During or After in Final production QA.",
+        "Read the displayed failures under pending / findings.",
+        "Ask Codex to fix or explain each finding, record actual evidence and refresh the production.",
+        "Review the final video and confirm owner feedback separately."
+      ],
+      "notes": [
+        "A passed technical check or successful render is not visual acceptance, listening or owner approval. A new edit can invalidate a previous completion.",
+        "Codex owns routine checklists. If actual listening or playback cannot be performed, the review remains pending and the required intervention must be stated."
+      ],
+      "prompt": "Read all current production rules and QA findings. Perform available checks, record evidence individually, and identify any review still pending. Do not claim completion from rendering alone."
+    },
+    {
+      "id": "production-rules",
+      "section": "Codex & QA",
+      "title": "Read the production rules",
+      "summary": "The authoritative rules apply to every media action and final review.",
+      "status": "Available",
+      "steps": [
+        "Choose Open authoritative rules.",
+        "Read the rules relevant to your requested work.",
+        "Ask Codex to follow the current rules, record before/during/after evidence and register actual deliverables."
+      ],
+      "notes": [
+        "The file is docs/production-rules.md in the engine repository. This help explains the app; it does not replace that policy.",
+        "QA completion never authorizes uploading or publication."
+      ]
+    },
+    {
+      "id": "local-paths",
+      "section": "Codex & QA",
+      "title": "Check local application paths",
+      "summary": "Local application paths identifies the installed engine and executables.",
+      "status": "Available",
+      "steps": [
+        "Expand Local application paths.",
+        "If repairing a known setup, enter the verified Engine repository, Python executable and Codex executable paths.",
+        "Choose Save paths, then check the affected function again."
+      ],
+      "notes": [
+        "Use the intended repository, its locked Python environment and a compatible Codex executable. Ask for setup help if you do not know the correct paths.",
+        "Saving paths does not install software, download models or repair credentials. Controls are disabled during active work or sign-in."
+      ]
+    },
+    {
+      "id": "use-help",
+      "section": "How to Use",
+      "title": "Find instructions without a project",
+      "summary": "Help can be read before opening a production or signing in.",
+      "status": "Available",
+      "steps": [
+        "Choose How to Use in the sidebar or the Help menu.",
+        "Choose a section with Section and enter a term in Search help to narrow the articles.",
+        "Choose Clear search or select All sections to broaden results."
+      ],
+      "notes": [
+        "Search includes titles, summaries, steps, notes and examples. Section and search filters work together.",
+        "The standalone docs/how-to-use.html uses the same guide for reading outside Studio.",
+        "No matching help means the current section and search have no results; the article count updates as you filter."
+      ]
+    },
+    {
+      "id": "context-help",
+      "section": "How to Use",
+      "title": "Read help beside your current task",
+      "summary": "Help for this tab keeps the current screen underneath.",
+      "status": "Available",
+      "steps": [
+        "Choose Help for this tab.",
+        "Read or search the articles for that section.",
+        "Choose Done to return to your current screen."
+      ],
+      "notes": [
+        "Opening contextual help does not replace the underlying tab or discard its draft. Save before navigating to a different tab."
+      ]
+    },
+    {
+      "id": "copy-help-example",
+      "section": "How to Use",
+      "title": "Use an example request",
+      "summary": "Examples are starting points you can edit.",
+      "status": "Available",
+      "steps": [
+        "Find an article with an example request.",
+        "Choose Copy example.",
+        "Paste it into Production task in Codex & QA, replace sample details and review it before sending."
+      ],
+      "notes": [
+        "Copy example only copies text. It does not send a task or grant generation approval."
+      ]
+    },
+    {
+      "id": "reload-help",
+      "section": "How to Use",
+      "title": "Check which help copy you are reading",
+      "summary": "Studio prefers valid help in the engine repository and can fall back to its bundled copy.",
+      "status": "Available",
+      "steps": [
+        "Read the source label and any fallback reason in How to Use.",
+        "Choose Reload help after the guide or engine location has changed.",
+        "If help cannot load, ask Codex to check docs/user-guide.json and the installed bundle."
+      ],
+      "notes": [
+        "A bundled copy may be older than the repository. Missing or invalid guide content should show an explanation instead of crashing."
+      ]
+    },
+    {
+      "id": "skill-edit-video",
+      "section": "Production skills",
+      "title": "Coordinate a complete edit",
+      "summary": "Ask Codex for $edit-video. Expected result: an edit plan, reviewed revisions and export files.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide raw footage, audience, desired length and required content.",
+        "In Codex & QA, ask for $edit-video and describe the result you want.",
+        "Review an edit plan, reviewed revisions and export files before using it in the production."
+      ],
+      "notes": [
+        "Coordinates cutting, cleanup, graphics, sound and packaging as needed. It does not automatically use every skill.",
+        "Authentic raw-footage quality requires actual source analysis and full audiovisual review; it is not established by synthetic fixtures."
+      ],
+      "prompt": "Use $edit-video on my imported sources. Establish source understanding and a strategy first, then make a short reviewed preview. Preserve originals and do not upload."
+    },
+    {
+      "id": "skill-clean-cut",
+      "section": "Production skills",
+      "title": "Remove bad takes and tighten pacing",
+      "summary": "Ask Codex for $clean-cut. Expected result: cut decisions, tight/natural previews, a master and its matching timed transcript.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide raw clips, intended order, key names/terms and anything that must stay.",
+        "In Codex & QA, ask for $clean-cut and describe the result you want.",
+        "Compare the proposed cuts and rendered previews; use the optional browser cut editor if detailed boundary changes are needed.",
+        "Review cut decisions, tight/natural previews, a master and its matching timed transcript before using it in the production."
+      ],
+      "notes": [
+        "Tight and natural are starting profiles, not universal pacing rules. Unknown word timing must be corrected before cutting.",
+        "Codex checks fresh speech recognition over the render and listens to flagged joins. Equal durations do not prove lip sync."
+      ],
+      "prompt": "Use $clean-cut to remove confirmed retakes and false starts. Keep meaningful pauses and compare tight and natural previews. Flag uncertain removals."
+    },
+    {
+      "id": "skill-clean-audio",
+      "section": "Production skills",
+      "title": "Reduce distracting background noise",
+      "summary": "Ask Codex for $clean-audio. Expected result: a separate cleaned master and comparison preview.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide the selected cut and examples of the noise that bothers you.",
+        "In Codex & QA, ask for $clean-audio and describe the result you want.",
+        "Listen to the short comparison and say whether to keep cleanup, retain some ambience or leave the original.",
+        "Review a separate cleaned master and comparison preview before using it in the production."
+      ],
+      "notes": [
+        "DeepFilterNet is the local default; RNNoise comparison depends on installed support. Difficult-noise quality is not universally qualified.",
+        "Choose the least processing that preserves natural speech; final loudness is a separate mixing step. No hosted isolation is implicit."
+      ],
+      "prompt": "Use $clean-audio to diagnose this hum and audition a short local cleanup against the original before processing the full cut."
+    },
+    {
+      "id": "skill-brand-setup",
+      "section": "Production skills",
+      "title": "Set your channel colors and identity",
+      "summary": "Ask Codex for $brand-setup. Expected result: a synchronized brand definition and rendered proof card.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide wordmark, sign-off, colors or preferred feeling, licensed fonts, source resolution/frame rate and sound taste.",
+        "In Codex & QA, ask for $brand-setup and describe the result you want.",
+        "Choose light/dark base, calm/energetic/playful/editorial/technical motion and subtle or punchy sound, or keep the defaults.",
+        "Review the palette, typography and delivery proposal before changes, then inspect the proof card.",
+        "Review a synchronized brand definition and rendered proof card before using it in the production."
+      ],
+      "notes": [
+        "Changing the shared brand can affect future renders of existing shots. Confirm the proposal first.",
+        "Fonts need usable local files and licenses. Delivery settings must match the actual production; thumbnails have separate art direction."
+      ],
+      "prompt": "Use $brand-setup. Keep the default feel but use my wordmark, supplied colors and licensed fonts. Show the proposal before applying it."
+    },
+    {
+      "id": "skill-make-tsx",
+      "section": "Production skills",
+      "title": "Add graphics to an existing cut",
+      "summary": "Ask Codex for $make-tsx. Expected result: timed Remotion shots and a composited preview.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide approved master, matching timed transcript, edit plan, brand and graphic references.",
+        "In Codex & QA, ask for $make-tsx and describe the result you want.",
+        "Specify overlay, full-screen cutaway, split screen or insert, the spoken cue, duration and important content that must remain visible.",
+        "Review timed Remotion shots and a composited preview before using it in the production."
+      ],
+      "notes": [
+        "An overlay sits over footage; a cutaway replaces the picture while master audio continues. Choose based on the content.",
+        "Split places the source picture in a framed box with transparent graphics over it; specify the box, crop center and close-up amount to keep the subject visible. Insert pauses the master, plays a separate clip with its own audio, then resumes the master; it increases the final output duration.",
+        "Fixed historical 4K60 examples are not universal settings. Match the actual source and timeline; integer-FPS baking is currently required."
+      ],
+      "prompt": "Use $make-tsx to add a readable three-step diagram at the matching narration cue. Keep the presenter visible and show a composited preview."
+    },
+    {
+      "id": "skill-vidtsx-2d-generator",
+      "section": "Production skills",
+      "title": "Create a standalone animated shot",
+      "summary": "Ask Codex for $vidtsx-2d-generator. Expected result: a reusable 2D TSX shot and inspected render.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide the scene, exact text, duration, frame rate and aspect ratio.",
+        "In Codex & QA, ask for $vidtsx-2d-generator and describe the result you want.",
+        "Review a reusable 2D TSX shot and inspected render before using it in the production."
+      ],
+      "notes": [
+        "Formats: horizontal 1920×1080, vertical 1080×1920 or square 1080×1080. Default is horizontal, five seconds, 30 FPS; production requirements take precedence.",
+        "Styles: minimalist, memphis, neo-brutalism, glassmorphism, neon/cyberpunk or corporate. This is 2D motion graphics, not 3D or diffusion video."
+      ],
+      "prompt": "Use $vidtsx-2d-generator for a five-second horizontal minimalist title card with my exact title and brand. Render a preview and inspect its entrance and exit."
+    },
+    {
+      "id": "skill-fake-screencast",
+      "section": "Production skills",
+      "title": "Animate a screenshot walkthrough",
+      "summary": "Ask Codex for $fake-screencast. Expected result: an illustrated screen walkthrough composited into the edit.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide a screenshot for every page/state, page labels or URLs, click targets and narration cues.",
+        "In Codex & QA, ask for $fake-screencast and describe the result you want.",
+        "Specify which changes are navigation, which are in-page filters, and what the final zoom should emphasize.",
+        "Review an illustrated screen walkthrough composited into the edit before using it in the production."
+      ],
+      "notes": [
+        "Use consistent screenshot sizes; real scrolling needs a tall capture. A single viewport cannot show unseen content.",
+        "Cursor moves, clicks, page cuts, filter crossfades, scroll, drift and zoom are illustrative. Use real recording when proving speed or actual results."
+      ],
+      "prompt": "Use $fake-screencast to illustrate these three supplied screenshots. Show the cursor click, page change and payoff zoom, and label it as a simulation."
+    },
+    {
+      "id": "skill-generate-image",
+      "section": "Production skills",
+      "title": "Create or edit a bounded local image",
+      "summary": "Ask Codex for $generate-image. Expected result: an image with recorded generation details.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide a visual brief, output size and at most one selected reference for local editing.",
+        "In Codex & QA, ask for $generate-image and describe the result you want.",
+        "Review an image with recorded generation details before using it in the production."
+      ],
+      "notes": [
+        "The qualified Klein limit is 393216 pixels and one reference. Larger or multiple-reference requests need an explicit supported plan.",
+        "Upscaling does not make a large image native resolution. Review lettering, anatomy, composition and fidelity every time."
+      ],
+      "prompt": "Use $generate-image to make a simple text-free local illustration at 768×512. Check provider readiness and show the image for review; do not download anything."
+    },
+    {
+      "id": "skill-thumbnail",
+      "section": "Production skills",
+      "title": "Design a thumbnail variant",
+      "summary": "Ask Codex for $thumbnail. Expected result: thumbnail variants, saved prompts and a comparison sheet.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide the locked title, exact hook words, desired style and any authorized face/logo/screen references.",
+        "In Codex & QA, ask for $thumbnail and describe the result you want.",
+        "Choose the environment, text budget, extras and accent; confirm the exact hook.",
+        "Compare small previews; request one change at a time and keep earlier versions.",
+        "Review thumbnail variants, saved prompts and a comparison sheet before using it in the production."
+      ],
+      "notes": [
+        "Environments: dark-studio, real-office, bright-graphic. Text budgets: single-hook, headline-plus-one, full-kit.",
+        "Extras: glow-burst, results-fan, real-logo, real-app-screen, prop/object or none. Accent choices include green, yellow, red and cyan.",
+        "Optional tiered-headline, sticker, checkstrip and brush-tag increase text density; confirm exact words and inspect small-size legibility.",
+        "Personal resemblance requires explicit suitable references and review. Multiple references exceed the qualified local profile; native Codex generation requires separate scoped approval."
+      ],
+      "prompt": "Use $thumbnail to plan a bright-graphic, single-hook variant with cyan accent and no extra badges. Confirm the words and local-provider fit before rendering."
+    },
+    {
+      "id": "skill-packaging",
+      "section": "Production skills",
+      "title": "Prepare a title, description and thumbnail concepts",
+      "summary": "Ask Codex for $packaging. Expected result: one title, three thumbnail bets and a description.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide video takeaway, audience, locked terms, conversion goal and any channel performance data.",
+        "In Codex & QA, ask for $packaging and describe the result you want.",
+        "Confirm the takeaway and title, then compare genuinely different thumbnail ideas.",
+        "Review description links and chapter times against the final cut.",
+        "Review one title, three thumbnail bets and a description before using it in the production."
+      ],
+      "notes": [
+        "This skill targets long-form videos. Concepts are hypotheses, not guaranteed click-through rates; channel data should guide decisions.",
+        "Rendering follows thumbnail provider limits and approvals. Preparing concepts does not start a YouTube experiment or upload anything."
+      ],
+      "prompt": "Use $packaging to propose one honest title, three distinct thumbnail concepts and a description with chapters from my final cut. Start with concepts only."
+    },
+    {
+      "id": "skill-suggest-sfx",
+      "section": "Production skills",
+      "title": "Add sound effects at meaningful cues",
+      "summary": "Ask Codex for $suggest-sfx. Expected result: a cue sheet and sound-effects audition preview.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide reviewed preview, timed beats and your sound taste.",
+        "In Codex & QA, ask for $suggest-sfx and describe the result you want.",
+        "Review and approve the cue sheet before mixing, then listen to the result.",
+        "Review a cue sheet and sound-effects audition preview before using it in the production."
+      ],
+      "notes": [
+        "Choose motion/whoosh, tension/riser, emphasis/pop or snap/click by the moment’s purpose. Catalog assets come first.",
+        "Optional cues can be excluded; ducking lowers effects under speech. Ask for gain/timing changes after listening.",
+        "Local procedural sounds are limited to click/pop/tone. Arbitrary generated SFX and legacy hosted generation are not automatically available."
+      ],
+      "prompt": "Use $suggest-sfx to propose a few catalog clicks and pops for the key reveals. Show the cue sheet before mixing, keep speech clear and include an audition without optional cues."
+    },
+    {
+      "id": "skill-music",
+      "section": "Production skills",
+      "title": "Add a licensed music bed",
+      "summary": "Ask Codex for $music. Expected result: a documented music selection and mixed preview.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide the cut, mood, available licensed track, desired start/end and intensity.",
+        "In Codex & QA, ask for $music and describe the result you want.",
+        "Review a documented music selection and mixed preview before using it in the production."
+      ],
+      "notes": [
+        "Catalog mixing is available; novel generative music is deferred. Procedural tones and existing clips are not novel generated music.",
+        "Confirm provenance and listen for speech masking, awkward loops and ending fades."
+      ],
+      "prompt": "Use $music to propose a licensed catalog bed, gently duck it under narration and provide a short audition. Do not generate new music."
+    },
+    {
+      "id": "skill-voiceover",
+      "section": "Production skills",
+      "title": "Create short narration from an explicit voice reference",
+      "summary": "Ask Codex for $voiceover. Expected result: a narration WAV and recorded sample details.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide final script, intended reference audio and its exact transcript, plus requested pauses.",
+        "In Codex & QA, ask for $voiceover and describe the result you want.",
+        "Review a narration WAV and recorded sample details before using it in the production."
+      ],
+      "notes": [
+        "No generic or upstream-author voice is assumed. Reference identity and intended use must be explicit.",
+        "Short synthetic trials support function, not personal likeness, expressive delivery or long-form quality. Listen and correct pronunciation before use."
+      ],
+      "prompt": "Use $voiceover for my supplied short script and authorized reference audio/transcript. Preserve the marked pauses and produce an audition for listening."
+    },
+    {
+      "id": "skill-shorts",
+      "section": "Production skills",
+      "title": "Make a vertical adaptation",
+      "summary": "Ask Codex for $shorts. Expected result: an inspectable vertical pilot.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide approved footage, a self-contained takeaway, timed beats and desired length.",
+        "In Codex & QA, ask for $shorts and describe the result you want.",
+        "Review an inspectable vertical pilot before using it in the production."
+      ],
+      "notes": [
+        "Uses source footage, local narration when requested, catalog sound and Remotion graphics. Avatar/B-roll generation may be deferred.",
+        "The larger short-form factory and platform/editorial research proposals are planned work, not a finished automatic pipeline."
+      ],
+      "prompt": "Use $shorts to make a 9:16 pilot from this approved segment. Preserve the original master and essential context, and keep captions clear of screen edges."
+    },
+    {
+      "id": "skill-avatar",
+      "section": "Production skills",
+      "title": "Plan an avatar or lip-sync request",
+      "summary": "Ask Codex for $avatar. Expected result: a recorded request and provider-readiness assessment.",
+      "status": "Deferred local generation",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide intended identity image, speech/audio and a clear consent/use scope.",
+        "In Codex & QA, ask for $avatar and describe the result you want.",
+        "Review a recorded request and provider-readiness assessment before using it in the production."
+      ],
+      "notes": [
+        "Local avatar inference is deferred on the first-release M4. Retained hosted code is not a qualified local capability or permission to run it.",
+        "Do not substitute a simple animation and call it equivalent avatar generation."
+      ],
+      "prompt": "Use $avatar to assess the requirements for my supplied identity image and narration. Report current provider limits and prepare the request only."
+    },
+    {
+      "id": "skill-generate-video",
+      "section": "Production skills",
+      "title": "Plan generated B-roll",
+      "summary": "Ask Codex for $generate-video. Expected result: a shot plan and explicit capability decision.",
+      "status": "Deferred local generation",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide shot description, duration, aspect ratio, references and whether literal motion is essential.",
+        "In Codex & QA, ask for $generate-video and describe the result you want.",
+        "Review a shot plan and explicit capability decision before using it in the production."
+      ],
+      "notes": [
+        "Local diffusion-video qualification is deferred. Remotion graphics can be a deliberate alternative if appropriate, not an undisclosed replacement.",
+        "Retained hosted tools require a separate explicit decision; this guide does not authorize calls or downloads."
+      ],
+      "prompt": "Use $generate-video to assess this B-roll idea. Explain whether original Remotion graphics fit, and report deferred generation rather than silently substituting."
+    },
+    {
+      "id": "skill-tracker",
+      "section": "Production skills",
+      "title": "Maintain the local production tracker",
+      "summary": "Ask Codex for $tracker. Expected result: a preview and, when requested, a saved local tracker update.",
+      "status": "Available with limits",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide the production and the metadata or status you want updated.",
+        "In Codex & QA, ask for $tracker and describe the result you want.",
+        "Review the dry-run changes and ask Codex to apply the intended update.",
+        "Review a preview and, when requested, a saved local tracker update before using it in the production."
+      ],
+      "notes": [
+        "Local JSON/SQLite tracking does not require a Notion account. Props-only updates must preserve scripts.",
+        "Ready/complete status requires a current production quality receipt; tracker status cannot manufacture acceptance."
+      ],
+      "prompt": "Use $tracker to preview the local tracker update for this production before applying it. Preserve my stored script and existing metadata."
+    },
+    {
+      "id": "skill-publish-video",
+      "section": "Production skills",
+      "title": "Prepare publication details without uploading",
+      "summary": "Ask Codex for $publish-video. Expected result: reviewable publication details.",
+      "status": "Retained; publication testing waived",
+      "steps": [
+        "Open the production and save its brief.",
+        "Provide the exact final file, intended channel, title/description, privacy and any schedule.",
+        "In Codex & QA, ask for $publish-video and describe the result you want.",
+        "Review the prepared publication details for accuracy."
+      ],
+      "notes": [
+        "Publication testing was waived for this migration; no upload is authorized by this guide. Retained publication code is not qualified by this documentation.",
+        "A later actual publication needs explicit approval of the exact artifact, channel, metadata, privacy and schedule. Packaging and QA completion are not that approval."
+      ],
+      "prompt": "Use $publish-video only to prepare a publication checklist for this exact final artifact and intended channel. Do not upload or run publication tests."
+    },
+    {
+      "id": "legacy-cut-editor",
+      "section": "Production skills",
+      "title": "Open the optional browser cut editor",
+      "summary": "The cut editor is a separate local browser tool, not the native Review screen.",
+      "status": "Retained browser tool",
+      "steps": [
+        "Ask Codex to prepare the source proxy and cut decisions and open the local cut editor for this production.",
+        "Use Mode: Edited or Mode: Raw to compare, and choose tight or natural pause style.",
+        "Select a timeline segment to inspect it; use play this, cut this or restore as needed.",
+        "Drag segment edges or use the start/end −50ms and +50ms controls to adjust a boundary.",
+        "Choose Save, then Render preview and review the rendered file."
+      ],
+      "notes": [
+        "Live edited playback is approximate. The render is the review authority. Save updates cut decisions and keeps a backup; it does not certify the edit.",
+        "Green indicates keeps; cut categories, flags and suggest-only fluff identify decisions to examine. Use jump to it on Flagged judgment calls."
+      ],
+      "prompt": "Prepare the local cut editor for this production and open it for boundary review. Preserve original media and current successful outputs."
+    },
+    {
+      "id": "legacy-editor-shortcuts",
+      "section": "Production skills",
+      "title": "Use browser cut-editor shortcuts",
+      "summary": "These shortcuts apply only inside the separate cut editor.",
+      "status": "Retained browser tool",
+      "steps": [
+        "Use Space to play/pause and E to switch edited/raw mode.",
+        "Use left/right arrows for two seconds, or Shift with an arrow for ten seconds.",
+        "Use comma/period for the editor’s small step; use the zoom slider or +/− to change timeline scale.",
+        "Within one green keep block of a single source clip, mark a range with I and O and press C to cut it. Inspect the result and choose Save."
+      ],
+      "notes": [
+        "The advertised one-frame comma/period step is hard-coded to 1/59.94 second; it is not source-frame-aware. Verify boundaries in a render.",
+        "There is no native Studio timeline keyboard editor. Browser shortcuts do not apply while typing in an input or select control.",
+        "A marked cut cannot cross source clips or extend outside one green keep block. Make separate cuts for those ranges."
+      ]
+    },
+    {
+      "id": "timeline-effects",
+      "section": "Production skills",
+      "title": "Request supported transitions and picture effects",
+      "summary": "Ask Codex for an effect in words; there are no native sliders for these effects.",
+      "status": "Available",
+      "steps": [
+        "Identify the revision, scene and time range.",
+        "Request a cutaway crossfade, punch-in or color grade and describe the intended look.",
+        "Review a rendered preview at both boundaries and through the effect."
+      ],
+      "notes": [
+        "Version 1 crossfade blends one unique cutaway within its existing duration; it cannot overlap another visual shot.",
+        "Punch-in supports zoom 1–4 and normalized center coordinates 0–1. Timeline grade supports brightness −1–1, contrast 0–2 and saturation 0–3; Codex should translate your visual request.",
+        "These effects preserve time. Complex layers belong in Remotion; new versions and time-changing transitions require implementation. Integer-FPS baking remains a limit.",
+        "Remotion color-grade brightness uses a different scale from the timeline grade; ask for the desired look rather than copying the same brightness value between them."
+      ],
+      "prompt": "Add a gentle punch-in during this explanation without changing timing. Show a preview and preserve the original revision."
+    },
+    {
+      "id": "missing-media",
+      "section": "Troubleshooting",
+      "title": "Handle missing or changed media",
+      "summary": "Historical feedback only means the file no longer validates as the reviewed version.",
+      "status": "Available",
+      "steps": [
+        "Read the warning and preserve the existing feedback.",
+        "Locate the original unchanged file, or ask Codex to inspect the missing/changed-file report.",
+        "If you have a new output, add it as a new revision and review it separately."
+      ],
+      "notes": [
+        "Do not overwrite a reviewed file to make the warning disappear. Hash-bound feedback cannot be silently moved to different media."
+      ]
+    },
+    {
+      "id": "disabled-action",
+      "section": "Troubleshooting",
+      "title": "Understand a disabled button or error",
+      "summary": "Disabled controls usually indicate a missing prerequisite or active operation.",
+      "status": "Available",
+      "steps": [
+        "Check that a production is open and no action is busy.",
+        "For Send to Codex, check subscription, request text and running-task state.",
+        "For evidence or feedback, fill required notes, files and replacement revision as applicable.",
+        "Read Action needs attention, choose OK, correct the reported cause and retry once appropriate."
+      ],
+      "notes": [
+        "A disabled status button may represent an invalid transition. A stale brief needs Reload saved brief before it can be saved.",
+        "Repeated failure should be investigated; do not reset or delete project state to force progress."
+      ]
+    },
+    {
+      "id": "diagnostic-logs",
+      "section": "Troubleshooting",
+      "title": "Find local diagnostic logs",
+      "summary": "Use logs to investigate a crash or failing action.",
+      "status": "Available",
+      "steps": [
+        "Open the Help menu and choose Open Diagnostic Logs.",
+        "Note the time, tab, action and visible error that preceded the problem.",
+        "Ask Codex to inspect the relevant diagnostics and copied crash report."
+      ],
+      "notes": [
+        "Diagnostics are local; opening the folder does not send a report. Avoid sharing credentials or unrelated personal material when reporting a problem.",
+        "The local folder is Library/Logs/Codex Studio in your home folder. It contains session event logs, stderr records and copied CodexStudio crash reports; macOS originals live in Library/Logs/DiagnosticReports."
+      ]
+    },
+    {
+      "id": "provider-not-ready",
+      "section": "Troubleshooting",
+      "title": "When a capability is not ready",
+      "summary": "A selected resource is only a preference.",
+      "status": "Available",
+      "steps": [
+        "Ask Codex to check the selected provider against current setup and qualification evidence.",
+        "For a missing local model or unsupported request, ask for the exact limit and an available alternative.",
+        "Choose a revised scope deliberately before further generation."
+      ],
+      "notes": [
+        "Downloads, hosted fallback and extra worker setup are separate decisions. One heavy inference job at a time remains the M4 rule.",
+        "Local image limits, deferred avatar/video/music generation and unqualified personal likeness cannot be cleared by a successful mock test."
+      ]
+    },
+    {
+      "id": "interrupted-image",
+      "section": "Troubleshooting",
+      "title": "Recover an interrupted native image request",
+      "summary": "A recorded dispatch does not prove whether the service returned an image.",
+      "status": "Recovery contract; live generation unqualified",
+      "steps": [
+        "Ask Codex to inspect the existing image handoff and recover its original output.",
+        "If a local import failed, ask it to repair the import from that output.",
+        "Consider a new scoped request only if recovery cannot supply the result and you choose to approve it."
+      ],
+      "notes": [
+        "Do not blindly generate again. The one-time dispatch record is retained across retries; repair need not consume another generation.",
+        "Live native generation was not part of first-release qualification. No API fallback is implicit."
+      ]
+    },
+    {
+      "id": "unfinished-capabilities",
+      "section": "Troubleshooting",
+      "title": "Separate available tools from future plans",
+      "summary": "Research documents describe proposed development, not extra Studio controls.",
+      "status": "Limits and planned work",
+      "steps": [
+        "Use this guide for the controls currently in the app.",
+        "Ask Codex whether a requested technique is implemented and qualified on this M4.",
+        "For authentic footage, request source analysis, representative previews and complete audiovisual review before accepting a production."
+      ],
+      "notes": [
+        "Editorial technique catalogs, style/profile drafts and short-form research/specifications under plan/ are planned proposals. They are not automatic applied style controls or a qualified Shorts factory.",
+        "Studio is not a general nonlinear editor, automatic scene-understanding service, distributed scheduler or universal resumable production system.",
+        "Short synthetic checks and the illustrated story exercise do not replace authentic raw-footage editorial qualification, personal identity review or normal-speed final listening/playback."
+      ]
+    }
+  ]
+}

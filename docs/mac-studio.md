@@ -2,6 +2,12 @@
 
 A developmental native workspace around the existing production engine. It retains Remotion, local inference, source files, provider approvals, and authoritative production QA. Codex uses ChatGPT sign-in and subscription access exclusively. There is no API-key entry or API fallback.
 
+## How to use the app
+
+Open **How to Use** in the sidebar for step-by-step help, or choose **Help for this tab** to read instructions without leaving your current screen. Search by a task or control name and use the section selector to narrow the results. **Copy example** copies a request for you to adapt; it does not send it to Codex.
+
+The same guide is available as [a standalone user manual](how-to-use.html). Its editable source is `docs/user-guide.json`. **Reload help** reads updates from the configured engine repository; the installed app includes a fallback copy. After editing the source, run `.venv/bin/python -m tools.build_user_guide` to refresh the HTML, and rebuild the app to refresh its bundled copy. Current production rules remain authoritative. The [coverage audit](help-coverage.md) maps the guide to controls and skills.
+
 ## Build and open
 
 On M4 with the existing Python environment, FFmpeg and Swift command-line tools:

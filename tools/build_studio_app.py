@@ -43,6 +43,7 @@ def assemble(executable,engine,output,sign=True):
         resources=contents/'Resources';resources.mkdir()
         for name in ('AppIcon.icns','StudioMark.png'):
             shutil.copy2(ROOT/'macos/Resources'/name,resources/name)
+        shutil.copy2(ROOT/'docs/user-guide.json',resources/'user-guide.json')
         (contents/'Info.plist').write_bytes(plistlib.dumps({
             'CFBundleExecutable':'CodexStudio','CFBundleIdentifier':'local.tyler.codex-studio',
             'CFBundleName':'Codex Media Studio','CFBundleDisplayName':'Codex Media Studio',
