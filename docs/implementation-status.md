@@ -143,3 +143,24 @@ failing before implementation; release build and native dark Review layout inspe
 Token contrast ratios range from 5.57:1 to 10.92:1 for tested text pairs. The screenshot
 helper remains intermittent outside Review, so this does not claim complete visual or
 accessibility qualification across every screen and appearance.
+
+### Editorial-technique research and development specification (September 6, 2026)
+
+A research-only Studio expansion is documented in
+`../plan/Editorial Techniques Research and Studio Development Specification.html`, with a
+machine-readable draft technique catalog, illustrative style profile, draft decision
+rules, a YouTube packaging-pattern catalog, and a test-first implementation roadmap. The
+synthesis covers YouTube guidance, measured research, professional craft, dissenting
+practitioner evidence, and directly inspected Atozy and Dr. Grande case studies. It
+distinguishes long-form YouTube from short-form swipe-feed and advertising conventions;
+it does not prescribe effects-per-minute or treat either creator as a template.
+
+Current YouTube documentation now supports A/B testing titles, thumbnails, or their
+combinations and selects by watch time. The installed packaging skill still describes a
+thumbnail-only, fixed-title, CTR-centered contract; the roadmap records a narrow
+source-alignment slice before further packaging development. No skill was changed in this
+research pass.
+
+No editing capability or authoritative production rule changed. Catalog/profile loading,
+semantic proposals, technique controls, decision history, new render/audio handlers, and
+authentic-footage qualification remain proposed work.
