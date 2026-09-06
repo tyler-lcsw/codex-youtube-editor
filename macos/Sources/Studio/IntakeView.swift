@@ -20,11 +20,11 @@ struct IntakeView:View {
                     VStack(alignment:.leading,spacing:14) {
                         ForEach(labels,id:\.0) {key,label in
                             VStack(alignment:.leading) {Text(label).font(.caption).foregroundStyle(.secondary)
-                                TextField(label,text:Binding(get:{fields[key] ?? ""},set:{fields[key]=$0;dirty=true}),axis:.vertical).lineLimit(key=="context" ? 4...8 : 1...3).textFieldStyle(.roundedBorder)
+                                TextField(label,text:Binding(get:{fields[key] ?? ""},set:{fields[key]=$0;dirty=true}),axis:.vertical).accessibilityLabel(label).lineLimit(key=="context" ? 4...8 : 1...3).textFieldStyle(.roundedBorder)
                             }
                         }
-                        Button("Save brief") {let brief=fields;w.perform {try await w.request("update_brief",["brief":brief]);dirty=false;try await w.refresh();load();w.notice="Brief saved; dependent reviews reassessed."}}.disabled(w.project.isEmpty || (dirty && briefChanged))
-                        if dirty && briefChanged {Text("The saved brief changed. Reload it before saving your draft.").foregroundStyle(.orange);Button("Reload saved brief"){load()}}
+                        Button("Save brief") {let brief=fields;w.perform {try await w.request("update_brief",["brief":brief]);dirty=false;try await w.refresh();load();w.notice="Brief saved; dependent reviews reassessed."}}.accessibilityLabel("Save brief").disabled(w.project.isEmpty || (dirty && briefChanged))
+                        if dirty && briefChanged {Text("The saved brief changed. Reload it before saving your draft.").foregroundStyle(.orange);Button("Reload saved brief"){load()}.accessibilityLabel("Reload saved brief")}
                     }.padding(12)
                 }
                 GroupBox("Footage and documents") {
@@ -42,7 +42,7 @@ struct IntakeView:View {
                                 group.notify(queue:.main){w.importURLs(urls)}
                                 return true
                             }
-                        Button("Import footage or documents") {w.importFiles()}.disabled(w.project.isEmpty)
+                        Button("Import footage or documents") {w.importFiles()}.accessibilityLabel("Import footage or documents").disabled(w.project.isEmpty)
                         ForEach(w.assets.indices,id:\.self) {i in let a=w.assets[i]
                             HStack {Image(systemName:a["role"] as? String == "document" ? "doc.text" : "film");Text(a["label"] as? String ?? "Asset");Spacer();Text(a["role"] as? String ?? "source").foregroundStyle(.secondary)}
                         }
@@ -50,10 +50,10 @@ struct IntakeView:View {
                 }
                 GroupBox("Resource links") {
                     VStack(alignment:.leading) {
-                        TextField("Label",text:$resourceLabel).textFieldStyle(.roundedBorder)
-                        TextField("https://…",text:$resourceURL).textFieldStyle(.roundedBorder)
+                        TextField("Label",text:$resourceLabel).accessibilityLabel("Label").textFieldStyle(.roundedBorder)
+                        TextField("https://…",text:$resourceURL).accessibilityLabel("https://…").textFieldStyle(.roundedBorder)
                         HStack {Picker("Use as",selection:$resourceRole) {Text("Reference").tag("reference");Text("Source").tag("source");Text("Background").tag("context")}.frame(width:260)
-                            Button("Add link") {let url=resourceURL,label=resourceLabel,role=resourceRole;w.perform {try await w.request("add_resource",["url":url,"label":label,"role":role]);resourceURL="";resourceLabel=""}}.disabled(w.project.isEmpty)
+                            Button("Add link") {let url=resourceURL,label=resourceLabel,role=resourceRole;w.perform {try await w.request("add_resource",["url":url,"label":label,"role":role]);resourceURL="";resourceLabel=""}}.accessibilityLabel("Add link").disabled(w.project.isEmpty)
                         }
                         ForEach((w.data["resources"] as? [[String:Any]] ?? []).indices,id:\.self) {i in
                             let r=(w.data["resources"] as? [[String:Any]] ?? [])[i]

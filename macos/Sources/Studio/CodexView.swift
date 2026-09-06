@@ -5,7 +5,7 @@ struct CodexView:View {
     @EnvironmentObject var w:Workspace
     @ObservedObject var client:CodexClient
     @State private var prompt=""
-    @State private var model="gpt-6-astra"
+    @AppStorage("studioCodexModel") private var model="gpt-6-astra"
     @State private var answers=[String:String]()
     @State private var connecting=false
     @State private var loginURL:URL?
@@ -14,26 +14,26 @@ struct CodexView:View {
             GroupBox("ChatGPT subscription") {
                 VStack(alignment:.leading,spacing:12) {
                     HStack {Label(client.accountLabel,systemImage:client.subscription ? "checkmark.seal" : "person.crop.circle");Spacer()
-                        Button(connecting ? "Connecting…" : "Connect") {connect()}.disabled(connecting || client.running)
-                        Button("Sign in with ChatGPT") {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};let url=try await client.signIn();loginURL=url;NSWorkspace.shared.open(url)} catch {w.error=error.localizedDescription}}}.disabled(client.running || connecting)
+                        Button(connecting ? "Connecting…" : "Connect") {connect()}.accessibilityLabel("Connect").disabled(connecting || client.running)
+                        Button("Sign in with ChatGPT") {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};let url=try await client.signIn();loginURL=url;NSWorkspace.shared.open(url)} catch {w.error=error.localizedDescription}}}.accessibilityLabel("Sign in with ChatGPT").disabled(client.running || connecting)
                     }
                     if let loginURL {Link("Open ChatGPT sign-in",destination:loginURL);Text(loginURL.absoluteString).font(.caption).lineLimit(3).textSelection(.enabled)}
                     Text("Subscription access only. No API key or API billing fallback.").font(.caption).foregroundStyle(.secondary)
                     DisclosureGroup("Local application paths") {
-                        TextField("Engine repository",text:$w.engine).textFieldStyle(.roundedBorder)
-                        TextField("Python executable",text:$w.python).textFieldStyle(.roundedBorder)
-                        TextField("Codex executable",text:$w.codexBinary).textFieldStyle(.roundedBorder)
-                        Button("Save paths") {w.persist()}
+                        TextField("Engine repository",text:$w.engine).accessibilityLabel("Engine repository").textFieldStyle(.roundedBorder)
+                        TextField("Python executable",text:$w.python).accessibilityLabel("Python executable").textFieldStyle(.roundedBorder)
+                        TextField("Codex executable",text:$w.codexBinary).accessibilityLabel("Codex executable").textFieldStyle(.roundedBorder)
+                        Button("Save paths") {w.persist()}.accessibilityLabel("Save paths")
                     }.disabled(client.running || w.busy || connecting)
                 }.padding(12)
             }
             GroupBox("Production task") {
                 VStack(alignment:.leading,spacing:12) {
                     Picker("Codex model",selection:$model) {Text("GPT-6 Astra").tag("gpt-6-astra");Text("GPT-5.6 Sol").tag("gpt-5.6-sol")}.disabled(client.running)
-                    TextField("Describe the next edit or ask Codex to analyze the footage…",text:$prompt,axis:.vertical).lineLimit(3...8).textFieldStyle(.roundedBorder)
+                    TextField("Describe the next edit or ask Codex to analyze the footage…",text:$prompt,axis:.vertical).accessibilityLabel("Describe the next edit or ask Codex to analyze the footage…").lineLimit(3...8).textFieldStyle(.roundedBorder)
                     HStack {
-                        Button("Send to Codex",systemImage:"arrow.up.circle.fill") {send()}.buttonStyle(.borderedProminent).disabled(!client.subscription || client.running || w.project.isEmpty || w.busy || prompt.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)
-                        Button("Stop task") {Task {do {try await client.interrupt()}catch {w.error=error.localizedDescription}}}.disabled(!client.running)
+                        Button("Send to Codex",systemImage:"arrow.up.circle.fill") {send()}.accessibilityLabel("Send to Codex").buttonStyle(.borderedProminent).disabled(!client.subscription || client.running || w.project.isEmpty || w.busy || prompt.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)
+                        Button("Stop task") {Task {do {try await client.interrupt()}catch {w.error=error.localizedDescription}}}.accessibilityLabel("Stop task").disabled(!client.running)
                         if client.running {ProgressView().controlSize(.small);Text("Working…").foregroundStyle(.secondary)}
                     }
                     if let id=client.threadID {Text("Task \(id)").font(.caption).textSelection(.enabled)}
@@ -52,10 +52,10 @@ struct CodexView:View {
                                 let field=fields[i],id=field["id"] as? String ?? String(i)
                                 TextField(field["question"] as? String ?? "Your answer",text:Binding(get:{answers[id] ?? ""},set:{answers[id]=$0}),axis:.vertical).textFieldStyle(.roundedBorder)
                             }
-                            Button("Send answers") {do {try client.answer(question,allow:false,responses:answers);answers=[:]}catch{w.error=error.localizedDescription}}
+                            Button("Send answers") {do {try client.answer(question,allow:false,responses:answers);answers=[:]}catch{w.error=error.localizedDescription}}.accessibilityLabel("Send answers")
 
                         } else {
-                            HStack {Button("Approve this action") {respond(question,true)};Button("Decline") {respond(question,false)}}
+                            HStack {Button("Approve this action") {respond(question,true)}.accessibilityLabel("Approve this action");Button("Decline") {respond(question,false)}.accessibilityLabel("Decline")}
                         }
                     }.padding(12)
                 }
@@ -69,7 +69,7 @@ struct CodexView:View {
                             Text(prettyJSON(gate["failures"] ?? [])).font(.system(.caption,design:.monospaced)).textSelection(.enabled)
                         }
                     }
-                    Button("Open authoritative rules") {NSWorkspace.shared.open(URL(fileURLWithPath:w.engine+"/docs/production-rules.md"))}
+                    Button("Open authoritative rules") {NSWorkspace.shared.open(URL(fileURLWithPath:w.engine+"/docs/production-rules.md"))}.accessibilityLabel("Open authoritative rules")
                 }.padding(12)
             }
         }.padding(24)}
@@ -77,11 +77,11 @@ struct CodexView:View {
     func connect() {connecting=true;Task {defer{connecting=false};do {try await client.connect(binary:w.codexBinary)}catch{w.error=error.localizedDescription}}}
     func respond(_ q:CodexQuestion,_ allow:Bool) {do {try client.answer(q,allow:allow)}catch{w.error=error.localizedDescription}}
     func send() {
-        let instruction=prompt,project=w.project,engine=w.engine
+        let instruction=prompt,project=w.project,engine=w.engine,selectedModel=model
         w.perform {
             let handoff=try await w.handoff(copy:false)
             let handoffPath=handoff["path"] as? String ?? ""
-            _ = try await client.send(text:"Read the current production handoff at \(handoffPath). User request:\n\(instruction)",engine:engine,project:project,model:model,existingThread:w.data["thread_id"] as? String,onThreadReady:{id in try await w.request("set_thread",["thread_id":id])})
+            _ = try await client.send(text:"Read the current production handoff at \(handoffPath). User request:\n\(instruction)",engine:engine,project:project,model:selectedModel,existingThread:w.data["thread_id"] as? String,onThreadReady:{id in try await w.request("set_thread",["thread_id":id])})
             prompt=""
         }
     }

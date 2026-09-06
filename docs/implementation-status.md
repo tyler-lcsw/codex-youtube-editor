@@ -49,7 +49,7 @@ current receipt. See `docs/production-quality-workflow.md` for operation and enf
 boundaries. Existing outputs have not been retroactively certified. Full playback and
 listening, and authentic supplied-footage qualification, remain distinct requirements.
 
-## Native Mac production studio — implementation pending interactive acceptance
+## Native Mac production studio — development app
 
 Approved native application plan: `../plan/Mac Production Studio — Implementation Plan.html`.
 The app integrates intake/brief/resources, editable source-understanding workflow, native
@@ -97,3 +97,21 @@ SIGTRAP in `Array.remove(at:)` when inspecting Studio. Finder inspection works.
 Resources-first launch and a reverted sidebar simplification did not resolve it.
 No interactive pass is claimed. Track each basic function in
 `studio-interactive-test-log.md`; keep PR7 unmerged pending that acceptance.
+
+
+### Native basic workflow acceptance (September 5–6, 2026)
+
+Completed the actual-app stability pass requested by the user; see
+`studio-interactive-test-log.md` for per-function evidence and method limitations.
+Create/open/cancel/reject-invalid-folder, brief/resource entry, footage/document import,
+playback controls, immutable frame/range/rectangle notes, revision association, feedback
+reopening, provider persistence, Astra/Sol subscription tasks, interruption, QA display,
+handoff export and diagnostic-folder access passed. A native Review screenshot verified
+the saved rectangle overlay. No new Studio crash occurred during the pass.
+
+Fixed model selection resetting on tab changes, added explicit accessible labels,
+activated the startup window, and disabled invalid feedback transitions or missing-note
+actions. Fresh checks: 142 Python tests, publication excluded; 13 native checks; release
+build/skill audit; independent review approved. This supersedes the earlier blocked
+basic-interaction gate. Computer-use helper failures on some views remain an external
+automation limitation; authentic-footage editing and final creative QA are still separate.

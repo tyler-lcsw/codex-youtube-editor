@@ -81,3 +81,9 @@ capped. Review logs before sharing. If log storage cannot be opened, macOS syste
 logging receives a warning; system crash reporting remains independent.
 
 See `studio-interactive-test-log.md` for actual stability-test outcomes and blockers.
+
+
+The native basic-workflow acceptance record is `studio-interactive-test-log.md`.
+Codex model choice persists across tab changes and launches. Feedback status changes
+require a resolution note; only allowed transitions are enabled, and resolving a note
+requires a replacement revision. The backend still independently validates each change.

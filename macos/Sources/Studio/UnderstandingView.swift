@@ -25,14 +25,14 @@ struct UnderstandingView:View {
             GroupBox("Record completed stage evidence") {
                 VStack(alignment:.leading,spacing:12) {
                     Picker("Stage",selection:$stage) {ForEach(stages.indices,id:\.self) {i in Text(stages[i]["label"] as? String ?? "").tag(stages[i]["id"] as? String ?? "")}}
-                    TextField("What was established, and where is it documented?",text:$reason,axis:.vertical).textFieldStyle(.roundedBorder)
-                    Button("Select evidence files") {let p=NSOpenPanel();p.allowsMultipleSelection=true;if p.runModal() == .OK {evidence=p.urls.map(\.path)}}
+                    TextField("What was established, and where is it documented?",text:$reason,axis:.vertical).accessibilityLabel("What was established, and where is it documented?").textFieldStyle(.roundedBorder)
+                    Button("Select evidence files") {let p=NSOpenPanel();p.allowsMultipleSelection=true;if p.runModal() == .OK {evidence=p.urls.map(\.path)}}.accessibilityLabel("Select evidence files")
                     Text(evidence.joined(separator:"\n")).font(.caption).textSelection(.enabled)
-                    Button("Record evidence") {let s=stage,r=reason,e=evidence;w.perform {try await w.request("record_stage",["stage":s,"reason":r,"evidence":e]);try await w.refresh()}}.disabled(w.project.isEmpty || evidence.isEmpty || reason.isEmpty)
+                    Button("Record evidence") {let s=stage,r=reason,e=evidence;w.perform {try await w.request("record_stage",["stage":s,"reason":r,"evidence":e]);try await w.refresh()}}.accessibilityLabel("Record evidence").disabled(w.project.isEmpty || evidence.isEmpty || reason.isEmpty)
                     Text("This records an assessment. It does not manufacture evidence or replace final audiovisual QA.").font(.caption).foregroundStyle(.secondary)
                 }.padding(12)
             }
-            Button("Open authoritative workflow") {NSWorkspace.shared.open(URL(fileURLWithPath:w.engine+"/config/studio-workflow.json"))}
+            Button("Open authoritative workflow") {NSWorkspace.shared.open(URL(fileURLWithPath:w.engine+"/config/studio-workflow.json"))}.accessibilityLabel("Open authoritative workflow")
         }.padding(24)}
     }
 }

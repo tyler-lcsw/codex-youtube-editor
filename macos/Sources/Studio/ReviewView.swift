@@ -28,7 +28,7 @@ struct ReviewView:View {
             VStack(alignment:.leading,spacing:12) {
                 HStack {
                     Picker("Viewing",selection:$selected) {Text("Choose a source or revision").tag("");ForEach(media.indices,id:\.self){i in Text(media[i]["label"] as? String ?? "Media").tag(media[i]["id"] as? String ?? "")}}
-                    Button("Add revision") {w.importFiles(revision:true)}.disabled(w.project.isEmpty)
+                    Button("Add revision") {w.importFiles(revision:true)}.accessibilityLabel("Add revision").disabled(w.project.isEmpty)
                 }
                 GeometryReader {geometry in
                     ZStack {
@@ -41,16 +41,16 @@ struct ReviewView:View {
                     }.background(.black)
                 }.frame(minHeight:280)
                 HStack {
-                    Button("Pause & annotate",systemImage:"pause.circle") {capture()}.disabled(asset==nil || validatedID != selected || w.busy)
-                    Toggle("Draw region",isOn:$draw).toggleStyle(.button).disabled(capturePath.isEmpty)
-                    Button("Clear region"){rect=nil}
+                    Button("Pause & annotate",systemImage:"pause.circle") {capture()}.accessibilityLabel("Pause & annotate").disabled(asset==nil || validatedID != selected || w.busy)
+                    Toggle("Draw region",isOn:$draw).accessibilityLabel("Draw region").toggleStyle(.button).disabled(capturePath.isEmpty)
+                    Button("Clear region"){rect=nil}.accessibilityLabel("Clear region")
                     Text(String(format:"%.3f s",Double(markerMS)/1000)).monospacedDigit()
                 }
                 if let integrityError {Text("Historical feedback only: \(integrityError)").foregroundStyle(.orange)}
                 if !capturePath.isEmpty {Label("Frame captured for this version",systemImage:"checkmark.circle").font(.caption).foregroundStyle(.mint)}
-                TextField("Optional range end (seconds)",text:$endSeconds).textFieldStyle(.roundedBorder)
-                TextField("What should change here, and why?",text:$comment,axis:.vertical).lineLimit(3...6).textFieldStyle(.roundedBorder)
-                Button("Save annotation",systemImage:"text.bubble") {saveAnnotation()}.buttonStyle(.borderedProminent).disabled(capturePath.isEmpty || comment.isEmpty || w.busy)
+                TextField("Optional range end (seconds)",text:$endSeconds).accessibilityLabel("Optional range end (seconds)").textFieldStyle(.roundedBorder)
+                TextField("What should change here, and why?",text:$comment,axis:.vertical).accessibilityLabel("What should change here, and why?").lineLimit(3...6).textFieldStyle(.roundedBorder)
+                Button("Save annotation",systemImage:"text.bubble") {saveAnnotation()}.accessibilityLabel("Save annotation").buttonStyle(.borderedProminent).disabled(capturePath.isEmpty || comment.isEmpty || w.busy)
                 DisclosureGroup("Transcript anchors") {
                     if transcriptWords.isEmpty {Text("No matching render-derived transcript for this selected revision. Frame/time annotations remain available.").font(.caption).foregroundStyle(.secondary)}
                     else {ScrollView {LazyVStack(alignment:.leading) {ForEach(transcriptWords.indices,id:\.self) {i in let word=transcriptWords[i];let id=word["id"] as? String ?? String(i)
@@ -73,9 +73,10 @@ struct ReviewView:View {
                             if let anchors=note["transcript_ids"] as? [String],!anchors.isEmpty {Text("Transcript: \(anchors.joined(separator:", "))").font(.caption)}
                             DisclosureGroup("Resolve or reopen") {
                                 Picker("Replacement revision",selection:Binding(get:{drafts.revision(for:noteID,fallback:note["resolution_revision_id"] as? String)},set:{drafts.setRevision($0,for:noteID)})) {Text("Choose revision").tag("");ForEach(w.revisions.indices,id:\.self) {j in Text(w.revisions[j]["label"] as? String ?? "Revision").tag(w.revisions[j]["id"] as? String ?? "")}}
-                                TextField("Resolution notes",text:Binding(get:{drafts.note(for:noteID)},set:{drafts.setNote($0,for:noteID)}),axis:.vertical).textFieldStyle(.roundedBorder)
-                                HStack {Button("Addressed"){transition(note,"addressed")};Button("Ready for review"){transition(note,"ready_for_review")}}
-                                HStack {Button("Accept correction"){transition(note,"accepted")};Button("Reopen"){transition(note,"open")}}
+                                Text("Add resolution notes before changing status.").font(.caption).foregroundStyle(.secondary)
+                                TextField("Resolution notes",text:Binding(get:{drafts.note(for:noteID)},set:{drafts.setNote($0,for:noteID)}),axis:.vertical).accessibilityLabel("Resolution notes").textFieldStyle(.roundedBorder)
+                                HStack {Button("Addressed"){transition(note,"addressed")}.accessibilityLabel("Addressed").disabled(!canTransition(note,"addressed"));Button("Ready for review"){transition(note,"ready_for_review")}.accessibilityLabel("Ready for review").disabled(!canTransition(note,"ready_for_review"))}
+                                HStack {Button("Accept correction"){transition(note,"accepted")}.accessibilityLabel("Accept correction").disabled(!canTransition(note,"accepted"));Button("Reopen"){transition(note,"open")}.accessibilityLabel("Reopen").disabled(!canTransition(note,"open"))}
                             }
                             DisclosureGroup("History") {Text(prettyJSON(note["history"] ?? [])).font(.caption).textSelection(.enabled)}
                         }.padding(8)
@@ -123,6 +124,12 @@ struct ReviewView:View {
         if !endSeconds.isEmpty {guard let end=Double(endSeconds),end.isFinite else {w.error="Enter a valid end time in seconds.";return};params["end_ms"]=Int((end*1000).rounded())}
         if let rect {params["rect"]=["x":rect.minX,"y":rect.minY,"width":rect.width,"height":rect.height]}
         w.perform {try await w.request("add_annotation",params);comment="";capturePath="";endSeconds="";rect=nil;draw=false;selectedWords=[];w.notice="Annotation saved against this exact revision."}
+    }
+    func canTransition(_ note:[String:Any],_ status:String)->Bool {
+        guard !w.busy,let id=note["id"] as? String,!drafts.note(for:id).trimmingCharacters(in:.whitespacesAndNewlines).isEmpty else{return false}
+        let allowed=["open":["addressed"],"addressed":["open","ready_for_review"],"ready_for_review":["open","addressed","accepted"],"accepted":["open"]]
+        guard allowed[note["status"] as? String ?? ""]?.contains(status) == true else{return false}
+        return status == "open" || !drafts.revision(for:id,fallback:note["resolution_revision_id"] as? String).isEmpty
     }
     func transition(_ note:[String:Any],_ status:String) {
         guard let id=note["id"] as? String else{return}

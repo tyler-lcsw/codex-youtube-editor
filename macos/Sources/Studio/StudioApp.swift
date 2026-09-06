@@ -16,6 +16,11 @@ import StudioCore
         WindowGroup("Codex Studio") {
             StudioWindow().environmentObject(workspace).frame(minWidth:1100,minHeight:740)
                 .task {NSApp.setActivationPolicy(.regular);NSApp.activate(ignoringOtherApps:true)
+                    for window in NSApp.windows where window.title == "Codex Studio" {
+                        Diagnostics.shared?.record("window_focus_before",detail:"key=\(window.isKeyWindow) canKey=\(window.canBecomeKey) visible=\(window.isVisible)")
+                        window.makeKeyAndOrderFront(nil)
+                        Diagnostics.shared?.record("window_focus_after",detail:"key=\(window.isKeyWindow)")
+                    }
                     if !workspace.project.isEmpty {workspace.perform {try await workspace.refresh()}}
                     if ProcessInfo.processInfo.arguments.contains("--smoke-review") {
                         try? await Task.sleep(for:.seconds(1));workspace.section="Review"
@@ -23,7 +28,7 @@ import StudioCore
                     }
                 }
         }.defaultSize(width:1360,height:880)
-        .commands {CommandGroup(after:.help) {Button("Open Diagnostic Logs") {if let folder=Diagnostics.shared?.directory {NSWorkspace.shared.open(folder)}}}}
+        .commands {CommandGroup(after:.help) {Button("Open Diagnostic Logs") {if let folder=Diagnostics.shared?.directory {NSWorkspace.shared.open(folder)}}.accessibilityLabel("Open Diagnostic Logs")}}
     }
 }
 struct StudioWindow:View {
@@ -36,7 +41,7 @@ struct StudioWindow:View {
                 Text(w.title).font(.title2.bold())
                 Text("A clear path from footage to finished story.").foregroundStyle(.secondary)
                 List(sections,id:\.self,selection:$w.section) {name in Text(name).padding(.vertical,7).tag(name)}.listStyle(.sidebar)
-                HStack {Button("New",action:w.newProject);Button("Open",action:w.openProject)}
+                HStack {Button("New",action:w.newProject).accessibilityLabel("New");Button("Open",action:w.openProject).accessibilityLabel("Open")}
                 Text("Development edition · M4").font(.caption).foregroundStyle(.secondary)
             }.padding(18).navigationSplitViewColumnWidth(240)
         } detail: {
@@ -45,8 +50,8 @@ struct StudioWindow:View {
                     VStack(alignment:.leading) {Text(w.section).font(.title.bold());Text(w.project.isEmpty ? "Create a production to begin" : w.project).font(.caption).foregroundStyle(.secondary).lineLimit(1)}
                     Spacer()
                     if w.busy {ProgressView().controlSize(.small)}
-                    Button("Refresh",systemImage:"arrow.clockwise") {w.perform {try await w.refresh()}}.disabled(w.project.isEmpty || w.busy)
-                    Button("Export handoff",systemImage:"square.and.arrow.up") {w.perform {_ = try await w.handoff()}}.disabled(w.project.isEmpty || w.busy)
+                    Button("Refresh",systemImage:"arrow.clockwise") {w.perform {try await w.refresh()}}.accessibilityLabel("Refresh").disabled(w.project.isEmpty || w.busy)
+                    Button("Export handoff",systemImage:"square.and.arrow.up") {w.perform {_ = try await w.handoff()}}.accessibilityLabel("Export handoff").disabled(w.project.isEmpty || w.busy)
                 }.padding(24)
                 Divider()
                 Group {
@@ -62,6 +67,6 @@ struct StudioWindow:View {
             }.background(Color(nsColor:.windowBackgroundColor))
         }.tint(.mint)
         .onReceive(NotificationCenter.default.publisher(for:NSApplication.willTerminateNotification)) {_ in Diagnostics.shared?.record("session_ended")}
-        .alert("Action needs attention",isPresented:Binding(get:{w.error != nil},set:{if !$0 {w.error=nil}})) {Button("OK"){w.error=nil}} message:{Text(w.error ?? "")}
+        .alert("Action needs attention",isPresented:Binding(get:{w.error != nil},set:{if !$0 {w.error=nil}})) {Button("OK"){w.error=nil}.accessibilityLabel("OK")} message:{Text(w.error ?? "")}
     }
 }
