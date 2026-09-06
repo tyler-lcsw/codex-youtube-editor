@@ -49,15 +49,15 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Final production QA; Before; During; After; passed; pending / findings | `qa-findings` | macos/Sources/Studio/CodexView.swift; docs/production-quality-workflow.md |
 | Open authoritative rules | `production-rules` | macos/Sources/Studio/CodexView.swift |
 | Local application paths; Engine repository; Python executable; Codex executable; Save paths | `local-paths` | macos/Sources/Studio/CodexView.swift |
-| How to Use tab/menu; Section; All sections; Search help; Clear search; result count; No matching help | `use-help` | plan/How to Use — Specification.md |
-| Help for this tab; context sheet; Done | `context-help` | plan/How to Use — Specification.md |
-| Copy example | `copy-help-example` | plan/How to Use — Specification.md |
-| Reload help; source label; fallback reason; missing-guide state | `reload-help` | plan/How to Use — Specification.md |
+| How to Use tab/menu; Section; All sections; Search help; Clear search; result count; No matching help | `use-help` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
+| Help for this tab; context sheet; Done | `context-help` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
+| Copy example | `copy-help-example` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
+| Reload help; source label; fallback reason; missing-guide state | `reload-help` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
 | $edit-video | `skill-edit-video` | .agents/skills/edit-video/SKILL.md |
 | $clean-cut | `skill-clean-cut` | .agents/skills/clean-cut/SKILL.md |
 | $clean-audio | `skill-clean-audio` | .agents/skills/clean-audio/SKILL.md |
 | $brand-setup | `skill-brand-setup` | .agents/skills/brand-setup/SKILL.md |
-| $make-tsx | `skill-make-tsx` | .agents/skills/make-tsx/SKILL.md |
+| $make-tsx; overlay/cutaway/split/insert; split box/crop center/zoom | `skill-make-tsx` | .agents/skills/make-tsx/SKILL.md; tools/bake.py; schemas/timeline.schema.json |
 | $vidtsx-2d-generator | `skill-vidtsx-2d-generator` | .agents/skills/vidtsx-2d-generator/SKILL.md |
 | $fake-screencast | `skill-fake-screencast` | .agents/skills/fake-screencast/SKILL.md |
 | $generate-image | `skill-generate-image` | .agents/skills/generate-image/SKILL.md |

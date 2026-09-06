@@ -124,7 +124,7 @@
       "status": "Available",
       "steps": [
         "Open Brief & sources.",
-        "Enter your guidance in What should the viewer understand?.",
+        "Enter your guidance in “What should the viewer understand?”.",
         "Choose Save brief."
       ],
       "notes": [
@@ -400,7 +400,7 @@
       "steps": [
         "Seek to the issue and choose Pause & annotate.",
         "Wait for Frame captured for this version and check the displayed time.",
-        "Enter What should change here, and why?.",
+        "Enter a comment in “What should change here, and why?”.",
         "For a range, enter Optional range end (seconds) after the captured start time; leave it blank for a single moment.",
         "Choose Save annotation."
       ],
@@ -886,11 +886,12 @@
         "Open the production and save its brief.",
         "Provide approved master, matching timed transcript, edit plan, brand and graphic references.",
         "In Codex & QA, ask for $make-tsx and describe the result you want.",
-        "Specify overlay or full-screen cutaway, the spoken cue, duration and important content that must remain visible.",
+        "Specify overlay, full-screen cutaway, split screen or insert, the spoken cue, duration and important content that must remain visible.",
         "Review timed Remotion shots and a composited preview before using it in the production."
       ],
       "notes": [
         "An overlay sits over footage; a cutaway replaces the picture while master audio continues. Choose based on the content.",
+        "Split places the source picture in a framed box with transparent graphics over it; specify the box, crop center and close-up amount to keep the subject visible. Insert pauses the master, plays a separate clip with its own audio, then resumes the master; it increases the final output duration.",
         "Fixed historical 4K60 examples are not universal settings. Match the actual source and timeline; integer-FPS baking is currently required."
       ],
       "prompt": "Use $make-tsx to add a readable three-step diagram at the matching narration cue. Keep the presenter visible and show a composited preview."
@@ -1131,10 +1132,10 @@
         "Open the production and save its brief.",
         "Provide the exact final file, intended channel, title/description, privacy and any schedule.",
         "In Codex & QA, ask for $publish-video and describe the result you want.",
-        "Review reviewable publication details before using it in the production."
+        "Review the prepared publication details for accuracy."
       ],
       "notes": [
-        "Publication code is retained but publication tests and uploads were explicitly waived. It is not qualified by this guide.",
+        "Publication testing was waived for this migration; no upload is authorized by this guide. Retained publication code is not qualified by this documentation.",
         "A later actual publication needs explicit approval of the exact artifact, channel, metadata, privacy and schedule. Packaging and QA completion are not that approval."
       ],
       "prompt": "Use $publish-video only to prepare a publication checklist for this exact final artifact and intended channel. Do not upload or run publication tests."
@@ -1168,11 +1169,12 @@
         "Use Space to play/pause and E to switch edited/raw mode.",
         "Use left/right arrows for two seconds, or Shift with an arrow for ten seconds.",
         "Use comma/period for the editor’s small step; use the zoom slider or +/− to change timeline scale.",
-        "Mark a range with I and O, press C to cut it, then inspect and Save."
+        "Within one green keep block of a single source clip, mark a range with I and O and press C to cut it. Inspect the result and choose Save."
       ],
       "notes": [
         "The advertised one-frame comma/period step is hard-coded to 1/59.94 second; it is not source-frame-aware. Verify boundaries in a render.",
-        "There is no native Studio timeline keyboard editor. Browser shortcuts do not apply while typing in an input or select control."
+        "There is no native Studio timeline keyboard editor. Browser shortcuts do not apply while typing in an input or select control.",
+        "A marked cut cannot cross source clips or extend outside one green keep block. Make separate cuts for those ranges."
       ]
     },
     {
