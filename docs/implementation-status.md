@@ -187,3 +187,30 @@ in this research pass.
 ### Application name (September 6, 2026)
 
 Renamed visible branding, the window/application name, Codex client title and build output to **Codex Media Studio**. The existing bundle identifier, executable, project folders and diagnostic paths remain stable so saved settings and existing productions continue to work.
+
+## End-user help — September 6
+
+Codex Media Studio now includes a **How to Use** tab and **Help for this tab** sheet.
+The editable `docs/user-guide.json` contains 76 short articles across nine sections,
+covering all native tabs/options, all 18 production skills and the separate browser
+cut editor. Articles distinguish available, limited, retained and deferred functions.
+`docs/help-coverage.md` maps the instructions to implementation; `docs/how-to-use.html`
+is the standalone searchable/printable export. Both native help and HTML use the same
+source. The native loader validates content and displays bundled fallback provenance.
+
+Validation: 151 Python tests passed, one publication test deselected, 33 subtests;
+24 native core checks passed and release build succeeded. Independent review corrected
+missing split/insert shot descriptions, browser range constraints and publication wording.
+Live native checks passed for no-project/no-auth help, missing-repository bundled
+fallback, full-text search, clear, section filtering, Help menu navigation, contextual
+sheet/Done preserving an unsaved brief draft, clipboard-only examples and reload.
+Browser search, empty results, clear and copy passed; rendered layout was inspected.
+The native CUA inspection service failed independently of Studio; AppleScript accessibility
+provided the native interaction evidence. A native screenshot review was unavailable.
+These are help/UI checks, not new qualification of media providers or authentic footage.
+
+The tutorial assessment and chapter outline are in
+`plan/Codex Media Studio — Tutorial Outline.md`. No tutorial was rendered: the recommended
+first film demonstrates authentic footage editing, with a separate explanation of skills
+that are deferred or require specific inputs. Production policy and actual audiovisual QA
+still govern any later recording. Publication testing/uploads were not performed.

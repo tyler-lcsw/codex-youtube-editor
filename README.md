@@ -54,3 +54,5 @@ Technical checks do not replace complete playback and listening review.
 stages, native playback, frame and time-range annotations, revision feedback, resource
 preferences and subscription-authenticated Codex. Build the development app with
 `.venv/bin/python tools/build_studio_app.py`. Read the [approved plan](plan/Mac%20Production%20Studio%20%E2%80%94%20Implementation%20Plan.html) for scope and acceptance.
+
+For end-user instructions, open **How to Use** in the app or read the [step-by-step user guide](docs/how-to-use.html). **Help for this tab** opens contextual instructions while preserving your current draft.
