@@ -146,3 +146,79 @@ func testAccountCheckCannotClearAnInFlightLoginStart() async throws {
         XCTAssertTrue(client.signingIn);XCTAssertTrue(client.loginURL != nil)
     }
 }
+
+@MainActor
+func testArchivedConversationResumesWithoutLosingAuthentication() async throws {
+    try await withAuthServer("""
+    if method=='account/read':result={'account':{'type':'chatgpt','planType':'pro'}}
+    if method=='thread/resume':
+        if not logged_in:
+            print(json.dumps({'id':m['id'],'error':{'code':-32600,'message':'session saved-thread is archived. Run `codex unarchive saved-thread` to unarchive it first.'}}),flush=True)
+            continue
+        result={'thread':{'id':'saved-thread'}}
+    if method=='thread/unarchive':
+        assert m['params']['threadId']=='saved-thread'
+        logged_in=True
+    if method=='turn/start':result={'turn':{'id':'turn-1'}}
+    """) {client,log in
+        let id=try await client.send(text:"Test",engine:"/tmp",project:"/tmp",model:"gpt-6-astra",existingThread:"saved-thread",readOnly:true)
+        XCTAssertEqual(id,"saved-thread");XCTAssertTrue(client.subscription)
+        let calls=try String(contentsOf:log).split(separator:"\n").map(String.init)
+        XCTAssertEqual(calls.filter{$0.hasPrefix("thread/")},["thread/resume","thread/unarchive","thread/resume"])
+        XCTAssertFalse(calls.contains("account/login/start"))
+    }
+}
+
+@MainActor
+func testUnrelatedResumeErrorsDoNotRestoreConversations() async throws {
+    for message in ["Access denied", "session another-thread is archived. Run `codex unarchive another-thread` to unarchive it first."] {
+        try await withAuthServer("""
+        if method=='account/read':result={'account':{'type':'chatgpt','planType':'pro'}}
+        if method=='thread/resume':
+            print(json.dumps({'id':m['id'],'error':{'code':-32600,'message':\(String(reflecting:message))}}),flush=True)
+            continue
+        """) {client,log in
+            var failed=false
+            do {_ = try await client.send(text:"Test",engine:"/tmp",project:"/tmp",model:"gpt-6-astra",existingThread:"saved-thread",readOnly:true)} catch {failed=true}
+            XCTAssertTrue(failed);XCTAssertTrue(client.subscription);XCTAssertFalse(client.running)
+            let calls=try String(contentsOf:log)
+            XCTAssertFalse(calls.contains("thread/unarchive"));XCTAssertFalse(calls.contains("turn/start"))
+        }
+    }
+}
+
+@MainActor
+func testManualAccountCheckReportsProgressAndResult() async throws {
+    try await withAuthServer("""
+    if method=='account/read':
+        import time
+        time.sleep(0.1)
+        result={'account':{'type':'chatgpt','planType':'pro'}}
+    """) {client,log in
+        XCTAssertNil(client.signInCheckMessage)
+        let check=Task {try await client.checkSignIn()}
+        try await Task.sleep(nanoseconds:20_000_000)
+        XCTAssertTrue(client.checkingSignIn)
+        try await client.checkSignIn()
+        try await check.value
+        XCTAssertFalse(client.checkingSignIn)
+        XCTAssertTrue(client.signInCheckMessage?.hasPrefix("Subscription confirmed") == true)
+        XCTAssertEqual(try String(contentsOf:log).components(separatedBy:"account/read").count-1,2)
+    }
+}
+
+@MainActor
+func testAccountCheckShowsSignedOutAndFailureResults() async throws {
+    try await withAuthServer("""
+    if method=='account/read' and reads>2:
+        print(json.dumps({'id':m['id'],'error':{'code':-1,'message':'Account service unavailable'}}),flush=True)
+        continue
+    """) {client,_ in
+        try await client.checkSignIn()
+        XCTAssertTrue(client.signInCheckMessage?.contains("Sign in with ChatGPT") == true)
+        var failed=false
+        do {try await client.checkSignIn()} catch {failed=true}
+        XCTAssertTrue(failed);XCTAssertFalse(client.checkingSignIn)
+        XCTAssertTrue(client.signInCheckMessage?.contains("Account service unavailable") == true)
+    }
+}

@@ -11,6 +11,8 @@ public struct CodexQuestion: Identifiable {
 @MainActor public final class CodexClient: ObservableObject {
     @Published public private(set) var connected=false
     @Published public private(set) var connecting=false
+    @Published public private(set) var checkingSignIn=false
+    @Published public private(set) var signInCheckMessage:String?
     @Published public private(set) var signingIn=false
     @Published public private(set) var loginURL:URL?
     private var loginID:String?
@@ -88,7 +90,7 @@ public struct CodexQuestion: Identifiable {
     public func signIn() async throws -> URL? {
         guard connected else {throw StudioError("Connect to Codex first")}
         guard !signingIn else {throw StudioError("Sign-in is already waiting for your browser. Complete it or cancel before retrying.")}
-        signingIn=true;lastError=nil;earlyLoginCompletion=nil
+        signingIn=true;lastError=nil;signInCheckMessage=nil;earlyLoginCompletion=nil
         let run=generation
         var loginRequested=false
         do {
@@ -122,6 +124,9 @@ public struct CodexQuestion: Identifiable {
         if loginID==id {clearLogin();Diagnostics.shared?.record("codex_login_cancelled")}
     }
     public func checkSignIn() async throws {
+        guard !checkingSignIn else {return}
+        checkingSignIn=true;signInCheckMessage=nil
+        defer {checkingSignIn=false}
         guard !signingIn || loginID != nil else {throw StudioError("Wait for the browser sign-in to start before checking its status")}
         do {
             try await refreshAccount()
@@ -134,7 +139,9 @@ public struct CodexQuestion: Identifiable {
                 // awaiting it: a newer attempt may already have started.
                 lastError=nil
             }
-        } catch {lastError=error.localizedDescription;Diagnostics.shared?.record("codex_account_check_failed");throw error}
+            let time=Date().formatted(date:.omitted,time:.standard)
+            signInCheckMessage=subscription ? "Subscription confirmed at \(time). Ready for Codex tasks." : "Checked at \(time). Sign in with ChatGPT to continue."
+        } catch {signInCheckMessage="Sign-in check failed: \(error.localizedDescription)";lastError=error.localizedDescription;Diagnostics.shared?.record("codex_account_check_failed");throw error}
     }
     private func clearLogin() {signingIn=false;loginID=nil;loginURL=nil;earlyLoginCompletion=nil}
     private func completeLogin(_ params:[String:Any]) {
@@ -176,7 +183,19 @@ public struct CodexQuestion: Identifiable {
             """
             var params:[String:Any]=["cwd":engine,"model":model,"modelProvider":"openai","approvalPolicy":"on-request","sandbox":readOnly ? "read-only" : "workspace-write","developerInstructions":instructions,"config":["forced_login_method":"chatgpt"]]
             let thread:[String:Any]
-            if let existingThread,!existingThread.isEmpty {params["threadId"]=existingThread;thread=try await call("thread/resume",params)}
+            if let existingThread,!existingThread.isEmpty {
+                params["threadId"]=existingThread
+                do {thread=try await call("thread/resume",params)}
+                catch {
+                    // Restore only the saved conversation explicitly identified by Codex.
+                    // Other failures remain visible; never replace history or retry a turn.
+                    let archived="session \(existingThread) is archived. Run `codex unarchive \(existingThread)` to unarchive it first."
+                    guard let failure=error as? StudioError,!failure.uncertain,failure.message==archived else {throw error}
+                    _ = try await call("thread/unarchive",["threadId":existingThread])
+                    Diagnostics.shared?.record("codex_conversation_restored")
+                    thread=try await call("thread/resume",params)
+                }
+            }
             else {thread=try await call("thread/start",params)}
             guard let value=thread["thread"] as? [String:Any],let id=value["id"] as? String else {throw StudioError("Codex returned no task ID")}
             threadID=id
@@ -261,7 +280,7 @@ public struct CodexQuestion: Identifiable {
         let old=process;process=nil;writer=nil;generation=UUID()
         clearLogin()
         Diagnostics.shared?.record("codex_connection_closed")
-        connected=false;subscription=false;running=false;currentTurn=nil;questions=[];lastError=message;accountLabel="Not connected"
+        signInCheckMessage=nil;connected=false;subscription=false;running=false;currentTurn=nil;questions=[];lastError=message;accountLabel="Not connected"
         let waiting=pending;pending.removeAll();for continuation in waiting.values {continuation.resume(throwing:StudioError(message))}
         if old?.isRunning==true {old?.terminate()}
     }

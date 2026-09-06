@@ -12,8 +12,13 @@ struct CodexView:View {
             GroupBox("ChatGPT subscription") {
                 VStack(alignment:.leading,spacing:12) {
                     HStack {Label(client.accountLabel,systemImage:client.subscription ? "checkmark.seal" : "person.crop.circle");Spacer()
-                        Button(client.connecting ? "Checking…" : "Check sign-in") {connect()}.accessibilityLabel("Check sign-in").disabled(client.connecting || client.running || (client.signingIn && client.loginURL == nil))
+                        Button((client.connecting || client.checkingSignIn) ? "Checking…" : "Check sign-in") {connect()}.accessibilityLabel("Check sign-in").disabled(client.connecting || client.checkingSignIn || client.running || (client.signingIn && client.loginURL == nil))
                         Button("Sign in with ChatGPT") {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};if let url=try await client.signIn() {NSWorkspace.shared.open(url)}} catch {w.error=error.localizedDescription}}}.accessibilityLabel("Sign in with ChatGPT").disabled(client.running || client.connecting || client.signingIn || client.subscription)
+                    }
+                    if client.connecting || client.checkingSignIn {
+                        HStack {ProgressView().controlSize(.small);Text("Checking ChatGPT sign-in…")}
+                    } else if let result=client.signInCheckMessage {
+                        Text(result).font(.caption).textSelection(.enabled)
                     }
                     if client.signingIn {
                         Text("Waiting for browser sign-in. Keep Studio open until authentication is confirmed.")

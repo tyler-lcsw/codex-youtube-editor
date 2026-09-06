@@ -105,3 +105,31 @@ Authentication logs contain fixed event/outcome metadata, not email, URLs or tok
 The native computer-use helper still failed to inspect Studio; the user-approved
 accessibility scripting fallback verified the live account label. These findings
 supersede the earlier implication that the Connect-only test covered browser enrollment.
+
+## Fresh browser sign-in and Check sign-in — September 6, 2026
+
+The installed app was launched with a private temporary CODEX_HOME and file credential
+storage. It initially showed ChatGPT sign-in required. The owner completed the browser
+flow; Studio received login completion and automatically displayed ChatGPT subscription · pro.
+No normal credentials were read, copied, deleted or reset. Both Astra and Sol completed
+bounded no-tool requests through the native client using the newly authenticated profile.
+This closes the previously untested fresh browser authorization path for this run; the
+historical localhost error was not reproduced.
+
+The owner then reported Check sign-in still appeared not to work. A direct accessibility
+click produced a fresh successful account-check log, but no visible change: only initial
+connection drove the Checking label. The client now publishes manual-check progress and
+a timestamped result next to the button, prevents overlapping checks, and shows errors there.
+
+A separate real Send to Codex attempt failed because the saved QA conversation was archived.
+Studio now restores only the exact saved conversation identified by Codex's archived-session
+error and retries resume once. It neither replaces history nor retries turn dispatch.
+Regression coverage rejects unrelated failures and mismatched conversation IDs.
+
+Installed-app verification after rebuild (normal profile restored): automatic Pro detection;
+Check sign-in updated the visible confirmation from 3:30:37 PM to 3:30:51 PM; Send to Codex
+restored the archived QA conversation and returned STUDIO_AUTH_OK with Astra; selecting Sol
+and sending again returned STUDIO_SOL_OK on the same conversation. The app finished both
+turns and returned to idle without an authentication or task error. Accessibility scripting
+was used for native clicks, typing and result inspection. Final suite: 28 native checks,
+151 Python tests and 33 subtests; publication testing remains excluded.
