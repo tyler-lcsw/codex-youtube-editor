@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editorial Techniques Research and Studio Development Specification</title>
+  <style>
+    :root {
+      --ink: #18212b;
+      --muted: #52606d;
+      --paper: #fbfaf6;
+      --card: #ffffff;
+      --line: #d9dfdf;
+      --blue: #155f75;
+      --teal: #137969;
+      --amber: #a56414;
+      --rose: #9b3f4f;
+      --wash: #edf6f5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 17px/1.58 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1120px; margin: 0 auto; padding: 48px 28px 96px; }
+    h1, h2, h3 { line-height: 1.16; letter-spacing: -0.02em; }
+    h1 { font-size: clamp(2.25rem, 6vw, 4.75rem); max-width: 980px; margin: 18px 0; }
+    h2 { font-size: 2rem; margin-top: 64px; padding-top: 12px; border-top: 2px solid var(--ink); }
+    h3 { font-size: 1.25rem; margin-top: 30px; }
+    p, li { max-width: 82ch; }
+    a { color: var(--blue); text-underline-offset: 3px; }
+    code { background: #edf0ef; padding: .08rem .28rem; border-radius: 4px; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .13em; font-weight: 750; color: var(--teal); }
+    .lede { font-size: 1.28rem; color: #344451; max-width: 75ch; }
+    .meta { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 24px 0; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+    .card h3 { margin-top: 0; }
+    .callout { border-left: 5px solid var(--teal); background: var(--wash); padding: 18px 22px; margin: 24px 0; }
+    .warning { border-left-color: var(--amber); background: #fff7e8; }
+    .case { border-left-color: var(--rose); background: #fff3f4; }
+    .label { display: inline-block; border: 1px solid currentColor; border-radius: 999px; padding: 2px 9px; margin: 2px 4px 2px 0; font-size: .78rem; font-weight: 750; text-transform: uppercase; letter-spacing: .04em; }
+    table { width: 100%; border-collapse: collapse; margin: 22px 0; font-size: .94rem; background: var(--card); }
+    th, td { border: 1px solid var(--line); padding: 11px 12px; text-align: left; vertical-align: top; }
+    th { background: #edf1f0; }
+    .strong { color: var(--teal); }
+    .mixed { color: var(--amber); }
+    .weak { color: var(--rose); }
+    .small { font-size: .9rem; color: var(--muted); }
+    .toc { columns: 2 280px; padding-left: 22px; }
+    .toc li { break-inside: avoid; margin: 4px 0; }
+    blockquote { margin-left: 0; padding-left: 20px; border-left: 4px solid var(--line); color: #344451; }
+    @media (max-width: 680px) { main { padding: 28px 18px 70px; } .toc { columns: 1; } table { display: block; overflow-x: auto; } }
+    @media print { body { background: white; } main { max-width: none; padding: 0; } a { color: inherit; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Research report + development specification</div>
+  <h1>Editorial intelligence for Codex Studio</h1>
+  <p class="lede">A source-driven plan for turning proven editing craft into a flexible,
+    versioned technique system—without reducing taste to a timer, cloning a reference
+    creator, or claiming that decorative activity guarantees retention.</p>
+  <p class="meta">Prepared 6 September 2026 · Status: planning draft · Scope: local-first
+    M4 Studio, Remotion retained, no hosted fallback, no publication work.</p>
+
+  <div class="callout">
+    <strong>Central recommendation.</strong> Build a semantic proposal system, not an
+    “effects every N seconds” engine. The system should identify an editorial need, offer a
+    small set of techniques plus doing nothing, preview the choice reversibly, and record
+    explicit owner feedback. Technique frequency should emerge from the content and the
+    approved style profile.
+  </div>
+
+  <h2 id="contents">Contents</h2>
+  <ol class="toc">
+    <li><a href="#answer">What the research supports</a></li>
+    <li><a href="#method">Method and evidence boundaries</a></li>
+    <li><a href="#consensus">Consensus map</a></li>
+    <li><a href="#case-study">Atozy case study</a></li>
+    <li><a href="#packaging">Thumbnail and title principles</a></li>
+    <li><a href="#grande">Dr. Grande packaging case study</a></li>
+    <li><a href="#catalog">Technique catalog</a></li>
+    <li><a href="#model">Studio product model</a></li>
+    <li><a href="#capabilities">Repository capability gap</a></li>
+    <li><a href="#evaluation">Evaluation and learning</a></li>
+    <li><a href="#roadmap">Delivery sequence</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+
+  <h2 id="answer">1. What the research supports</h2>
+
+  <div class="grid">
+    <section class="card">
+      <h3 class="strong">Strong convergence</h3>
+      <p>Match the opening to the title/thumbnail promise; reach value quickly; remove
+        redundancy without damaging meaning; organize around story and comprehension;
+        use visual evidence that supports the narration; maintain intelligible speech and
+        accurate captions; inspect actual audience response.</p>
+    </section>
+    <section class="card">
+      <h3 class="mixed">Context-dependent craft</h3>
+      <p>Punch-ins, cutaways, split edits, selective text, music changes, pauses, reaction
+        holds, and chapter resets can orient, clarify, anticipate, or emphasize. Their
+        value depends on timing, genre, audience, content density, and surrounding
+        contrast.</p>
+    </section>
+    <section class="card">
+      <h3 class="weak">No defensible universal rule</h3>
+      <p>There is no credible consensus that a visual change every fixed number of seconds,
+        constant animated captions, relentless silence removal, or a particular number of
+        “pattern interrupts” will reliably improve YouTube retention.</p>
+    </section>
+  </div>
+
+  <p>YouTube describes performance using appeal, engagement, and satisfaction, and advises
+    creators to make concise hooks that deliver the packaging promise, sustain interest
+    with thoughtful storytelling and anticipation, experiment with formats, and read their
+    own analytics. It does <em>not</em> prescribe a universal edit cadence.
+    <a href="https://support.google.com/youtube/answer/16559650">YouTube: understand content performance</a>
+  </p>
+
+  <p>The practical consensus is therefore a decision hierarchy:</p>
+  <ol>
+    <li>Protect truth, meaning, intelligibility, continuity, and accessibility.</li>
+    <li>Shape the story: promise, setup, escalation, evidence, payoff, and useful breathing room.</li>
+    <li>Choose the smallest audiovisual intervention that solves a named problem.</li>
+    <li>Use contrast and novelty selectively; repeated novelty ceases to be novel.</li>
+    <li>Review the actual render and learn from explicit owner feedback and comparable audience data.</li>
+  </ol>
+
+  <h3>Long-form YouTube is not a swipe feed</h3>
+  <p>Fast cuts, constant captions, aggressive vocal effects, and high intervention density
+    are most defensible as <em>feed-native short-form conventions</em>. TikTok’s own
+    advertising guidance says its users scroll quickly and calls the first 3–6 seconds
+    critical; Meta similarly frames Reels as immersive, mobile-native creative. Those
+    sources concern short-form and, often, advertising—not organic long-form YouTube.
+    <a href="https://ads.tiktok.com/business/library/TikTok_SMB_Creative_Playbook_2025.pdf">TikTok creative playbook</a> ·
+    <a href="https://www.facebook.com/business/ads/facebook-instagram-reels-ads">Meta Reels guidance</a>
+  </p>
+  <p>YouTube distinguishes formats and says viewer preferences can differ by format; it
+    also says there is no universal ideal video length. For the current 16:9 long-form
+    Studio target, the initial acquisition problem is ordinarily package-to-click followed
+    by promise fulfillment and sustained value—not winning the next swipe in an autoplay
+    feed. Studio must therefore scope profiles and evidence by platform, surface, format,
+    duration, audience, and objective. A future Shorts profile may legitimately choose a
+    denser visual grammar, but it must not leak into long-form defaults.
+    <a href="https://support.google.com/youtube/answer/16559651">YouTube: recommendations across formats</a>
+  </p>
+
+  <h2 id="method">2. Method and evidence boundaries</h2>
+
+  <p>This synthesis triangulates four kinds of material. They are intentionally kept
+    separate because each answers a different question.</p>
+
+  <table>
+    <thead><tr><th>Evidence type</th><th>What it can support</th><th>What it cannot establish alone</th></tr></thead>
+    <tbody>
+      <tr><td><span class="label">Platform guidance</span></td><td>How YouTube defines its reports and advises creators to use them.</td><td>A causal effect for one editing device.</td></tr>
+      <tr><td><span class="label">Measured research</span></td><td>Effects under stated populations, materials, and outcomes.</td><td>Automatic transfer to every YouTube genre or channel.</td></tr>
+      <tr><td><span class="label">Practice consensus</span></td><td>Established craft vocabulary and recurring professional judgment.</td><td>A controlled retention estimate.</td></tr>
+      <tr><td><span class="label">Case observation</span></td><td>What appears in a specific published edit and where.</td><td>The editor’s intention or why viewers stayed.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Academic findings are strongest for attention guidance, learning, recall, or
+    preference—not YouTube watch-time causality. YouTube retention is observational and
+    confounded by topic, packaging, audience source, prior expectations, creator affinity,
+    and narrative content. This report uses causal language only where the cited design
+    permits it.</p>
+
+  <p>The current Atozy upload was inspected as a bounded reference case. Visual observations
+    came from sampled frames and signal-derived candidate ranges; audio observations came
+    from signal statistics and spectrograms. No normal-speed listening was available in
+    that analysis, so the report does not claim a heard vocal recipe.</p>
+
+  <h2 id="consensus">3. Consensus map</h2>
+
+  <table>
+    <thead><tr><th>Claim</th><th>Judgment</th><th>Evidence and limits</th><th>Studio implication</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>The opening should quickly fulfill the packaging promise.</td>
+        <td class="strong"><strong>Strong</strong></td>
+        <td>YouTube explicitly links intro performance to whether the first 30 seconds
+          match the title/thumbnail expectation, and recommends experimenting with the
+          opening. The exact winning structure remains channel-specific.
+          <a href="https://support.google.com/youtube/answer/9314415">Retention key moments</a></td>
+        <td>Represent promise, evidence, and payoff in the editorial strategy; test a cold
+          open only when it honestly previews the value.</td>
+      </tr>
+      <tr>
+        <td>Story and clarity precede ornament.</td>
+        <td class="strong"><strong>Strong practice consensus</strong></td>
+        <td>YouTube recommends thoughtful storytelling and anticipation. Professional
+          workflows commonly build a radio/story edit before music, B-roll, graphics, and
+          polish.
+          <a href="https://blog.frame.io/2023/10/16/premiere-pro-text-based-editing/">Frame.io: text-based story edit</a></td>
+        <td>Proposals require a goal and content anchor. Do not propose effects while source
+          understanding or editorial strategy is incomplete.</td>
+      </tr>
+      <tr>
+        <td>Cues and highlights can guide attention.</td>
+        <td class="strong"><strong>Moderate-to-strong, contextual</strong></td>
+        <td>A 2026 meta-analysis of 40 studies (N=5,049) reported a small overall benefit
+          of cueing, with important moderator differences; these were learning outcomes,
+          not YouTube retention. Combining cue types was not uniformly superior.
+          <a href="https://doi.org/10.3389/fpsyg.2026.1717604">Cueing meta-analysis</a></td>
+        <td>Use highlights, labels, and framing to locate or connect information; avoid
+          redundant simultaneous cues.</td>
+      </tr>
+      <tr>
+        <td>Relevant B-roll and graphics can clarify or substantiate.</td>
+        <td class="strong"><strong>Strong craft consensus</strong></td>
+        <td>Multimedia-learning evidence favors relevant signaling, while unrelated
+          “seductive details” can impair learning under some conditions.
+          <a href="https://eric.ed.gov/?id=EJ1263249">Seductive-details meta-analysis</a></td>
+        <td>Require the claim/concept supported and asset provenance. Prefer evidence over
+          keyword-matched decoration.</td>
+      </tr>
+      <tr>
+        <td>Editing can increase orienting attention, but more is not always better.</td>
+        <td class="mixed"><strong>Measured but narrow</strong></td>
+        <td>A controlled television-message experiment found editing related to arousal,
+          attention, and memory under its conditions. It does not validate constant cuts
+          for long-form YouTube.
+          <a href="https://doi.org/10.1207/S15506878JOBEM4401_7">Lang et al.</a></td>
+        <td>Model motivated reframes and resets, plus conflicts and clustering warnings;
+          never convert the finding into an interval.</td>
+      </tr>
+      <tr>
+        <td>Shorter can be engaging, but duration is not a universal target.</td>
+        <td class="mixed"><strong>Observational</strong></td>
+        <td>A large MOOC dataset found shorter and more informal videos associated with
+          greater engagement, but the context was instructional and the study was not an
+          experiment on YouTube edits.
+          <a href="https://doi.org/10.1145/2556325.2566239">Guo, Kim &amp; Rubin</a></td>
+        <td>Tighten redundancy and choose content-appropriate length; do not optimize for a
+          generic duration or remove meaningful air.</td>
+      </tr>
+      <tr>
+        <td>Pauses may help processing; they can also feel slow.</td>
+        <td class="mixed"><strong>Mixed/contextual</strong></td>
+        <td>Research on pauses and learner control is mixed, and practitioner editing treats
+          silence as expressive when intentional.
+          <a href="https://www.sciencedirect.com/science/article/pii/S0747563218300207">Pause experiment</a> ·
+          <a href="https://blog.frame.io/2017/05/08/edit-with-silence/">Frame.io: editing with silence</a></td>
+        <td>Classify a pause by function before removal; include purposeful pause and
+          reaction hold as positive techniques.</td>
+      </tr>
+      <tr>
+        <td>Background music can affect outcomes, but lyrics and task difficulty matter.</td>
+        <td class="mixed"><strong>Mixed/moderated</strong></td>
+        <td>One meta-analysis found a small positive overall effect in multimedia learning;
+          a systematic review found frequent costs from lyrics on verbal/memory tasks and
+          mixed instrumental effects.
+          <a href="https://doi.org/10.1177/03057356231153070">Background-music meta-analysis</a> ·
+          <a href="https://doi.org/10.1177/20592043221134392">Contrasting review</a></td>
+        <td>Treat music as optional sectional structure; prefer instrumental under dense
+          speech, duck it, and make silence/music-drop available.</td>
+      </tr>
+      <tr>
+        <td>Accurate captions improve access; automated captions need review.</td>
+        <td class="strong"><strong>Strong accessibility requirement</strong></td>
+        <td>W3C requires captions for prerecorded synchronized media at WCAG level A;
+          YouTube warns automatic captions may misrepresent speech and should be reviewed.
+          <a href="https://www.w3.org/WAI/WCAG21/Understanding/captions-prerecorded.html">W3C captions</a> ·
+          <a href="https://support.google.com/youtube/answer/6373554">YouTube automatic captions</a></td>
+        <td>Caption from the rendered edit, review names/negations/timing, and keep styled
+          emphasis optional rather than replacing complete captions.</td>
+      </tr>
+      <tr>
+        <td>J- and L-cuts improve audiovisual flow and anticipation.</td>
+        <td class="strong"><strong>Established craft</strong></td>
+        <td>Adobe documents split edits as a standard way to lead with the next scene’s
+          audio or carry previous audio over the next image for anticipation and continuity.
+          <a href="https://helpx.adobe.com/premiere/desktop/edit-projects/trim-clips/perform-j-cuts-and-l-cuts.html">Adobe split edits</a></td>
+        <td>Add independent audio/video boundaries with phoneme, room-tone, and time-map
+          validation.</td>
+      </tr>
+      <tr>
+        <td>Fast “retention editing” is a universal necessity.</td>
+        <td class="weak"><strong>Unsupported</strong></td>
+        <td>It is common in current practice and marketing, but professional discussion also
+          warns that effect-per-second expectations flatten story, exhaust viewers, and
+          create editor burnout. Such reports are anecdotal, not causal evidence.
+          <a href="https://www.reddit.com/r/editors/comments/16cp743/how_do_you_all_feel_about_youtube_style_retention/">Editor discussion</a></td>
+        <td>Offer density as a style preference and warn about clusters; never call it the
+          platform consensus.</td>
+      </tr>
+      <tr>
+        <td>Short-form scroll-stop conventions should become long-form defaults.</td>
+        <td class="weak"><strong>Unsupported transfer</strong></td>
+        <td>TikTok explicitly emphasizes the first 3–6 seconds in a fast-scrolling context,
+          while YouTube says preferences differ by format. The objective, surface, and
+          viewer commitment are different.
+          <a href="https://ads.tiktok.com/business/library/TikTok_SMB_Creative_Playbook_2025.pdf">TikTok playbook</a> ·
+          <a href="https://support.google.com/youtube/answer/16559651">YouTube format guidance</a></td>
+        <td>Make platform, surface, aspect ratio, duration, and objective required profile
+          scope; reject incompatible evidence transfer unless explicitly justified.</td>
+      </tr>
+      <tr>
+        <td>A retention spike proves the preceding edit worked.</td>
+        <td class="weak"><strong>False inference</strong></td>
+        <td>YouTube says spikes may reflect rewatching/sharing <em>or confusion</em>, and
+          dips may be skipping or abandonment. The graph requires interpretation.
+          <a href="https://support.google.com/youtube/answer/9314415">YouTube retention definitions</a></td>
+        <td>Import analytics as observations with competing explanations, never direct
+          rewards that rewrite a style profile.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warning">
+    <strong>The useful consensus is purpose, not frequency.</strong> Editors and research
+    agree more reliably on why to cut, reframe, illustrate, hold, caption, or change sound
+    than on how often. Studio should encode goals, triggers, conflicts, and review—not
+    folklore such as “change the visual every three seconds.”
+  </div>
+
+  <h2 id="case-study">4. Atozy case study: one vocabulary, not the system</h2>
+
+  <p><strong>Reference:</strong> Atozy, “Dollar Tree Has a DISGUSTING Internet Trend
+    Problem,” published 5 September 2026, 18:24.
+    <a href="https://www.youtube.com/watch?v=Njb9SAM-Qcc">Watch on YouTube</a>.
+    It was the latest long-form upload found on the official channel at the time of
+    analysis; a newer Short was excluded because its format is not comparable.</p>
+
+  <p>The source was inspected directly rather than inferred from a transcript or thumbnail.
+    Automated visual screening found 24 near-exact desaturation runs totaling about 108.4
+    seconds, or 9.8% of the video, with individual runs around 1.1–13.6 seconds. Sampled
+    frames confirmed a recurring black-and-white creator treatment interspersed with the
+    normal color talking-head, punch-ins, selective bold text, and source/evidence clips.</p>
+
+  <table>
+    <thead><tr><th>Observed range</th><th>Direct observation</th><th>Plausible function—not known intent</th></tr></thead>
+    <tbody>
+      <tr><td>00:03.8–00:05.1</td><td>Black-and-white close framing plus “I’VE EVER SEEN IN MY LIFE.”</td><td>Hook emphasis and heightened judgment.</td></tr>
+      <tr><td>00:18.4–00:22.4</td><td>Black-and-white creator passage.</td><td>Marks an incredulous aside.</td></tr>
+      <tr><td>05:28.8–05:33.2</td><td>Black-and-white treatment around “Why does this exist?”</td><td>Comic or rhetorical punctuation.</td></tr>
+      <tr><td>08:14.1–08:17.4</td><td>Black-and-white around a Pokémon-card aside.</td><td>Separates a humorous tangent.</td></tr>
+      <tr><td>15:35.1–15:38.0</td><td>Black-and-white during an overheated-camera/location-change aside.</td><td>Continuity disclosure with comic framing.</td></tr>
+      <tr><td>17:46.2–17:50.6</td><td>Black-and-white in a disturbing closing point.</td><td>Tonal emphasis.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Two observations block a simplistic rule. First, several black-and-white passages last
+    much longer than a sentence-ending punctuation beat, including approximately
+    02:25.6–02:36.3 and 03:10.7–03:24.3. Second, important evidence and emphatic speech also
+    occur in color. The treatment is therefore a flexible tonal vocabulary in this video,
+    not a demonstrated quota or universal marker.</p>
+
+  <p>Speech-conditioned audio statistics showed a higher median spectral centroid during
+    the visually desaturated runs (about 1,727 Hz versus 1,549 Hz outside), but individual
+    boundaries moved in both directions. Phonemes, source clips, performance, and mix
+    changes are confounds. Without listening and a controlled comparison, the analysis
+    cannot establish a uniform pitch/formant effect or recover an audio recipe.</p>
+
+  <div class="callout case">
+    <strong>What Studio should learn from this case:</strong> “desaturation for a bounded
+    tonal aside” and “optional paired timbre treatment” are catalog candidates. It should
+    not learn “copy Atozy,” “use black-and-white 1.3 times per minute,” or “raise pitch by
+    a guessed amount.” The latter remains an explicitly reviewed experiment.
+  </div>
+
+  <h2 id="packaging">5. Thumbnail and title principles</h2>
+
+  <p>Packaging is part of the editorial promise, not a decoration added after the video.
+    YouTube says viewers commonly encounter the thumbnail and title first; recommends
+    accurate, succinct titles with important words early; distinguishes searchable titles
+    from intriguing ones; and recommends readable branding, purposeful color/composition,
+    and avoiding excessive complexity.
+    <a href="https://support.google.com/youtube/answer/12340300">YouTube thumbnail and title tips</a>
+  </p>
+
+  <div class="grid">
+    <section class="card">
+      <h3 class="strong">Recognize</h3>
+      <p>Stable type, anchor zones, creator/logo treatment, and compositional rhythm can
+        make a channel identifiable at browse speed. The brand tokens should be consistent;
+        the story image should remain specific to each video.</p>
+    </section>
+    <section class="card">
+      <h3 class="strong">Understand</h3>
+      <p>The pair should quickly identify a truthful subject, action, consequence, value,
+        or tension. The title can carry search-readable entities and context while the
+        thumbnail carries the fast visual read.</p>
+    </section>
+    <section class="card">
+      <h3 class="strong">Continue watching</h3>
+      <p>The opening must pay off the same promise. YouTube’s current native test chooses by
+        watch time, not clicks alone, so a curiosity device that causes a quick exit is not
+        the intended winner.</p>
+    </section>
+  </div>
+
+  <h3>Consensus and limits</h3>
+  <table>
+    <thead><tr><th>Principle</th><th>Support</th><th>Product consequence</th></tr></thead>
+    <tbody>
+      <tr><td>Title and thumbnail work together.</td><td class="strong">Strong platform guidance</td><td>Review one multimodal promise; score duplication, contradiction, and payoff—not two isolated assets.</td></tr>
+      <tr><td>Accuracy is part of performance.</td><td class="strong">Strong platform/policy guidance</td><td>Trace important words and depicted events to the video; protect uncertainty and avoid misleading imagery.</td></tr>
+      <tr><td>Use readable hierarchy and avoid excessive complexity.</td><td class="strong">Strong practice/platform convergence</td><td>Preview at real Home, Suggested, Subscription, and Search sizes; require one dominant read.</td></tr>
+      <tr><td>Consistent brand tokens improve recognition.</td><td class="mixed">Platform guidance and plausible mechanism</td><td>Version templates; hold a few identity anchors while allowing topic-specific imagery and controlled evolution.</td></tr>
+      <tr><td>Search and browse can need different title strategies.</td><td class="strong">Strong platform guidance</td><td>Record discovery intent; searchable titles state expected queries, intriguing titles retain a specific truthful subject.</td></tr>
+      <tr><td>Faces, bright colors, or a fixed word count always win.</td><td class="weak">Unsupported universal claim</td><td>Treat them as testable channel/style variables, not hard rules.</td></tr>
+    </tbody>
+  </table>
+
+  <p>An observational study of 3,745 branded YouTube videos found statistically significant
+    relationships between view-through and several informative/aesthetic thumbnail
+    attributes. That is useful evidence that both information and visual appeal matter,
+    but it is not a causal recipe and does not isolate channel familiarity, topic, title,
+    or distribution.
+    <a href="https://www.sciencedirect.com/science/article/pii/S0167923622000914">Branded-thumbnail observational study</a>
+  </p>
+
+  <h3>The testing contract has changed</h3>
+  <p>As of this research, YouTube permits up to three variants in title-only,
+    thumbnail-only, or title-and-thumbnail tests. It recommends materially different
+    variants and declares results using watch time; outcomes can be winner, performed the
+    same, or inconclusive. It also warns that audience composition and chance can change
+    results. This supersedes the repository packaging skill’s older assumption that native
+    tests are thumbnail-only under one fixed title.
+    <a href="https://support.google.com/youtube/answer/16391400">YouTube A/B testing</a>
+  </p>
+
+  <p>Studio should preserve the proven one-title/three-thumbnail workflow as a valid
+    <em>thumbnail-only test mode</em>, not as the only mode. Every experiment record should
+    state platform capability version, mode, three hypotheses, watch-time outcome,
+    certainty label, audience context, and owner interpretation.</p>
+
+  <h2 id="grande">6. Dr. Grande packaging case study</h2>
+
+  <p><strong>Reference:</strong> the verified Dr. Todd Grande channel, directly inspected on
+    6 September 2026. The current page showed 1.69M subscribers and approximately 4.1K
+    videos. The analysis examined the visible current thumbnail grid, four additional
+    rows, 30 latest titles, and the popular-video grid.
+    <a href="https://www.youtube.com/@DrGrande/videos">Dr. Grande videos</a>
+  </p>
+
+  <h3>Current template anatomy</h3>
+  <table>
+    <thead><tr><th>Stable token</th><th>Direct observation</th><th>Likely job</th></tr></thead>
+    <tbody>
+      <tr><td>Upper-left black text field</td><td>Large condensed white uppercase type, usually broken into a compact stack.</td><td>Instant reading zone and repeated silhouette.</td></tr>
+      <tr><td>Story-specific hero</td><td>The case subject, place, evidence, or small collage occupies most of the frame.</td><td>Immediate topical relevance; the thumbnail does not become a generic host portrait.</td></tr>
+      <tr><td>Creator signature</td><td>A small, consistently placed Dr. Grande portrait near the upper-right.</td><td>Recognizable authorship while preserving semantic space.</td></tr>
+      <tr><td>Wordmark anchor</td><td>A small DR. GRANDE mark near the lower-left.</td><td>Redundant brand recognition without dominating the story.</td></tr>
+      <tr><td>Flexible story palette</td><td>Photos and accent colors change with the case; the structural anchors remain.</td><td>Freshness within a recognizable grid system.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The title–thumbnail division of labor</h3>
+  <p>The 30 latest loaded titles were unusually consistent in length: 90–100 characters,
+    median 96; 14 used an Analysis suffix, two were questions, and three contained an
+    explicit numeral. They repeatedly name people or roles, concrete events/actions,
+    consequences, public works or institutions, and sometimes a case surname plus
+    “Analysis” or “Update.” This is a descriptive, search-readable style, though the sample
+    alone cannot prove keyword intent or optimal length.</p>
+
+  <p>The thumbnail overlays are much shorter and more interpretive: examples directly
+    observed include “AFFAIR ON RETAINER,” “ROO THE DAY,” “CLOSING TIME,” “CLEANUP TIME
+    WITH MOM,” “DEGREE OF DECEPTION,” “TRASH TALK,” and “ONLYSCAMS.” They often compress a
+    relationship, consequence, irony, or pun instead of repeating the full title. The
+    result is complementary information:</p>
+
+  <blockquote>
+    <strong>Title:</strong> names the entities and event in language that can match a query
+    or explain the story.<br>
+    <strong>Thumbnail:</strong> supplies the channel signature, human/visual subject, and a
+    fast interpretive hook.<br>
+    <strong>Opening:</strong> must validate both without overstating what is known.
+  </blockquote>
+
+  <p>The popular grid shows an older recognizable system: Dr. Grande is larger and centered,
+    text treatment differs, and a bottom brand strip is prominent. That counterexample is
+    useful. His current recognition does not come from never changing; it comes from
+    changing the system deliberately while retaining authorship and repeated visual
+    grammar.</p>
+
+  <div class="callout case">
+    <strong>What Studio should learn from Dr. Grande:</strong> version stable brand tokens;
+    reserve most of the frame for the video-specific subject; let the title carry verified
+    entities and event context; let thumbnail copy add a short second idea; preview the
+    channel as a grid; and test controlled template evolution. Studio should not copy his
+    black box, portrait placement, title length, puns, or legal/true-crime tone as universal
+    defaults.
+  </div>
+
+  <p>The companion <a href="./YouTube%20Packaging%20Pattern%20Catalog%20%E2%80%94%20Draft.json">machine-readable
+    packaging catalog</a> captures these principles, the current YouTube experiment
+    contract, a template/profile data model, and the bounded case observations.</p>
+
+  <h2 id="catalog">7. Practical technique catalog</h2>
+
+  <p>The companion <a href="./Editorial%20Technique%20Catalog%20%E2%80%94%20Draft.json">machine-readable
+    catalog</a> defines 22 techniques. Every entry includes goals, triggers, avoid-when
+    conditions, audiovisual recipe, required inputs, parameters, duration/intensity/
+    frequency guidance, combinations, conflicts, accessibility notes, evidence level,
+    evaluation, and current capability status.</p>
+
+  <table>
+    <thead><tr><th>Editorial goal</th><th>Technique vocabulary</th><th>Default posture</th></tr></thead>
+    <tbody>
+      <tr><td>Clarity and compression</td><td>Semantic tightening; process compression; selective text; attention highlight</td><td>Meaning first; verify speech and readable duration.</td></tr>
+      <tr><td>Evidence and orientation</td><td>Evidence cutaway; comparison split; chapter reset; continuity match</td><td>Require provenance and the claim/concept supported.</td></tr>
+      <tr><td>Flow and anticipation</td><td>Split edit; anticipation/setup/payoff; cold-open promise</td><td>Use narrative causality, not arbitrary movement.</td></tr>
+      <tr><td>Emphasis and tone</td><td>Motivated reframe; desaturation emphasis; vocal timbre; slow push; sound punctuation</td><td>Bounded and sparse; compare with no effect.</td></tr>
+      <tr><td>Emotion and rhythm</td><td>Purposeful pause; reaction hold; music arc; music drop; deliberate restraint</td><td>Preserve breathing room and dialogue intelligibility.</td></tr>
+      <tr><td>Inspection and explanation</td><td>Freeze/replay</td><td>Use only when replay reveals something the first pass could not.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Example decision</h3>
+  <blockquote>
+    At source 04:12.300–04:18.900, the speaker names a specific clause visible in the
+    supplied document. Goal: evidence and comprehension. Propose an evidence cutaway with
+    a non-color-only highlight on that clause; preserve continuous dialogue with an L-cut.
+    Alternatives: show the full document without a highlight, add a short lower-third
+    citation, or leave the talking head unchanged. Risks: readable duration, crop accuracy,
+    and whether the document actually supports the spoken claim. Confidence: high on the
+    visual match, medium on the preferred presentation.
+  </blockquote>
+
+  <p>That record is useful because it explains why, where, what inputs, what alternatives,
+    and what could go wrong. “Add B-roll at 04:12” is not enough.</p>
+
+  <h2 id="model">8. Studio product model</h2>
+
+  <h3>Six separate data objects</h3>
+  <table>
+    <thead><tr><th>Object</th><th>Lifecycle</th><th>Contains</th></tr></thead>
+    <tbody>
+      <tr><td>Technique catalog</td><td>Versioned product vocabulary</td><td>Goals, triggers, inputs, parameter bounds, conflicts, evidence, capability.</td></tr>
+      <tr><td>Style profile</td><td>Owner-approved and reusable</td><td>Preferred/allowed/ask/disabled modes, restraint, music/caption/motion tendencies, contextual heuristics.</td></tr>
+      <tr><td>Video selection</td><td>One project</td><td>Overrides and goals for this video; cannot change universal production policy.</td></tr>
+      <tr><td>Proposal/decision event</td><td>One revision-bound range</td><td>Anchor, rationale, alternatives, parameters, risks, disposition, and supersession.</td></tr>
+      <tr><td>Packaging profile/template</td><td>Owner-approved, surface-scoped, versioned</td><td>Recognition tokens, content slots, search/browse posture, safe areas, and review contract.</td></tr>
+      <tr><td>Package/test event</td><td>One video and platform-contract version</td><td>Title-thumbnail-opening promise, variant hypothesis, test mode, watch-time result, uncertainty, and interpretation.</td></tr>
+    </tbody>
+  </table>
+
+  <p>The <a href="./Editorial%20Style%20Profile%20%E2%80%94%20Example%20Draft.json">example
+    profile</a> demonstrates this separation. It is illustrative, not Tyler’s approved
+    style. It makes permanent-profile mutation an explicit owner action and places the
+    profile beneath the existing production rules.</p>
+
+  <h3>Proposed Studio loop</h3>
+  <ol>
+    <li><strong>Understand:</strong> finish source understanding and editorial strategy.</li>
+    <li><strong>Choose posture:</strong> select goals and a restrained/expressive profile for this video.</li>
+    <li><strong>Propose:</strong> show two or three grounded options, including no change.</li>
+    <li><strong>Preview:</strong> render a bounded reversible range with provenance and capability labels.</li>
+    <li><strong>Decide:</strong> accept, modify, reject, or defer; bind the event to the revision.</li>
+    <li><strong>Verify:</strong> inspect frames, listen, check ASR/timing/accessibility, and record evidence.</li>
+    <li><strong>Learn:</strong> offer a profile change only after explicit confirmation; keep analytics observational.</li>
+  </ol>
+
+  <h3>Capability labels</h3>
+  <ul>
+    <li><code>proven_current</code>: implemented with relevant deterministic proof; authentic-footage qualification may still be separately pending.</li>
+    <li><code>partial_current</code>: ingredients exist, but the generic semantic technique is not complete.</li>
+    <li><code>prototype_needed</code>: feasible in the current architecture, not yet implemented and qualified.</li>
+    <li><code>provider_decision_needed</code>: implementation depends on an explicit local provider or dependency decision.</li>
+  </ul>
+
+  <h2 id="capabilities">9. Repository capability gap</h2>
+
+  <table>
+    <thead><tr><th>Area</th><th>Current evidence</th><th>Gap</th></tr></thead>
+    <tbody>
+      <tr><td>Source/timing integrity</td><td>Transcript workflow, integer-ms source timing, cuts, pause handling, time maps, independent render checks.</td><td>Proposal anchors are not yet first-class technique records.</td></tr>
+      <tr><td>Studio workflow</td><td>Project state, understanding, strategy, review annotations, revisions, evidence registration.</td><td>No palette, profile selection, proposal alternatives, or technique decision ledger.</td></tr>
+      <tr><td>Timeline vocabulary</td><td>Cutaway, overlay, split, insert; versioned preserve-time crossfade, punch-in, and color grade.</td><td>No generic split-edit, freeze/replay, speed/process compression, or semantic composition layer.</td></tr>
+      <tr><td>Audio</td><td>Catalog/procedural SFX, licensed music mixing, cleanup/stem tooling.</td><td>No generic J/L handler, room-tone proposal, music-arc semantics, or qualified vocal-timbre handler.</td></tr>
+      <tr><td>Visual evidence</td><td>Remotion composition and project asset model.</td><td>Need claim-linked provenance, highlight/readability contract, and collision checks.</td></tr>
+      <tr><td>Packaging</td><td>Dedicated packaging/thumbnail skills, generation handoff, deterministic compositing expectations, three-bet workflow, and image QA.</td><td>Skills assume an older thumbnail-only test contract; no versioned recognition template, joint promise object, browse-wall QA, or test-result ledger.</td></tr>
+      <tr><td>Qualification</td><td>Synthetic acceptance and deterministic tests are strong.</td><td>Authentic raw-footage production remains the creative readiness gate.</td></tr>
+    </tbody>
+  </table>
+
+  <p>One specific dependency constraint matters: the repository pins Remotion 4.0.486,
+    while the documented `@remotion/media` pitch feature begins at 4.0.520. A future vocal
+    timbre technique therefore needs an explicit, tested choice between a dependency
+    upgrade and a local FFmpeg implementation. Pitch shifting must not be presented as
+    formant-safe timbre control without proof.
+    <a href="https://www.remotion.dev/docs/audio/pitch">Remotion pitch documentation</a>
+  </p>
+
+  <h2 id="evaluation">10. Evaluation and learning</h2>
+
+  <h3>Evaluate the goal, not generic activity</h3>
+  <table>
+    <thead><tr><th>Goal</th><th>Pre-publication evidence</th><th>Post-publication observation</th></tr></thead>
+    <tbody>
+      <tr><td>Clarity</td><td>Source comparison, terminology/negation check, owner comprehension review.</td><td>Comments or rewatch spikes may suggest confusion; inspect before attributing.</td></tr>
+      <tr><td>Pacing</td><td>Normal-speed viewing/listening, pause-function review, clustered-intervention report.</td><td>Relative retention against comparable videos/segments, with confounds recorded.</td></tr>
+      <tr><td>Evidence</td><td>Claim-to-asset mapping, readable region, provenance and truthfulness review.</td><td>Viewer questions/corrections and segment behavior; no causal assumption.</td></tr>
+      <tr><td>Emotion/humor</td><td>Owner judgment, setup/payoff integrity, compare unmodified version.</td><td>Qualitative audience response and rewatch behavior, cautiously interpreted.</td></tr>
+      <tr><td>Accessibility</td><td>Caption accuracy/timing, speech intelligibility, non-color cues, reduced-motion check.</td><td>Accessibility feedback; issues are fixes, not taste experiments.</td></tr>
+      <tr><td>Packaging</td><td>Masked-title recognition, one-second read, source/policy trace, opening payoff, and distinct-variant review.</td><td>Concurrent native watch-time result with test mode, certainty label, and audience-context caveats.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Analytics should support a hypothesis log: observation, possible causes, comparison set,
+    confidence, and next test. YouTube itself notes that spikes and dips are ambiguous and
+    that retention comparisons should use videos of similar length. This is a reason to
+    avoid automatic reinforcement learning from raw retention curves.</p>
+
+  <h3>Feedback should be explicit and reversible</h3>
+  <p>Studio should record four dispositions—accepted, accepted with change, rejected, and
+    deferred—plus the reason. Repeated comparable decisions can prompt: “You accepted
+    restrained evidence cutaways in four explainers; update this profile?” Nothing changes
+    until the owner confirms. Every profile revision retains its predecessor and rationale.</p>
+
+  <h2 id="roadmap">11. Delivery sequence</h2>
+
+  <p>The companion <a href="./Editorial%20Techniques%20%E2%80%94%20Implementation%20Roadmap.md">implementation
+    roadmap</a> breaks work into test-first vertical slices:</p>
+  <ol>
+    <li>freeze catalog/profile contracts;</li>
+    <li>add project profile and append-only decision ledger;</li>
+    <li>build the accessible Studio palette;</li>
+    <li>generate grounded alternatives without mutating the timeline;</li>
+    <li>apply already-proven visual treatments;</li>
+    <li>add evidence cutaways, highlights, and selective text;</li>
+    <li>add split edits, room tone, music arcs/drops, and sparse SFX;</li>
+    <li>prototype freeze/replay, time compression, then separately gate vocal timbre;</li>
+    <li>add explicit preference learning and cautious analytics import;</li>
+    <li>qualify the full loop on owner-authorized authentic footage without publishing.</li>
+    <li>in parallel after contract alignment, version packaging templates, add deterministic browse-wall QA, expose joint title-thumbnail proposals, and record current YouTube watch-time tests.</li>
+  </ol>
+
+  <p>The draft <a href="./Editorial%20Style%20Rules%20%E2%80%94%20Draft.md">editorial style
+    rules</a> proposes the decision principles. They remain planning material and do not
+    change the authoritative production contract.</p>
+
+  <h2 id="sources">12. Sources</h2>
+
+  <h3>Platform and accessibility</h3>
+  <ul>
+    <li><a href="https://support.google.com/youtube/answer/16559650">YouTube — Understand your content performance for the recommendation system</a></li>
+    <li><a href="https://support.google.com/youtube/answer/16533387">YouTube — Recommendation system and long-term viewer satisfaction</a></li>
+    <li><a href="https://support.google.com/youtube/answer/9314415">YouTube — Measure key moments for audience retention</a></li>
+    <li><a href="https://support.google.com/youtube/answer/141805">YouTube — Performance FAQ</a></li>
+    <li><a href="https://support.google.com/youtube/answer/16559651">YouTube — Recommendations across formats and no universal length</a></li>
+    <li><a href="https://support.google.com/youtube/answer/6373554">YouTube — Automatic captions</a></li>
+    <li><a href="https://support.google.com/youtube/answer/12340300">YouTube — Thumbnail and title tips</a></li>
+    <li><a href="https://support.google.com/youtube/answer/16391400">YouTube — A/B test titles and thumbnails</a></li>
+    <li><a href="https://support.google.com/youtube/answer/16090438">YouTube — How search works</a></li>
+    <li><a href="https://support.google.com/youtube/answer/9229980">YouTube — Thumbnail policy</a></li>
+    <li><a href="https://support.google.com/youtube/answer/72431">YouTube — Custom thumbnail technical guidance</a></li>
+    <li><a href="https://www.w3.org/WAI/WCAG21/Understanding/captions-prerecorded.html">W3C — Captions (Prerecorded)</a></li>
+    <li><a href="https://www.w3.org/WAI/WCAG21/Understanding/audio-description-prerecorded.html">W3C — Audio Description (Prerecorded)</a></li>
+    <li><a href="https://ads.tiktok.com/business/library/TikTok_SMB_Creative_Playbook_2025.pdf">TikTok for Business — SMB Creative Playbook</a> (short-form advertising context)</li>
+    <li><a href="https://www.facebook.com/business/ads/facebook-instagram-reels-ads">Meta for Business — Reels creative</a> (short-form advertising context)</li>
+  </ul>
+
+  <h3>Research</h3>
+  <ul>
+    <li><a href="https://doi.org/10.3389/fpsyg.2026.1717604">Cueing effect in multimedia learning: three-level meta-analysis</a></li>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5576760/">The signaling principle in multimedia learning: meta-analysis</a></li>
+    <li><a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2026.1795142/full">Signaling in multimedia learning: tutorial</a></li>
+    <li><a href="https://eric.ed.gov/?id=EJ1263249">Seductive details harm learning: meta-analysis</a></li>
+    <li><a href="https://doi.org/10.1177/03057356231153070">Background music in multimedia learning: meta-analysis</a></li>
+    <li><a href="https://doi.org/10.1177/20592043221134392">Background music and cognitive task performance: systematic review</a></li>
+    <li><a href="https://doi.org/10.1145/2556325.2566239">How video production affects student engagement</a></li>
+    <li><a href="https://doi.org/10.1207/S15506878JOBEM4401_7">Effects of edits on arousal, attention, and memory</a></li>
+    <li><a href="https://www.sciencedirect.com/science/article/pii/S0747563218300207">Effects of pauses in educational videos</a></li>
+    <li><a href="https://www.sciencedirect.com/science/article/pii/S0167923622000914">Visual attributes and view-through of branded video thumbnails</a></li>
+  </ul>
+
+  <h3>Professional craft and implementation references</h3>
+  <ul>
+    <li><a href="https://blog.frame.io/2023/10/16/premiere-pro-text-based-editing/">Frame.io — Text-based editing and the radio edit</a></li>
+    <li><a href="https://blog.frame.io/2017/10/16/fcpx-magnetic-timeline/">Frame.io — A story-based timeline</a></li>
+    <li><a href="https://blog.frame.io/2017/05/08/edit-with-silence/">Frame.io — Edit with silence</a></li>
+    <li><a href="https://helpx.adobe.com/premiere/desktop/edit-projects/trim-clips/perform-j-cuts-and-l-cuts.html">Adobe — J- and L-cuts</a></li>
+    <li><a href="https://www.remotion.dev/docs/audio/volume">Remotion — Audio volume</a></li>
+    <li><a href="https://www.remotion.dev/docs/audio/pitch">Remotion — Pitch</a></li>
+    <li><a href="https://www.remotion.dev/docs/transitions/transitionseries">Remotion — TransitionSeries</a></li>
+    <li><a href="https://www.remotion.dev/docs/interpolate">Remotion — Interpolate</a></li>
+  </ul>
+
+  <h3>Practitioner perspective and case source</h3>
+  <ul>
+    <li><a href="https://www.reddit.com/r/editors/comments/16cp743/how_do_you_all_feel_about_youtube_style_retention/">r/editors — debate over retention-editing expectations</a> (anecdotal perspective)</li>
+    <li><a href="https://www.reddit.com/r/VideoEditing/comments/199okhe/what_are_some_lazy_editing_habits_that_you_see/">r/VideoEditing — recurring editing anti-patterns</a> (anecdotal perspective)</li>
+    <li><a href="https://www.reddit.com/r/videography/comments/1h7jsaj/what_do_you_use_as_motivation_to_cut_between_2/">r/videography — motivated cuts between angles</a> (anecdotal perspective)</li>
+    <li><a href="https://www.youtube.com/watch?v=Njb9SAM-Qcc">Atozy — case-study video</a></li>
+    <li><a href="https://www.youtube.com/@DrGrande/videos">Dr. Todd Grande — packaging case-study channel</a></li>
+  </ul>
+
+  <p class="small">Research materials and temporary reference media were used for analysis
+    only and were not added to the repository. This document proposes product behavior; it
+    does not certify creative quality, authorize generation, alter provider policy, or
+    authorize publication.</p>
+</main>
+</body>
+</html>

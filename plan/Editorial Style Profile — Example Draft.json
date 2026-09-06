@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "profile": {
+    "id": "example-commentary-balanced",
+    "version": 1,
+    "status": "illustrative-draft",
+    "name": "Balanced commentary example",
+    "description": "An example of a versioned Studio preference profile. It is not Tyler's approved house style and cannot override production rules.",
+    "extends": null,
+    "created_at": "2026-09-06",
+    "updated_at": "2026-09-06"
+  },
+  "scope": {
+    "content_types": ["talking-head-commentary", "explainer"],
+    "aspect_ratios": ["16:9"],
+    "durations_minutes": {"minimum": 5, "maximum": 30},
+    "audiences": ["general-adult"],
+    "exclusions": ["shorts", "music-video", "cinematic-fiction"]
+  },
+  "editorial_objectives": [
+    {"id": "clarity", "weight": 1.0},
+    {"id": "credibility", "weight": 0.95},
+    {"id": "momentum", "weight": 0.75},
+    {"id": "comedic-emphasis", "weight": 0.45}
+  ],
+  "global_preferences": {
+    "intervention_density": "restrained",
+    "motion_intensity": "low-to-medium",
+    "caption_mode": "selective",
+    "music_mode": "sectional-and-optional",
+    "default_transition": "cut",
+    "prefer_invisible_continuity": true,
+    "require_do_nothing_alternative": true,
+    "never_apply_frequency_as_quota": true
+  },
+  "techniques": {
+    "semantic-tighten": {"mode": "allowed", "default_intensity": "medium"},
+    "purposeful-pause": {"mode": "preferred", "default_intensity": "medium"},
+    "motivated-reframe": {"mode": "allowed", "default_intensity": "low"},
+    "evidence-cutaway": {"mode": "preferred", "default_intensity": "medium"},
+    "split-edit": {"mode": "allowed", "default_intensity": "low"},
+    "attention-highlight": {"mode": "allowed", "default_intensity": "low"},
+    "selective-text": {"mode": "allowed", "default_intensity": "low"},
+    "chapter-reset": {"mode": "allowed", "default_intensity": "medium"},
+    "comparison-split": {"mode": "allowed", "default_intensity": "medium"},
+    "cold-open-promise": {"mode": "ask", "default_intensity": "medium"},
+    "desaturation-emphasis": {"mode": "ask", "default_intensity": "low"},
+    "vocal-timbre": {"mode": "ask", "default_intensity": "low"},
+    "sound-punctuation": {"mode": "allowed", "default_intensity": "low"},
+    "music-arc": {"mode": "allowed", "default_intensity": "low"},
+    "music-drop": {"mode": "allowed", "default_intensity": "low"},
+    "reaction-hold": {"mode": "preferred", "default_intensity": "medium"},
+    "freeze-replay": {"mode": "ask", "default_intensity": "low"},
+    "process-compression": {"mode": "allowed", "default_intensity": "medium"},
+    "anticipation-setup-payoff": {"mode": "preferred", "default_intensity": "medium"},
+    "continuity-match": {"mode": "preferred", "default_intensity": "medium"},
+    "slow-push": {"mode": "allowed", "default_intensity": "low"},
+    "deliberate-restraint": {"mode": "preferred", "default_intensity": "high"}
+  },
+  "contextual_heuristics": [
+    {
+      "id": "clarify-concrete-claim",
+      "when": ["spoken_claim_has_verifiable_visual_evidence"],
+      "prefer": ["evidence-cutaway", "attention-highlight"],
+      "avoid": ["decorative-b-roll"],
+      "strength": "strong"
+    },
+    {
+      "id": "preserve-emotional-air",
+      "when": ["reaction_is_meaningful", "reveal_needs_processing_time"],
+      "prefer": ["purposeful-pause", "reaction-hold", "deliberate-restraint"],
+      "avoid": ["semantic-tighten", "sound-punctuation"],
+      "strength": "strong"
+    },
+    {
+      "id": "repair-monotony-with-meaning",
+      "when": ["visual_state_is_static", "new_semantic_beat_begins"],
+      "prefer": ["motivated-reframe", "evidence-cutaway", "selective-text"],
+      "avoid": ["unmotivated-transition"],
+      "strength": "medium"
+    },
+    {
+      "id": "protect-comprehension",
+      "when": ["idea_density_is_high", "on_screen_text_is_required"],
+      "prefer": ["purposeful-pause", "attention-highlight", "deliberate-restraint"],
+      "avoid": ["simultaneous_music_sfx_motion_and_dense_text"],
+      "strength": "strong"
+    }
+  ],
+  "soft_constraints": {
+    "minimum_seconds_between_salient_interventions": null,
+    "maximum_simultaneous_salient_cues": null,
+    "minimum_read_time_seconds_per_12_words": null,
+    "notes": "No numeric cadence or density defaults are asserted by the research. A future owner-approved profile may add soft proposal values from comparable project evidence; they are never universal rules or pass/fail production thresholds."
+  },
+  "accessibility": {
+    "captions_required_when_dialogue_is_present": true,
+    "do_not_encode_meaning_by_color_alone": true,
+    "protect_dialogue_intelligibility": true,
+    "flag_rapid_flashes_and_excess_motion": true,
+    "allow_reduced_motion_variant": true
+  },
+  "decision_policy": {
+    "proposal_fields_required": [
+      "technique_id",
+      "goal",
+      "trigger_evidence",
+      "source_range_ms",
+      "parameters",
+      "alternatives",
+      "risks",
+      "confidence"
+    ],
+    "owner_confirmation_required_for_modes": ["ask"],
+    "rejected_proposals_are_not_reintroduced_without_new_evidence": true
+  },
+  "learning_policy": {
+    "automatic_preference_mutation": false,
+    "feedback_events": ["accepted", "accepted-with-change", "rejected", "deferred"],
+    "promote_to_profile_only_after_explicit_owner_confirmation": true,
+    "retain_revision_and_rationale": true
+  },
+  "production_policy_relationship": {
+    "authority": "subordinate",
+    "authoritative_documents": [
+      "docs/production-rules.md",
+      "docs/production-quality-workflow.md"
+    ],
+    "conflict_resolution": "Authoritative production and accessibility requirements win."
+  }
+}
