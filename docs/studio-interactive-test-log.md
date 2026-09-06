@@ -76,3 +76,32 @@ Fresh validation: **142 Python tests passed, 1 publication test deselected; 13 n
 checks passed; skill audit and release build passed.** Independent review found no
 blocking defects in the crash, diagnostic, accessibility, model-selection or feedback
 validation changes. Native basic workflow acceptance is complete within this scope.
+
+## Authentication follow-up — September 6, 2026
+
+The owner reported a browser login that appeared successful without Studio showing an
+account, followed by an unknown localhost error on retry. The original error was not
+retained in the previous diagnostic format; its precise cause remains unconfirmed.
+In the existing app, pressing Connect immediately reported ChatGPT subscription · pro,
+confirming usable managed credentials were already present. This exposed a misleading
+initial disconnected state. Code inspection also found duplicate login starts, stale
+browser links, ignored completion failures and silently discarded refresh errors.
+
+Changes: automatically check managed authentication when opening Codex & QA; keep one
+pending login in the persistent client; expose Check sign-in and Cancel sign-in; bind
+completion to the active login ID; clear completed/cancelled links; display failures;
+close only Studio's owned connection after a login-start timeout with no returned ID.
+Authentication logs contain fixed event/outcome metadata, not email, URLs or tokens.
+
+| Check | Outcome | Evidence |
+| --- | --- | --- |
+| Existing account after app restart | PASS | Installed rebuilt app launched directly into Codex & QA and displayed ChatGPT subscription · pro without a Connect click or browser login. |
+| Live managed login start/cancel | PASS | Separate temporary CODEX_HOME with file credential storage; real bundled Codex returned HTTPS URL and login ID, listened on localhost:1455, then confirmed cancellation and released the listener. No browser authorization or existing credentials changed. |
+| Callback state and recovery | PASS | Eight native regression cases exercise the real Swift client over controlled JSON-line subprocesses: failure, duplicate attempts, existing account, early success, cancel/retry with stale completion, refresh failure, start timeout, and concurrent checking during login start. Full native suite: 21 checks. |
+| Python regression suite | PASS | 142 passed; publication test excluded. |
+| Subscription task dispatch | PASS | Fresh bounded no-tool requests completed with the expected response using both gpt-6-astra and gpt-5.6-sol. |
+| Fresh browser authorization completed by owner | NOT REPEATED | Existing credentials already work. Tests do not prove the exact previously reported localhost failure is reproduced or resolved. No sign-out or credential reset was performed. |
+
+The native computer-use helper still failed to inspect Studio; the user-approved
+accessibility scripting fallback verified the live account label. These findings
+supersede the earlier implication that the Connect-only test covered browser enrollment.

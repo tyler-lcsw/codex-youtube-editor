@@ -10,6 +10,12 @@ public struct CodexQuestion: Identifiable {
 
 @MainActor public final class CodexClient: ObservableObject {
     @Published public private(set) var connected=false
+    @Published public private(set) var connecting=false
+    @Published public private(set) var signingIn=false
+    @Published public private(set) var loginURL:URL?
+    private var loginID:String?
+    private var earlyLoginCompletion:[String:Any]?
+    private var accountReadSerial=0
     @Published public private(set) var subscription=false
     @Published public private(set) var accountLabel="Not connected"
     @Published public private(set) var messages=""
@@ -31,6 +37,8 @@ public struct CodexQuestion: Identifiable {
     public init(requestTimeout:Double=45) {self.requestTimeout=max(0.1,requestTimeout)}
 
     public func connect(binary:String) async throws {
+        guard !connecting else {return}
+        connecting=true;defer{connecting=false}
         if connected {try await refreshAccount();return}
         guard process == nil else {throw StudioError("Codex is connecting")}
         lastError=nil;framer=JSONLines();generation=UUID();let run=generation
@@ -62,21 +70,96 @@ public struct CodexQuestion: Identifiable {
         } catch {fail(error.localizedDescription);throw error}
     }
     public func refreshAccount() async throws {
+        accountReadSerial += 1;let read=accountReadSerial,run=generation
         let response=try await call("account/read",["refreshToken":false])
+        guard generation==run,accountReadSerial==read else {return}
         let account=response["account"] as? [String:Any]
         subscription=CodexProtocol.canRun(account:account)
         accountLabel=subscription ? "ChatGPT subscription · \(account?["planType"] as? String ?? "signed in")" : "ChatGPT sign-in required"
+        Diagnostics.shared?.record("codex_account_checked",detail:subscription ? "subscription" : "sign_in_required")
     }
     private func refreshModels() async throws {
         let result=try await call("model/list",[:])
         guard let rows=result["data"] as? [[String:Any]] else {throw StudioError("Codex model availability could not be read")}
         availableModels=rows.compactMap{$0["model"] as? String}
     }
-    public func signIn() async throws -> URL {
+    // A pending browser flow belongs to this client, not a transient SwiftUI tab.
+    // Repeated clicks must never replace its localhost listener or OAuth state.
+    public func signIn() async throws -> URL? {
         guard connected else {throw StudioError("Connect to Codex first")}
-        let result=try await call("account/login/start",["type":"chatgpt"])
-        guard let text=result["authUrl"] as? String,let url=URL(string:text),url.scheme=="https" else {throw StudioError("Codex did not return a secure sign-in URL")}
-        return url
+        guard !signingIn else {throw StudioError("Sign-in is already waiting for your browser. Complete it or cancel before retrying.")}
+        signingIn=true;lastError=nil;earlyLoginCompletion=nil
+        let run=generation
+        var loginRequested=false
+        do {
+            try await refreshAccount()
+            guard generation==run else {throw StudioError("Codex disconnected during sign-in")}
+            if subscription {clearLogin();return nil}
+            Diagnostics.shared?.record("codex_login_started")
+            loginRequested=true
+            let result=try await call("account/login/start",["type":"chatgpt"])
+            guard generation==run else {throw StudioError("Codex disconnected during sign-in")}
+            guard let id=result["loginId"] as? String,
+                  let text=result["authUrl"] as? String,let url=URL(string:text),url.scheme=="https" else {
+                throw StudioError("Codex did not return a secure sign-in URL and login ID")
+            }
+            loginID=id;loginURL=url
+            if let completion=earlyLoginCompletion {earlyLoginCompletion=nil;completeLogin(completion)}
+            return loginURL
+        } catch {
+            if generation==run {
+                // Without a response we cannot know the login ID; stop only our owned
+                // process rather than risk retrying over an untracked callback listener.
+                if loginRequested {fail(error.localizedDescription)} else {clearLogin();lastError=error.localizedDescription}
+                Diagnostics.shared?.record("codex_login_start_failed")
+            }
+            throw error
+        }
+    }
+    public func cancelSignIn() async throws {
+        guard let id=loginID else {throw StudioError("Wait for sign-in to start before cancelling")}
+        _ = try await call("account/login/cancel",["loginId":id])
+        if loginID==id {clearLogin();Diagnostics.shared?.record("codex_login_cancelled")}
+    }
+    public func checkSignIn() async throws {
+        guard !signingIn || loginID != nil else {throw StudioError("Wait for the browser sign-in to start before checking its status")}
+        do {
+            try await refreshAccount()
+            // A new login may have begun while this account read was suspended.
+            guard !signingIn || loginID != nil else {return}
+            if subscription {
+                // If the account was recovered without a completion event, release our listener.
+                if loginID != nil {try await cancelSignIn()}
+                // cancelSignIn clears only its own ID. Do not clear again after
+                // awaiting it: a newer attempt may already have started.
+                lastError=nil
+            }
+        } catch {lastError=error.localizedDescription;Diagnostics.shared?.record("codex_account_check_failed");throw error}
+    }
+    private func clearLogin() {signingIn=false;loginID=nil;loginURL=nil;earlyLoginCompletion=nil}
+    private func completeLogin(_ params:[String:Any]) {
+        guard signingIn else {return}
+        guard let id=loginID else {earlyLoginCompletion=params;return}
+        guard params["loginId"] as? String==id else {return}
+        let success=params["success"] as? Bool==true
+        clearLogin()
+        Diagnostics.shared?.record("codex_login_completed",detail:success ? "success" : "failure")
+        if !success {
+            lastError="ChatGPT sign-in failed: " + (params["error"] as? String ?? "The browser login did not complete. Start a new sign-in from Studio; old localhost links are no longer valid.")
+            return
+        }
+        refreshAuthenticationAfterEvent()
+    }
+    private func refreshAuthenticationAfterEvent() {
+        let run=generation
+        Task {
+            do {try await self.refreshAccount()}
+            catch {
+                guard self.generation==run else {return}
+                self.lastError="Could not confirm ChatGPT authentication: " + error.localizedDescription
+                Diagnostics.shared?.record("codex_account_check_failed")
+            }
+        }
     }
     public func send(text:String,engine:String,project:String,model:String,existingThread:String?=nil,readOnly:Bool=false,onThreadReady:((String) async throws -> Void)?=nil) async throws -> String {
         guard !running else {throw StudioError("A production task is already running")}
@@ -138,7 +221,8 @@ public struct CodexQuestion: Identifiable {
             let delay=UInt64(requestTimeout * 1_000_000_000)
             Task { [weak self] in
                 try? await Task.sleep(nanoseconds:delay)
-                self?.pending.removeValue(forKey:id)?.resume(throwing:StudioError("Codex request timed out: \(method). The task may still be running; wait for completion or stop it.",uncertain:method=="turn/start"))
+                let guidance=method.hasPrefix("account/") ? "Check sign-in before starting another login attempt." : "The task may still be running; wait for completion or stop it."
+                self?.pending.removeValue(forKey:id)?.resume(throwing:StudioError("Codex request timed out: \(method). \(guidance)",uncertain:method=="turn/start"))
             }
         }
     }
@@ -163,8 +247,9 @@ public struct CodexQuestion: Identifiable {
                 observedCompletion=true;running=false;currentTurn=nil;questions=[]
                 if let turn=params["turn"] as? [String:Any], let error=turn["error"], !(error is NSNull) {lastError=prettyJSON(error);messages += "\nTask error: \(prettyJSON(error))"}
                 messages += "\n"
-            } else if method=="account/updated" || method=="account/login/completed" {
-                subscription=false;Task {try? await self.refreshAccount()}
+            } else if method=="account/login/completed" {completeLogin(params)}
+            else if method=="account/updated" {
+                subscription=false;refreshAuthenticationAfterEvent()
             } else if method=="error" {lastError=prettyJSON(params);messages += "\n\(prettyJSON(params))\n"}
             else if method=="item/started",let item=params["item"] as? [String:Any],let type=item["type"] as? String,type != "agentMessage" {messages += "\n[\(type)] \(item["command"] as? String ?? "")\n"}
         } else if let id=object["id"] as? Int,let continuation=pending.removeValue(forKey:id) {
@@ -174,6 +259,8 @@ public struct CodexQuestion: Identifiable {
     }
     private func fail(_ message:String) {
         let old=process;process=nil;writer=nil;generation=UUID()
+        clearLogin()
+        Diagnostics.shared?.record("codex_connection_closed")
         connected=false;subscription=false;running=false;currentTurn=nil;questions=[];lastError=message;accountLabel="Not connected"
         let waiting=pending;pending.removeAll();for continuation in waiting.values {continuation.resume(throwing:StudioError(message))}
         if old?.isRunning==true {old?.terminate()}
