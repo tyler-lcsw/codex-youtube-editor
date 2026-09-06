@@ -32,11 +32,14 @@ struct ReviewView:View {
                 }
                 GeometryReader {geometry in
                     ZStack {
-                        NativeReviewPlayer(player:player)
+                        if asset == nil {
+                            StudioEmptyState(symbol:"play.rectangle",title:"Choose footage to review",detail:"Import a source in Brief & sources, or choose an existing source or revision above.")
+                                .frame(maxWidth:.infinity,maxHeight:.infinity).background(StudioTheme.panel)
+                        } else {NativeReviewPlayer(player:player)}
                         if draw {AnnotationOverlay(videoSize:videoSize,selection:$rect)}
                         if !draw,let rect=reviewContext?.rect ?? rect {
                             let bounds=ReviewGeometry.videoRect(container:geometry.size,video:videoSize)
-                            Rectangle().stroke(.mint,lineWidth:3).frame(width:rect.width*bounds.width,height:rect.height*bounds.height).position(x:bounds.minX+rect.midX*bounds.width,y:bounds.minY+rect.midY*bounds.height).allowsHitTesting(false)
+                            Rectangle().stroke(StudioTheme.coral,lineWidth:3).frame(width:rect.width*bounds.width,height:rect.height*bounds.height).position(x:bounds.minX+rect.midX*bounds.width,y:bounds.minY+rect.midY*bounds.height).allowsHitTesting(false)
                         }
                     }.background(.black)
                 }.frame(minHeight:280)
@@ -46,11 +49,11 @@ struct ReviewView:View {
                     Button("Clear region"){rect=nil}.accessibilityLabel("Clear region")
                     Text(String(format:"%.3f s",Double(markerMS)/1000)).monospacedDigit()
                 }
-                if let integrityError {Text("Historical feedback only: \(integrityError)").foregroundStyle(.orange)}
-                if !capturePath.isEmpty {Label("Frame captured for this version",systemImage:"checkmark.circle").font(.caption).foregroundStyle(.mint)}
+                if let integrityError {Text("Historical feedback only: \(integrityError)").foregroundStyle(StudioTheme.accent)}
+                if !capturePath.isEmpty {Label("Frame captured for this version",systemImage:"checkmark.circle").font(.caption).foregroundStyle(StudioTheme.accent)}
                 TextField("Optional range end (seconds)",text:$endSeconds).accessibilityLabel("Optional range end (seconds)").textFieldStyle(.roundedBorder)
                 TextField("What should change here, and why?",text:$comment,axis:.vertical).accessibilityLabel("What should change here, and why?").lineLimit(3...6).textFieldStyle(.roundedBorder)
-                Button("Save annotation",systemImage:"text.bubble") {saveAnnotation()}.accessibilityLabel("Save annotation").buttonStyle(.borderedProminent).disabled(capturePath.isEmpty || comment.isEmpty || w.busy)
+                Button("Save annotation",systemImage:"text.bubble") {saveAnnotation()}.accessibilityLabel("Save annotation").buttonStyle(.borderedProminent).tint(StudioTheme.button).disabled(capturePath.isEmpty || comment.isEmpty || w.busy)
                 DisclosureGroup("Transcript anchors") {
                     if transcriptWords.isEmpty {Text("No matching render-derived transcript for this selected revision. Frame/time annotations remain available.").font(.caption).foregroundStyle(.secondary)}
                     else {ScrollView {LazyVStack(alignment:.leading) {ForEach(transcriptWords.indices,id:\.self) {i in let word=transcriptWords[i];let id=word["id"] as? String ?? String(i)
@@ -62,11 +65,11 @@ struct ReviewView:View {
             ScrollView {VStack(alignment:.leading,spacing:16) {
                 Text("Feedback on this version").font(.title3.bold())
                 Text("\(w.annotations.filter{$0["status"] as? String != "accepted"}.count) unresolved across this production. Select the original reviewed version to see its notes.").font(.caption).foregroundStyle(.secondary)
-                if feedback.isEmpty {Text("Pause the video to leave a precise note.").foregroundStyle(.secondary)}
+                if feedback.isEmpty {StudioEmptyState(symbol:"text.bubble",title:"No feedback on this version",detail:"Pause the video to add a frame, region, or time-range note.")}
                 ForEach(feedback.indices,id:\.self) {i in let note=feedback[i];let noteID=note["id"] as? String ?? ""
                     GroupBox {
                         VStack(alignment:.leading,spacing:10) {
-                            HStack {Button(String(format:"%.3f s",Double(note["time_ms"] as? Int ?? 0)/1000)) {reviewContext=AnnotationContext(note);draw=false;player.seek(to:CMTime(value:Int64(note["time_ms"] as? Int ?? 0),timescale:1000));player.pause()};Spacer();Text((integrityError == nil ? "" : "historical · ")+(note["status"] as? String ?? "open")).font(.caption).foregroundStyle(.mint)}
+                            HStack {Button(String(format:"%.3f s",Double(note["time_ms"] as? Int ?? 0)/1000)) {reviewContext=AnnotationContext(note);draw=false;player.seek(to:CMTime(value:Int64(note["time_ms"] as? Int ?? 0),timescale:1000));player.pause()};Spacer();StudioStatus(status:(integrityError == nil ? "" : "historical · ")+(note["status"] as? String ?? "open"))}
                             Text(note["text"] as? String ?? "").textSelection(.enabled)
                             if let path=note["frame_path"] as? String,let image=NSImage(contentsOfFile:path) {MarkedFrame(image:image,rect:AnnotationContext(note).rect).frame(height:130)}
                             if let end=note["end_ms"] as? Int {Text(String(format:"Range ends at %.3f s",Double(end)/1000)).font(.caption)}
@@ -147,7 +150,7 @@ struct AnnotationOverlay:View {
             let bounds=ReviewGeometry.videoRect(container:geometry.size,video:videoSize)
             ZStack {
                 Color.black.opacity(0.001)
-                if let r=selection {Rectangle().fill(.mint.opacity(0.15)).overlay(Rectangle().stroke(.mint,lineWidth:3)).frame(width:r.width*bounds.width,height:r.height*bounds.height).position(x:bounds.minX+r.midX*bounds.width,y:bounds.minY+r.midY*bounds.height)}
+                if let r=selection {Rectangle().fill(StudioTheme.coral.opacity(0.15)).overlay(Rectangle().stroke(StudioTheme.coral,lineWidth:3)).frame(width:r.width*bounds.width,height:r.height*bounds.height).position(x:bounds.minX+r.midX*bounds.width,y:bounds.minY+r.midY*bounds.height)}
             }.contentShape(Rectangle()).gesture(DragGesture(minimumDistance:2).onChanged {value in selection=ReviewGeometry.selection(from:value.startLocation,to:value.location,in:bounds)})
         }
     }
@@ -161,7 +164,7 @@ struct MarkedFrame:View {
             let bounds=ReviewGeometry.videoRect(container:g.size,video:image.size)
             ZStack {
                 Image(nsImage:image).resizable().aspectRatio(contentMode:.fit).frame(width:g.size.width,height:g.size.height)
-                if let r=rect {Rectangle().stroke(.mint,lineWidth:2).frame(width:r.width*bounds.width,height:r.height*bounds.height).position(x:bounds.minX+r.midX*bounds.width,y:bounds.minY+r.midY*bounds.height)}
+                if let r=rect {Rectangle().stroke(StudioTheme.coral,lineWidth:2).frame(width:r.width*bounds.width,height:r.height*bounds.height).position(x:bounds.minX+r.midX*bounds.width,y:bounds.minY+r.midY*bounds.height)}
             }
         }
     }

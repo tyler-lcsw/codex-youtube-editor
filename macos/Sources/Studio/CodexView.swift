@@ -39,13 +39,13 @@ struct CodexView:View {
                     Picker("Codex model",selection:$model) {Text("GPT-6 Astra").tag("gpt-6-astra");Text("GPT-5.6 Sol").tag("gpt-5.6-sol")}.disabled(client.running)
                     TextField("Describe the next edit or ask Codex to analyze the footage…",text:$prompt,axis:.vertical).accessibilityLabel("Describe the next edit or ask Codex to analyze the footage…").lineLimit(3...8).textFieldStyle(.roundedBorder)
                     HStack {
-                        Button("Send to Codex",systemImage:"arrow.up.circle.fill") {send()}.accessibilityLabel("Send to Codex").buttonStyle(.borderedProminent).disabled(!client.subscription || client.running || w.project.isEmpty || w.busy || prompt.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)
+                        Button("Send to Codex",systemImage:"arrow.up.circle.fill") {send()}.accessibilityLabel("Send to Codex").buttonStyle(.borderedProminent).tint(StudioTheme.button).disabled(!client.subscription || client.running || w.project.isEmpty || w.busy || prompt.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)
                         Button("Stop task") {Task {do {try await client.interrupt()}catch {w.error=error.localizedDescription}}}.accessibilityLabel("Stop task").disabled(!client.running)
                         if client.running {ProgressView().controlSize(.small);Text("Working…").foregroundStyle(.secondary)}
                     }
                     if let id=client.threadID {Text("Task \(id)").font(.caption).textSelection(.enabled)}
-                    if let error=client.lastError {Text(error).foregroundStyle(.orange).textSelection(.enabled)}
-                    Text(client.messages.isEmpty ? "Your brief, sources, provider choices, and version-bound feedback accompany each task." : client.messages).textSelection(.enabled).frame(maxWidth:.infinity,alignment:.leading).padding(12).background(.black.opacity(0.12)).clipShape(RoundedRectangle(cornerRadius:8))
+                    if let error=client.lastError {Text(error).foregroundStyle(StudioTheme.accent).textSelection(.enabled)}
+                    Text(client.messages.isEmpty ? "Your brief, sources, provider choices, and version-bound feedback accompany each task." : client.messages).textSelection(.enabled).frame(maxWidth:.infinity,alignment:.leading).padding(12).background(StudioTheme.canvas).clipShape(RoundedRectangle(cornerRadius:8))
                 }.padding(12)
             }
             ForEach(client.questions) {question in

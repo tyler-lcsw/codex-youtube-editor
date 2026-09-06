@@ -14,7 +14,7 @@ struct UnderstandingView:View {
             ForEach(stages.indices,id:\.self) {i in let row=stages[i]
                 GroupBox {
                     VStack(alignment:.leading,spacing:8) {
-                        HStack {Text(row["label"] as? String ?? "Stage").font(.headline);Spacer();Text(row["status"] as? String ?? "pending").foregroundStyle(.mint)}
+                        HStack {Text(row["label"] as? String ?? "Stage").font(.headline);Spacer();StudioStatus(status:row["status"] as? String ?? "pending")}
                         Text("Requires: \((row["requires"] as? [String] ?? []).joined(separator:", "))").font(.caption).foregroundStyle(.secondary)
                         Text(row["instructions"] as? String ?? "").foregroundStyle(.secondary)
                         Text("Required artifacts: \((row["artifacts"] as? [String] ?? []).joined(separator:", "))").font(.caption).textSelection(.enabled)

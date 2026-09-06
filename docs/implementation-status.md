@@ -129,6 +129,21 @@ publication excluded. Real isolated Codex login-start/cancel verified listener c
 and release. The owner's exact earlier localhost error and fresh browser completion
 remain unverified; no credentials were reset. See the interactive test log.
 
+### Precision Cut application identity (September 6, 2026)
+
+Applied the user's approved A direction: ivory/coral/graphite. Added a clean editable
+SVG master, full ICNS family and in-app PNG mark; the bundle registers and ships both.
+Added adaptive theme tokens, native navigation symbols, state badges and useful empty
+states. Brand colors are for the app; production styles remain project-specific.
+The asset inventory records current assets and deferred document/technique/distribution
+needs in `plan/Codex Studio — Visual Identity.html`.
+
+Validation: 35 focused Python checks passed, including a new bundle regression observed
+failing before implementation; release build and native dark Review layout inspected.
+Token contrast ratios range from 5.57:1 to 10.92:1 for tested text pairs. The screenshot
+helper remains intermittent outside Review, so this does not claim complete visual or
+accessibility qualification across every screen and appearance.
+
 ### Editorial-technique research and development specification (September 6, 2026)
 
 A research-only Studio expansion is documented in

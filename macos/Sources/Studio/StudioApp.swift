@@ -37,13 +37,18 @@ struct StudioWindow:View {
     var body:some View {
         NavigationSplitView {
             VStack(alignment:.leading,spacing:20) {
-                Label("CODEX STUDIO",systemImage:"film.stack").font(.headline).foregroundStyle(.mint)
+                HStack(spacing:10) {
+                    if let url=Bundle.main.url(forResource:"StudioMark",withExtension:"png"),let mark=NSImage(contentsOf:url) {
+                        Image(nsImage:mark).resizable().frame(width:42,height:42).accessibilityHidden(true)
+                    }
+                    Text("CODEX STUDIO").font(.headline).tracking(1)
+                }
                 Text(w.title).font(.title2.bold())
                 Text("A clear path from footage to finished story.").foregroundStyle(.secondary)
-                List(sections,id:\.self,selection:$w.section) {name in Text(name).padding(.vertical,7).tag(name)}.listStyle(.sidebar)
+                List(sections,id:\.self,selection:$w.section) {name in Label(name,systemImage:StudioTheme.symbol(for:name)).padding(.vertical,7).tag(name)}.listStyle(.sidebar).scrollContentBackground(.hidden)
                 HStack {Button("New",action:w.newProject).accessibilityLabel("New");Button("Open",action:w.openProject).accessibilityLabel("Open")}
                 Text("Development edition · M4").font(.caption).foregroundStyle(.secondary)
-            }.padding(18).navigationSplitViewColumnWidth(240)
+            }.padding(18).background(StudioTheme.panel).navigationSplitViewColumnWidth(260)
         } detail: {
             VStack(spacing:0) {
                 HStack {
@@ -64,8 +69,8 @@ struct StudioWindow:View {
                     }
                 }.frame(maxWidth:.infinity,maxHeight:.infinity)
                 if !w.notice.isEmpty {Text(w.notice).font(.caption).foregroundStyle(.secondary).padding(8)}
-            }.background(Color(nsColor:.windowBackgroundColor))
-        }.tint(.mint)
+            }.background(StudioTheme.canvas)
+        }.tint(StudioTheme.accent).foregroundStyle(StudioTheme.text).groupBoxStyle(StudioPanelStyle())
         .onReceive(NotificationCenter.default.publisher(for:NSApplication.willTerminateNotification)) {_ in Diagnostics.shared?.record("session_ended")}
         .alert("Action needs attention",isPresented:Binding(get:{w.error != nil},set:{if !$0 {w.error=nil}})) {Button("OK"){w.error=nil}.accessibilityLabel("OK")} message:{Text(w.error ?? "")}
     }
