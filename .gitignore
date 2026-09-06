@@ -64,3 +64,9 @@ models/
 media/projects/
 
 media/generated/
+
+# Native development app and private review state
+macos/.build/
+**/work/studio/
+
+.venv

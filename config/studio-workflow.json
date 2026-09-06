@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "stages": [
+    {
+      "id": "intake",
+      "label": "Intake",
+      "requires": [],
+      "artifacts": [],
+      "instructions": "Clarify audience, purpose, length, tone, required content and context. Identify each supplied source versus reference, preserve originals and record provenance, properties and resource choices."
+    },
+    {
+      "id": "source_understanding",
+      "label": "Source understanding",
+      "requires": [
+        "intake"
+      ],
+      "artifacts": [
+        "work/analysis/source-understanding.md",
+        "work/analysis/content-map.json"
+      ],
+      "instructions": "Review the source before proposing cuts. Document its argument, demonstrations, emotional beats, intended conclusion, technical properties and uncertainties in source-understanding.md. Record a content map with source-bound segments, transcript anchors and known timing limitations in content-map.json. Do not invent observations or unknown word timings."
+    },
+    {
+      "id": "editorial_strategy",
+      "label": "Editorial strategy",
+      "requires": [
+        "source_understanding"
+      ],
+      "artifacts": [
+        "work/edit-plan.md"
+      ],
+      "instructions": "Write work/edit-plan.md describing the editorial strategy, retained meaning, specific cuts, timing, selective graphics/audio treatment and representative preview. Explain every intervention against the brief and source findings."
+    },
+    {
+      "id": "edit",
+      "label": "Edit",
+      "requires": [
+        "editorial_strategy"
+      ],
+      "artifacts": [],
+      "instructions": "Execute the reviewed plan through the production quality action coordinator. Preserve source media and successful revisions, inspect each result, recalculate actual timeline mappings and address revision-bound feedback. Record real artifact paths and technical findings; rendering alone is not acceptance."
+    },
+    {
+      "id": "final_review",
+      "label": "Final review",
+      "requires": [
+        "edit"
+      ],
+      "artifacts": [
+        "work/quality/completion.json"
+      ],
+      "instructions": "Register actual delivery files, review all current production rules, complete audiovisual and technical checks, preserve pending findings and obtain a current production-quality completion receipt. Confirm exact deliverable hashes. QA completion never authorizes publication."
+    }
+  ],
+  "routes": {
+    "editorial": [
+      "codex-astra",
+      "codex-sol",
+      "local-pair"
+    ],
+    "transcription": [
+      "local-qwen"
+    ],
+    "cleanup": [
+      "local-deepfilternet"
+    ],
+    "images": [
+      "local-klein",
+      "native-codex"
+    ],
+    "rendering": [
+      "local-ffmpeg",
+      "local-remotion"
+    ]
+  }
+}

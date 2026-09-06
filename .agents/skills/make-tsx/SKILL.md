@@ -58,20 +58,20 @@ This is the project orchestration. For the low-level rules of writing a single c
 - `bake.py` splits `[0, end]` at every shot boundary, renders each segment (cutaway from the shot, overlay = master+alpha, else master pass-through), concats, and muxes master audio 0..end. Frame-accurate; a shot's file must exist in `remotion/out/` first.
 - Design shots at 1920×1080; render-all `--scale=2` → 4K for final. Preview bakes 1080p30; final delivery is 4K60.
 
-## Principles (the house style — apply them)
+## Editorial principles
 
-- **Sync to the words (P1).** Reveal sub-elements on their narration cue, timed from `edited-transcript.json`. "Show everything then hold" is a smell.
-- **Don't pre-empt (P2).** Never put on screen a thing mentioned *later* (don't show "skill" before the skill is introduced; don't show example tiles before "more examples").
-- **Real service info → real page (P3).** Facts about a service (limits, pricing) → a TSX clone of that service's actual web page (browser chrome + URL bar + scroll) with the exact line highlighted. Screenshot the real page first (Playwright / website-screenshot), then clone it.
-- **Config/setup → real UI (P4).** Keys, dashboards, `.env`, skill folders → the actual VS Code / dashboard UI, not an abstract graphic.
-- **Real results in the real editor (P5).** A generated result is shown opened inside the real editor (image in a pane next to the chat), not floating on a brand card.
-- **Full-screen vs overlay.** Concept beats = full-screen cutaways (cut away from the talking head). Overlays only for small persistent CTAs/badges in the top/bottom band; never cover the center-framed talking head.
-- **Real UI realism.** UI clones match the real product (Claude Code = dark + coral, real logos), not the indigo brand. Brand indigo is for overlays/full-screen beats.
-- **Recording vs TSX.** TSX when you want controlled highlight/scroll/zoom; a real screen recording only when the point is genuine PROOF (real output, real speed). Leave a clearly-noted placeholder slot for recordings the user will provide.
-- On-screen text follows the brand voice — **no em-dashes** (the site copy avoids them; keep it out of overlays too).
+Use the current project's brief, approved edit strategy, brand and source evidence.
+Every graphic should clarify an actual point, demonstrate a relationship or preserve
+orientation. Do not force visual beats merely because a capability exists.
 
-Those are the full principle set. When a video's plan calls for a revision pass, record what changed
-and why in `videos/<project>/work/v2-update-plan.md` so the next pass inherits the reasoning.
+- Distinguish actual recordings/results from illustrative UI clones or generated imagery.
+- Use real source references for factual/product visuals; verify that labels match the claim.
+- Choose overlay versus cutaway according to visibility, context and composition; preserve
+  faces, essential controls, captions and demonstrations.
+- Use project-specific typography, colors and editorial voice. Do not inherit the upstream
+  creator's colors, tool names or channel punctuation rules as universal defaults.
+- Match visuals to render-derived cues and review the actual composited result at each cue.
+- Record meaningful revisions and rationale in the project edit plan and annotation history.
 
 ## Tooling quick reference
 
@@ -80,6 +80,6 @@ and why in `videos/<project>/work/v2-update-plan.md` so the next pass inherits t
 - Bake: `python tools/bake.py [timeline.json] [--end S] [--keep]`.
 - Scratch renders/frames go in the scratchpad, not the project.
 
-Done = the changed beats render, you have **looked at** stills/frames at each cue, the preview is re-baked, and composited frames are spot-checked. Update the plan/timeline and any relevant memory when the pass is complete.
+Done = the changed beats render, you have **looked at** stills/frames at each cue, the preview is re-baked, and composited frames are spot-checked. Update the plan/timeline and project evidence when the pass is complete.
 
 Before baking, follow `docs/timeline-compatibility.md`. Use the registered v1 crossfade, punch-in and color-grade contracts where appropriate. Unsupported versions and parameters fail explicitly. Keep complex layered effects inside rendered Remotion shots.
