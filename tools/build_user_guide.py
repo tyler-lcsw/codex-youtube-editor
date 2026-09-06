@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
+SECTIONS = ('Getting started', 'Brief & sources', 'Understanding', 'Review',
+            'Resources', 'Codex & QA', 'How to Use', 'Production skills', 'Troubleshooting')
 
 
 def _validate(data):
@@ -26,6 +28,8 @@ def _validate(data):
             raise ValueError('Each article must be an object')
         for field in ('id', 'section', 'title', 'summary', 'status'):
             text(article.get(field), field)
+        if article['section'] not in SECTIONS:
+            raise ValueError('Article section must match a supported guide section')
         identifier = article['id']
         if not re.fullmatch(r'[a-z][a-z0-9]*(?:-[a-z0-9]+)*', identifier) or identifier in ids:
             raise ValueError(f'Invalid or duplicate article id: {identifier!r}')

@@ -58,7 +58,7 @@ class GuideTests(unittest.TestCase):
         data = guide()
         hostile = '\"><script>alert("x")</script>&\''
         data['title'] = hostile
-        for field in ('section', 'title', 'summary', 'status', 'prompt'):
+        for field in ('title', 'summary', 'status', 'prompt'):
             data['articles'][0][field] = hostile
         data['articles'][0]['steps'] = [hostile]
         data['articles'][0]['notes'] = [hostile]
@@ -72,7 +72,7 @@ class GuideTests(unittest.TestCase):
                    {**guide(), 'schema_version': True}, {**guide(), 'title': ' '},
                    {**guide(), 'articles': []}, {**guide(), 'articles': 'bad'}]
         for field, value in [('id', 'Bad ID'), ('id', 'a--b'), ('id', 'a\" onclick=\"x'),
-                             ('section', ''), ('title', None), ('summary', []),
+                             ('section', ''), ('section', 'Unknown'), ('id', '123-start'), ('title', None), ('summary', []),
                              ('status', ' '), ('steps', []), ('steps', [' ']),
                              ('steps', 'bad'), ('notes', None), ('notes', [3]),
                              ('prompt', 3), ('prompt', '')]:
