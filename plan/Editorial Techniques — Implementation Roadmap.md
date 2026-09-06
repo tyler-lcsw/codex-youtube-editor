@@ -12,6 +12,12 @@ time. Its packaging companion should propose a recognizable, truthful title-thum
 promise and learn from YouTube's current watch-time experiments. It should not become an
 effects generator, a retention-score optimizer, or a keyword-stuffing tool.
 
+The next format expansion should preserve that semantic core while treating YouTube
+Shorts, organic TikTok, and TikTok advertising as separate versioned platform targets.
+See `Short-Form Vertical Video Research and Studio Specification.html` and
+`Short-Form Platform and Editorial Contract — Draft.json`. A vertical crop is not, by
+itself, a short-form edit.
+
 ## Current baseline
 
 The repository already proves source preservation, verified transcript/timing workflows,
@@ -389,6 +395,116 @@ late audience composition is retained as a caveat.
 **Acceptance:** Studio can propose a controlled template evolution and explain the evidence,
 while the owner explicitly approves any durable brand-profile change.
 
+## Short-form track S0 — Freeze platform-target contracts
+
+**Purpose:** represent the delivery context before short-form creative behavior is added.
+
+**Contract:** distinguish `youtube_shorts`, `tiktok_organic`, and
+`tiktok_advertising`; record surface, purpose, account type, locale/territory, duration
+class, platform-contract version, verification date, and source URLs. Safe-area profiles
+must be placement-, UI-, locale-, and version-specific.
+
+**Tests first:** reject an unspecified organic/ad purpose, stale or missing contract
+version, a generic cross-platform safe rectangle, and advertising evidence relabeled as
+organic guidance. Preserve unknown fields.
+
+**Acceptance:** Studio can explain which platform contract governs a proposed deliverable
+and where each mutable fact came from.
+
+## Short-form track S1 — Separate briefs and editorial archetypes
+
+**Purpose:** turn an understood source into one short-form promise rather than merely
+shortening it.
+
+**Interaction:** choose audience, platform, standalone versus bridge objective, one useful
+promise, archetype, sound strategy, caption strategy, ending action, and restraint level.
+Initial archetypes are micro-explainer, context-preserving clip, demonstration,
+commentary/reaction, list/comparison, mini-story, and reply/remix.
+
+**Tests first:** no proposal without reviewed source meaning; a clip cannot remove a
+qualification; an unavailable interaction cannot be selected; ad CTA requirements do not
+appear in an organic profile; “no effects” remains valid.
+
+**Acceptance:** the same source can produce different, explicit Shorts and TikTok briefs
+without either inheriting the long-form package or the other's native features.
+
+## Short-form track S2 — Reversible vertical composition and safe-area review
+
+**Purpose:** deliver an intentional 9:16 composition while preserving the uncropped source.
+
+**Behavior:** add per-shot crops/keyframes, subject and evidence bounds, caption lanes,
+platform-UI overlays, phone-size previews, collision warnings, and manual overrides.
+Default the Studio production profile to 1080×1920 progressive, while keeping platform
+acceptance envelopes versioned separately.
+
+**Tests first:** never assume center crop; preserve faces, hands, demonstrations, signing,
+and source text; reject essential content in a known occlusion region; unknown safe areas
+remain warnings rather than fabricated certainty; time maps and caption anchors round-trip.
+
+**Acceptance:** side-by-side Shorts and TikTok previews show their current UI overlays and
+the editor can adjust any crop or caption region reversibly.
+
+## Short-form track S3 — Opening, rhythm, captions, and ending proposals
+
+**Purpose:** support feed-native acquisition without encoding engagement folklore.
+
+**Behavior:** propose an immediate honest premise, a compressed source-grounded beat map,
+motivated visual changes, verified captions with optional emphasis, and one platform-valid
+payoff or bridge. Store doing nothing and a restrained variant beside denser treatments.
+
+**Tests first:** prohibit fixed cut/zoom/effect intervals; reject false mystery and false
+loops; flag dense competing visual tasks; ensure burned-in emphasis does not replace the
+complete caption track; validate that the promised payoff exists.
+
+**Acceptance:** proposals state the semantic reason for every intervention and never claim
+that fast cuts, constant captions, trending sounds, or a specific duration guarantee reach.
+
+## Short-form track S4 — Platform packages, interaction, and sound rights
+
+**Purpose:** prevent a clean vertical master from being mistaken for a publish-ready asset.
+
+**Contract:** separate first frame, YouTube Shorts thumbnail/frame, TikTok cover, title or
+post caption, search/hashtag context, related-video target, comment/remix/participation
+intent, and platform-specific sound. Sound records include clean master, source/license,
+platform library or external origin, purpose, territory, allowed duration, claim risk, and
+remix dependency.
+
+**Tests first:** Shorts description URLs cannot be offered as clickable; related-video
+targets meet current eligibility; a Short over one minute with an active claim is blocked;
+commercial TikTok music is properly scoped; in-app licensed audio cannot silently transfer
+to another platform; capability differences in current Shorts thumbnail workflows surface.
+
+**Acceptance:** each platform package has its own accurate cover, metadata, interaction,
+and rights disposition while remaining traceable to the same reviewed source.
+
+## Short-form track S5 — Native analytics observations
+
+**Purpose:** learn across releases without inventing one cross-platform engagement score.
+
+**Data:** native metric name and definition, platform/surface, denominator, observation
+window, duration band, archetype, audience context, original-versus-repurposed status,
+sound/remix context, hypothesis, confounds, and owner interpretation.
+
+**Tests first:** do not equate a Shorts engaged view, shown-in-feed event, TikTok view,
+completion, replay, click, share, or save; reject unmatched comparisons; analytics cannot
+mutate a profile automatically; retain source definitions with each import.
+
+**Acceptance:** Studio can compare like with like, explain uncertainty, and propose one
+controlled next experiment without assigning causality to an edit.
+
+## Short-form track S6 — Dual unpublished qualification
+
+**Purpose:** prove the workflow on authentic authorized footage before claiming support.
+
+Create one YouTube Short and one organic TikTok adaptation from the same reviewed source,
+starting independently from the source master rather than deriving one compressed output
+from the other. Complete source review, brief, vertical composition, package, sound-rights
+review, caption QA, full playback/listening, deliverable registration, and all quality gates.
+Do not upload or publish.
+
+**Acceptance:** both platform deliverables pass technical and editorial review, their
+differences are documented, and no advertising or publication capability is implied.
+
 ## Cross-cutting test matrix
 
 | Concern | Required proof |
@@ -403,6 +519,10 @@ while the owner explicitly approves any durable brand-profile change.
 | Compatibility | legacy/unknown-field round trips and pinned version fixtures |
 | Taste | owner disposition tied to proposal and revision |
 | Packaging | title-thumbnail-opening promise trace, masked-title recognition, real-size previews, current watch-time test contract |
+| Platform scope | explicit long-form, Shorts, TikTok-organic, or TikTok-ad target with source and verification date |
+| Vertical delivery | per-shot crop proof, current safe-area overlay, phone-size preview, caption and evidence collision checks |
+| Short-form rights | clean master plus platform-, territory-, purpose-, duration-, and remix-bound sound provenance |
+| Short-form analytics | native definitions and denominators; matched platform/surface/duration/archetype cohort; no aggregate score |
 
 ## Release gates
 
@@ -415,6 +535,10 @@ while the owner explicitly approves any durable brand-profile change.
 6. **Packaging gate:** the package is accurate, recognizable, readable at browse size,
    policy-safe, and ready for an explicitly selected current YouTube test mode. Uploading
    or starting that test remains separately authorized.
+7. **Short-form contract gate:** platform, surface, purpose, UI/safe-area version,
+   interaction availability, and sound-rights context are explicit and current.
+8. **Short-form qualification gate:** separately reviewed YouTube Shorts and organic
+   TikTok deliverables pass the complete production-quality workflow without publication.
 
 ## Explicit non-goals
 
@@ -427,3 +551,7 @@ while the owner explicitly approves any durable brand-profile change.
 - copying Dr. Grande's exact template, identity, wordmark, puns, or title length;
 - treating CTR alone as the native YouTube experiment winner;
 - uploading variants or starting YouTube tests without explicit publication authorization.
+- treating YouTube Shorts, organic TikTok, and TikTok advertising as one target;
+- a cross-platform engagement score or automatic style learning from unmatched metrics;
+- assuming a center-cropped, captioned excerpt is a native short-form edit;
+- transferring in-app music, remix rights, covers, metadata, or interactions across platforms.

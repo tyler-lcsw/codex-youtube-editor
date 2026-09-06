@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "contract_id": "codex-studio-short-form-platform-editorial",
+  "contract_version": "0.1.0-draft",
+  "verified_on": "2026-09-06",
+  "status": "research-draft-not-production-policy",
+  "purpose": "Planning contract for distinct YouTube Shorts, organic TikTok, and TikTok advertising targets. It does not authorize publication or establish creative quotas.",
+  "scope_rules": {
+    "shared_layer": "Reviewed source meaning, transcript, visual anchors, provenance, and production quality rules may be shared.",
+    "derived_layer": "Opening, beat map, crop, captions, sound, cover, metadata, interaction, rights, export, and analytics must be reviewed per platform target.",
+    "no_transfer": "Advertising recommendations and performance figures must not become organic defaults. Short-form conventions must not become long-form defaults.",
+    "no_universal_cadence": "No fixed cut, zoom, caption, sound-effect, hook, loop, or pattern-interrupt interval is supported.",
+    "versioning": "Every platform rule and safe-area profile records a source, verification date, placement, account context, locale direction, and version."
+  },
+  "platform_targets": [
+    {
+      "id": "youtube_long_form",
+      "purpose": "Comparison boundary, not a new deliverable target in this contract.",
+      "primary_acquisition": ["home", "suggested", "search", "subscriptions", "channel", "external"],
+      "default_canvas": "source-derived; commonly 16:9",
+      "opening_contract": "Promptly fulfill the clicked title-thumbnail promise and establish the value and scope.",
+      "packaging_contract": "Title-thumbnail-opening promise.",
+      "analytics_contract": "Keep traffic source, comparable duration, audience, packaging, and retention context.",
+      "sources": ["youtube-performance", "youtube-format-preferences"]
+    },
+    {
+      "id": "youtube_shorts",
+      "classification": "For standard channels, square or vertical uploads up to three minutes uploaded after 2024-10-15 are categorized as Shorts.",
+      "primary_acquisition": ["shorts_feed", "home", "search", "channel", "external"],
+      "product_default_canvas": "1080x1920 9:16 progressive; a Studio interoperability default, not the full platform acceptance envelope",
+      "opening_contract": "Make the premise and promised value recognizable immediately without deleting necessary context.",
+      "packaging_contract": "Opening frame for feed acquisition plus title and thumbnail or selected-frame behavior on other surfaces. Current official thumbnail pages expose differing workflows, so capability detection is required.",
+      "interaction_contract": ["related_video", "comments", "likes", "subscribe", "remix", "sound"],
+      "link_contract": "Ordinary URLs in Shorts comments and descriptions are non-clickable; eligible related-video links are clickable.",
+      "music_contract": "Library duration varies by song. A Short over one minute with an active claim is blocked globally. Preserve clean audio and claim provenance.",
+      "analytics_contract": ["shown_in_feed", "chose_to_view_vs_swiped_away", "average_view_duration", "average_percentage_viewed", "retention", "likes", "subscriber_change", "traffic_source"],
+      "sources": ["youtube-three-minute-shorts", "youtube-shorts-discovery", "youtube-shorts-analytics", "youtube-shorts-links", "youtube-related-video", "youtube-shorts-music", "youtube-custom-thumbnails", "youtube-select-short-frame"]
+    },
+    {
+      "id": "tiktok_organic",
+      "classification": "Organic TikTok post created or uploaded through available TikTok or TikTok Studio tools; do not infer an ideal duration from the upload maximum.",
+      "primary_acquisition": ["for_you", "following", "friends", "search", "profile", "sound", "hashtag"],
+      "web_upload_envelope": {"formats": ["mp4", "webm"], "minimum_resolution": "720x1280", "maximum_duration": "30 minutes", "maximum_size": "10 GB"},
+      "product_default_canvas": "1080x1920 9:16 progressive; a full-screen production default, not a claim that all accepted posts require it",
+      "opening_contract": "Make subject and value legible before a viewer skips; preserve an authentic creator voice and necessary context.",
+      "packaging_contract": "Opening and first frame operate in feed; a selected cover represents the post in profile and search contexts.",
+      "interaction_contract": ["comments", "likes", "shares", "favorites", "follow", "sound", "duet", "stitch", "search", "eligible_links_or_commerce"],
+      "music_contract": "When promoting a brand, product, or service, prefer the Commercial Music Library. External or original sound requires documented rights and the applicable confirmation.",
+      "monetization_note": "Creator Rewards currently defines qualifying original high-quality content as longer than one minute, so short duration cannot be a universal product rule.",
+      "analytics_contract": "Retain the exact account-exported TikTok metric names and definitions, platform surface, watch/skip context, shares, saves, follows, search context, duration, sound/remix context, and observation window.",
+      "sources": ["tiktok-recommendations", "tiktok-studio", "tiktok-cover", "tiktok-commercial-music", "tiktok-creator-rewards"]
+    },
+    {
+      "id": "tiktok_advertising",
+      "classification": "Paid or Spark/non-Spark campaign creative governed by the selected placement and campaign contract.",
+      "primary_acquisition": ["paid_placement"],
+      "additional_contracts": ["campaign_objective", "identity", "brand_or_product", "cta", "destination", "commercial_music", "ad_disclosure", "placement_safe_zone", "ad_policy"],
+      "evidence_boundary": "Hook timing, CTA, recall, conversion, safe-zone, and creative benchmarks from TikTok for Business remain advertising-scoped unless organic evidence independently supports transfer.",
+      "sources": ["tiktok-ad-best-practices", "tiktok-in-feed-ad-specs"]
+    }
+  ],
+  "editorial_patterns": [
+    {
+      "id": "immediate-premise",
+      "name": "Immediate, honest premise",
+      "applies_to": ["youtube_shorts", "tiktok_organic", "tiktok_advertising"],
+      "goal": "Give the viewer enough information to decide that the promised value is relevant.",
+      "recipe": "Reveal the subject, question, outcome, conflict, or useful action immediately in picture, speech, or readable text; then support it.",
+      "avoid": ["unrelated shock open", "false mystery", "withholding all value until the last frame", "fixed one-second rule"],
+      "evidence": {"level": "high", "scope": "platform convergence; precise second counts are context- and ad-specific"}
+    },
+    {
+      "id": "native-vertical-composition",
+      "name": "Native vertical composition",
+      "applies_to": ["youtube_shorts", "tiktok_organic", "tiktok_advertising"],
+      "goal": "Use the phone viewport fluently without losing source meaning.",
+      "recipe": "Reframe per shot around faces, hands, demonstrations, evidence, and readable text; preserve the uncropped master and manual override.",
+      "avoid": ["automatic center crop", "baked black bars", "cropped gestures", "crop inferred from face position alone"],
+      "evidence": {"level": "high", "scope": "platform guidance plus mobile vertical-video experiment"}
+    },
+    {
+      "id": "single-dominant-visual-task",
+      "name": "Single dominant visual task",
+      "applies_to": ["youtube_shorts", "tiktok_organic", "tiktok_advertising"],
+      "goal": "Keep attention on the information or performance that matters.",
+      "recipe": "Define a focal subject and keep captions, evidence, and motion subordinate; add a split only when the second view supplies necessary information.",
+      "avoid": ["unrelated gameplay", "decorative multi-screen filler", "caption-evidence-face collision", "simultaneous competing motion"],
+      "evidence": {"level": "moderate", "scope": "attention research; short-form split-screen evidence remains exploratory"}
+    },
+    {
+      "id": "glance-readable-captions",
+      "name": "Verified, glance-readable captions",
+      "applies_to": ["youtube_shorts", "tiktok_organic", "tiktok_advertising"],
+      "goal": "Preserve access and comprehension in a small, UI-obstructed viewport.",
+      "recipe": "Maintain accurate timed captions and optionally derive a concise burned-in emphasis layer with controlled line length, dwell time, contrast, and collision checks.",
+      "avoid": ["uncorrected ASR", "every-word animation by default", "meaning carried only by color", "essential text outside the safe area"],
+      "evidence": {"level": "high", "scope": "accessibility and platform caption guidance; performance effects are contextual"}
+    },
+    {
+      "id": "motivated-short-form-rhythm",
+      "name": "Motivated short-form rhythm",
+      "applies_to": ["youtube_shorts", "tiktok_organic", "tiktok_advertising"],
+      "goal": "Maintain orientation and forward movement in a compressed beat map.",
+      "recipe": "Cut, reframe, reveal text, or change sound at a meaningful change in information, action, viewpoint, emotion, or section.",
+      "avoid": ["fixed edit interval", "activity without new information", "clipped speech", "removing reaction or comprehension time"],
+      "evidence": {"level": "moderate", "scope": "editing and attention research; no universal cadence"}
+    },
+    {
+      "id": "platform-native-sound",
+      "name": "Platform-native sound with rights binding",
+      "applies_to": ["youtube_shorts", "tiktok_organic", "tiktok_advertising"],
+      "goal": "Use speech, music, and sound as narrative, discovery, or participation elements without assuming cross-platform rights.",
+      "recipe": "Start from a clean dialogue master; select and document sound separately for each platform, territory, account type, and commercial purpose.",
+      "avoid": ["trending sound mandate", "exporting licensed in-app audio to another platform", "masking speech", "unknown remix dependency"],
+      "evidence": {"level": "high", "scope": "platform capability and rights guidance"}
+    },
+    {
+      "id": "honest-payoff-and-bridge",
+      "name": "Honest payoff and platform-valid bridge",
+      "applies_to": ["youtube_shorts", "tiktok_organic", "tiktok_advertising"],
+      "goal": "Resolve the promised unit and offer an available next action.",
+      "recipe": "Choose a conclusion, natural callback, related YouTube video, comment prompt, follow-up, participation request, or ad CTA that exists on the target surface.",
+      "avoid": ["false loop", "spoken link-in-description where the link is not clickable", "generic follow demand before value", "organic CTA copied from an ad"],
+      "evidence": {"level": "moderate", "scope": "platform interaction contracts; creative performance is contextual"}
+    },
+    {
+      "id": "source-grounded-clip",
+      "name": "Source-grounded clip adaptation",
+      "applies_to": ["youtube_shorts", "tiktok_organic"],
+      "goal": "Repurpose a longer source without stripping meaning or originality.",
+      "recipe": "Select a self-contained claim or scene from the reviewed source, add the minimum context and original interpretation needed, and preserve attribution and provenance.",
+      "avoid": ["context collapse", "qualification removal", "minimally changed compilation", "deriving one platform output from another compressed output"],
+      "evidence": {"level": "high", "scope": "production truth rules plus platform originality policies"}
+    },
+    {
+      "id": "surface-aware-cover",
+      "name": "Surface-aware cover and first frame",
+      "applies_to": ["youtube_shorts", "tiktok_organic"],
+      "goal": "Represent the same content accurately across feed, profile, search, Home, and channel surfaces.",
+      "recipe": "Review the opening frame and cover/thumbnail as distinct but coordinated assets; keep branding recognizable and video-specific content dominant.",
+      "avoid": ["long-form thumbnail copied unchanged", "cover text that never pays off", "assuming the cover controls the swipe-feed opening", "unsupported upload workflow assumption"],
+      "evidence": {"level": "high", "scope": "platform surface capabilities; performance is channel-specific"}
+    },
+    {
+      "id": "native-metric-learning",
+      "name": "Native-metric hypothesis learning",
+      "applies_to": ["youtube_shorts", "tiktok_organic", "tiktok_advertising"],
+      "goal": "Improve decisions without mistaking correlation or incompatible metrics for causation.",
+      "recipe": "Store native metric names, definitions, denominators, surface, cohort, window, hypothesis, confounds, and owner interpretation before proposing a controlled change.",
+      "avoid": ["cross-platform engagement score", "automatic style mutation", "comparison across unmatched duration/archetype/audience", "claiming an edit caused retention"],
+      "evidence": {"level": "high", "scope": "platform analytics guidance and research-method boundary"}
+    }
+  ],
+  "required_product_objects": [
+    "platform_target",
+    "short_form_brief",
+    "source_meaning_map",
+    "vertical_composition_plan",
+    "safe_area_profile",
+    "caption_plan",
+    "sound_rights_record",
+    "surface_package",
+    "platform_deliverable",
+    "native_analytics_observation"
+  ],
+  "sources": [
+    {"id":"youtube-three-minute-shorts","url":"https://support.google.com/youtube/answer/15424877","type":"platform_guidance"},
+    {"id":"youtube-shorts-discovery","url":"https://support.google.com/youtube/answer/11914225","type":"platform_guidance"},
+    {"id":"youtube-shorts-analytics","url":"https://support.google.com/youtube/answer/12942217","type":"platform_guidance"},
+    {"id":"youtube-performance","url":"https://support.google.com/youtube/answer/16559650","type":"platform_guidance"},
+    {"id":"youtube-format-preferences","url":"https://support.google.com/youtube/answer/16559651","type":"platform_guidance"},
+    {"id":"youtube-shorts-music","url":"https://support.google.com/youtube/answer/13486873","type":"platform_guidance"},
+    {"id":"youtube-shorts-links","url":"https://support.google.com/youtube/answer/13748639","type":"platform_guidance"},
+    {"id":"youtube-related-video","url":"https://support.google.com/youtube/answer/14075157","type":"platform_guidance"},
+    {"id":"youtube-custom-thumbnails","url":"https://support.google.com/youtube/answer/72431","type":"platform_guidance"},
+    {"id":"youtube-select-short-frame","url":"https://support.google.com/youtube/answer/10343433","type":"platform_guidance_with_workflow_difference"},
+    {"id":"youtube-shorts-safe-area","url":"https://support.google.com/youtube/answer/16215842","type":"platform_guidance"},
+    {"id":"youtube-remix","url":"https://support.google.com/youtube/answer/10623810","type":"platform_guidance"},
+    {"id":"youtube-encoding","url":"https://support.google.com/youtube/answer/1722171","type":"platform_guidance"},
+    {"id":"youtube-captions","url":"https://support.google.com/youtube/answer/6373554","type":"platform_guidance"},
+    {"id":"tiktok-recommendations","url":"https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content","type":"platform_guidance"},
+    {"id":"tiktok-studio","url":"https://support.tiktok.com/en/using-tiktok/creating-videos/creator-tools-on-tiktok","type":"platform_guidance"},
+    {"id":"tiktok-cover","url":"https://support.tiktok.com/en/using-tiktok/creating-videos/editing-posting-and-deleting","type":"platform_guidance"},
+    {"id":"tiktok-commercial-music","url":"https://support.tiktok.com/en/business-and-creator/creator-and-business-accounts/commercial-use-of-music-on-tiktok","type":"platform_policy_guidance"},
+    {"id":"tiktok-creator-rewards","url":"https://support.tiktok.com/en/business-and-creator/creator-rewards-program/how-is-the-creator-rewards-program-different-from-the-tiktok-creator-fund","type":"platform_monetization_guidance"},
+    {"id":"tiktok-ad-best-practices","url":"https://ads.tiktok.com/help/article/creative-best-practices","type":"advertising_guidance_only"},
+    {"id":"tiktok-in-feed-ad-specs","url":"https://ads.tiktok.com/help/article/tiktok-reservation-in-feed-ads-reach-frequency","type":"advertising_specification_only"},
+    {"id":"vertical-mobile-study","url":"https://www.sciencedirect.com/science/article/pii/S1094996820301420","type":"field_and_experimental_advertising_research"},
+    {"id":"cuts-complexity-study","url":"https://link.springer.com/article/10.1007/s11747-025-01137-x","type":"measured_attention_research"},
+    {"id":"short-form-subtitles-split-screen","url":"https://doi.org/10.1109/MIPRO65660.2025.11131891","type":"exploratory_short_form_study"},
+    {"id":"edit-rate-memory","url":"https://doi.org/10.1207/S15506878JOBEM4401_7","type":"experiment"}
+  ]
+}

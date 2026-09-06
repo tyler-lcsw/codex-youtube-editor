@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Short-Form Vertical Video Research and Studio Specification</title>
+  <style>
+    :root { --ink:#18212b; --muted:#52606d; --paper:#fbfaf6; --card:#fff; --line:#d9dfdf; --blue:#155f75; --teal:#137969; --amber:#a56414; --rose:#9b3f4f; --wash:#edf6f5; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--paper); font:17px/1.58 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1160px; margin:0 auto; padding:48px 28px 96px; }
+    h1,h2,h3 { line-height:1.16; letter-spacing:-.02em; }
+    h1 { font-size:clamp(2.25rem,6vw,4.7rem); max-width:1000px; margin:18px 0; }
+    h2 { font-size:2rem; margin-top:64px; padding-top:12px; border-top:2px solid var(--ink); }
+    h3 { font-size:1.25rem; margin-top:30px; }
+    p,li { max-width:84ch; }
+    a { color:var(--blue); text-underline-offset:3px; }
+    code { background:#edf0ef; padding:.08rem .28rem; border-radius:4px; }
+    .eyebrow { text-transform:uppercase; letter-spacing:.13em; font-weight:750; color:var(--teal); }
+    .lede { font-size:1.28rem; color:#344451; max-width:76ch; }
+    .meta,.small { color:var(--muted); }
+    .small { font-size:.9rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(245px,1fr)); gap:16px; margin:24px 0; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+    .card h3 { margin-top:0; }
+    .callout { border-left:5px solid var(--teal); background:var(--wash); padding:18px 22px; margin:24px 0; }
+    .warning { border-left-color:var(--amber); background:#fff7e8; }
+    .case { border-left-color:var(--rose); background:#fff3f4; }
+    .label { display:inline-block; border:1px solid currentColor; border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0; font-size:.78rem; font-weight:750; text-transform:uppercase; letter-spacing:.04em; }
+    .strong { color:var(--teal); } .mixed { color:var(--amber); } .weak { color:var(--rose); }
+    table { width:100%; border-collapse:collapse; margin:22px 0; font-size:.92rem; background:var(--card); }
+    th,td { border:1px solid var(--line); padding:10px 12px; text-align:left; vertical-align:top; }
+    th { background:#edf1f0; }
+    .toc { columns:2 280px; padding-left:22px; }
+    .toc li { break-inside:avoid; margin:4px 0; }
+    @media (max-width:700px) { main{padding:28px 18px 70px}.toc{columns:1}table{display:block;overflow-x:auto} }
+    @media print { body{background:#fff}main{max-width:none;padding:0}a{color:inherit} }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Platform research + development specification</div>
+  <h1>YouTube Shorts and TikTok are related formats, not the same product</h1>
+  <p class="lede">A source-scoped foundation for adding vertical short-form support to
+    Codex Studio while protecting the long-form editorial model, platform-specific
+    rights, native interaction, accessibility, and honest learning from analytics.</p>
+  <p class="meta">Prepared 6 September 2026 · Status: planning draft · Organic creator
+    content is the primary scope; advertising evidence is explicitly labeled · No upload,
+    publication test, hosted generation, or provider change.</p>
+
+  <div class="callout">
+    <strong>Central recommendation.</strong> Preserve one source-understanding and editorial
+    truth layer, then create a separate deliverable plan for each platform and surface.
+    A 9:16 crop is an output shape, not a short-form edit. Studio should adapt the opening,
+    composition, text, sound, cover, metadata, interaction affordances, rights, and
+    evaluation contract for YouTube Shorts and TikTok independently.
+  </div>
+
+  <h2 id="contents">Contents</h2>
+  <ol class="toc">
+    <li><a href="#model">Correct mental model</a></li>
+    <li><a href="#contracts">Platform contracts</a></li>
+    <li><a href="#consensus">Editorial consensus</a></li>
+    <li><a href="#archetypes">Useful short-form archetypes</a></li>
+    <li><a href="#delineation">Long-form and short-form delineation</a></li>
+    <li><a href="#adaptation">Cross-platform adaptation</a></li>
+    <li><a href="#studio">Studio product requirements</a></li>
+    <li><a href="#analytics">Evaluation and learning</a></li>
+    <li><a href="#roadmap">Recommended delivery sequence</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+
+  <h2 id="model">1. Correct mental model</h2>
+  <div class="grid">
+    <section class="card"><h3>YouTube long-form</h3><p>Usually begins with a package-to-click decision on Home, Suggested, Search, Subscriptions, or the channel page, then asks the viewer to remain on a watch page. Sustained structure and title-thumbnail-opening continuity dominate.</p></section>
+    <section class="card"><h3>YouTube Shorts</h3><p>Can be discovered in a swipe feed and elsewhere across YouTube. The viewer can view or swipe immediately, but the Short still participates in a broader channel ecosystem and may link to a related YouTube video.</p></section>
+    <section class="card"><h3>Organic TikTok</h3><p>Is built around personalized For You discovery, search, sounds, hashtags, covers, comments, Duets, and Stitches. Watch behavior matters, but platform-native participation and content information also shape discovery.</p></section>
+    <section class="card"><h3>TikTok advertising</h3><p>Adds a campaign objective, brand/product requirement, CTA, landing-page consistency, commercial music restrictions, ad placements, and advertiser benchmarks. It is evidence for ads—not an automatic rulebook for organic posts.</p></section>
+  </div>
+  <p>YouTube says performance signals vary by format and that viewers who enjoy one format
+    may not engage with another. Publishing Shorts does not inherently “confuse the
+    algorithm”; audience response to each item matters. This supports separate format
+    profiles and comparison cohorts rather than one channel-wide pacing model.
+    <a href="https://support.google.com/youtube/answer/16559651">YouTube: recommendations across formats</a></p>
+
+  <h2 id="contracts">2. Platform contracts as of the research date</h2>
+  <table>
+    <thead><tr><th>Dimension</th><th>YouTube Shorts</th><th>Organic TikTok</th><th>TikTok advertising</th></tr></thead>
+    <tbody>
+      <tr><td>Classification / upload</td><td>For standard channels, square or vertical videos up to three minutes uploaded after 15 October 2024 are categorized as Shorts.</td><td>TikTok Studio’s web uploader accepts MP4 or WebM, 720×1280 or higher, up to 30 minutes and under 10 GB. This is an upload envelope, not an ideal-duration claim.</td><td>Placement-specific contracts vary. Current in-feed ad guidance recommends vertical 9:16; exact limits depend on Spark/non-Spark and placement.</td></tr>
+      <tr><td>Acquisition</td><td>Shorts Feed view-versus-swipe plus Home, Search, channel, and other YouTube surfaces.</td><td>Personalized For You, Following, Friends, search, profile, sound and hashtag contexts.</td><td>Paid delivery against a campaign audience and objective.</td></tr>
+      <tr><td>Performance signals</td><td>Chose to view versus swiped away, average view duration, average percentage viewed, likes, and satisfaction signals are documented inputs.</td><td>User interactions—including watch/skip behavior—content information, and user information; TikTok says watch time often receives more weight for most users.</td><td>Campaign outcomes such as recall, conversion, and CTA response; these are not interchangeable with organic community outcomes.</td></tr>
+      <tr><td>Cover / package</td><td>Title and thumbnail/selected frame matter on non-feed surfaces. Current official pages describe both desktop custom Shorts thumbnails and in-app frame selection; capability should be detected rather than hard-coded.</td><td>A selectable video cover previews the post in profile and search contexts. The first feed frame and opening are still separate design surfaces.</td><td>Identity, ad text, CTA, landing page, and placement preview join the creative.</td></tr>
+      <tr><td>Path onward</td><td>Shorts description/comment URLs are non-clickable, but an eligible related-video link can lead to another Video, Short, or Live on the same channel.</td><td>Native paths vary by account and feature: profile, search, sound, hashtag, comments, shopping or eligible destination links. Do not author a spoken CTA to a link that is unavailable.</td><td>CTA and destination behavior are part of the ad contract.</td></tr>
+      <tr><td>Music / reuse</td><td>Shorts Audio Library limits vary by song. A Short over one minute with an active claim is blocked globally. YouTube-native remix attribution and dependency behavior require provenance.</td><td>For brand/product/service promotion, TikTok recommends its Commercial Music Library; outside music requires appropriate rights confirmation. Duet/Stitch permissions and source dependency must be recorded.</td><td>Commercial music, disclosure, landing-page, and ad-policy constraints apply.</td></tr>
+      <tr><td>Monetization can change the brief</td><td>Shorts monetization uses eligible engaged views; non-original reuploads or minimally changed compilations can be ineligible.</td><td>Creator Rewards eligibility currently favors original, high-quality videos longer than one minute. That makes “always make it under 30 seconds” an invalid platform-wide rule.</td><td>Monetization is the campaign objective itself.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warning"><strong>Versioned contract required.</strong> Platform rules,
+    creator tools, regions, account eligibility, and UI overlays change. Safe zones must be
+    placement- and UI-version-aware. Studio should show the source URL and verification
+    date and require a preview against the current platform surface before release.</div>
+
+  <h2 id="consensus">3. What the evidence supports editorially</h2>
+  <table>
+    <thead><tr><th>Principle</th><th>Confidence and scope</th><th>Studio interpretation</th></tr></thead>
+    <tbody>
+      <tr><td>Make the premise legible immediately.</td><td><span class="label strong">Strong platform convergence</span> Both YouTube and TikTok document early view/skip or watch behavior. TikTok’s “first six seconds” figures are predominantly ad evidence.</td><td>Require an opening premise test, not a fixed one-second hook or a mandatory shock tactic.</td></tr>
+      <tr><td>Compose for the native vertical viewport.</td><td><span class="label strong">Strong</span> Platform guidance favors vertical/full-screen presentation; experimental mobile-ad research found greater processing fluency for vertical viewing on phones.</td><td>Default production canvas to 1080×1920 for these profiles, but retain platform acceptance rules separately and preserve the uncropped master.</td></tr>
+      <tr><td>Keep one dominant visual task.</td><td><span class="label mixed">Moderate</span> Recent attention research favors simpler visual organization even when cuts are more frequent; small eye-tracking work warns that multi-screen layouts can fragment gaze.</td><td>Track focal subject, caption lane, and interface occlusion. Do not add unrelated gameplay or “satisfying” footage as a default retention layer.</td></tr>
+      <tr><td>Caption for access and comprehension.</td><td><span class="label strong">Strong for access</span> Accurate captions are defensible; performance lift is context-dependent and much published TikTok guidance is advertising-focused.</td><td>Produce verified timed captions plus an optional burned-in emphasis layer. Do not equate animated word highlighting with a complete accessible caption track.</td></tr>
+      <tr><td>Use sound intentionally.</td><td><span class="label strong">Strong platform relevance</span> Sounds can carry discovery and participation metadata, but trending audio is not mandatory and rights differ by platform and purpose.</td><td>Bind every sound choice to platform, account type, territory, purpose, source, allowed duration, and license state. Always retain a clean-dialogue alternative.</td></tr>
+      <tr><td>Cut when information, viewpoint, action, or emotion changes.</td><td><span class="label mixed">Context-dependent</span> Cuts can refocus attention, but excessive or unrelated edits can consume processing capacity and weaken comprehension.</td><td>Allow denser motivated cutting in a short-form profile while continuing to reject a universal cut interval.</td></tr>
+      <tr><td>Design the ending.</td><td><span class="label mixed">Context-dependent</span> A payoff, useful next step, participation prompt, or honest loop can prevent an abrupt collapse. Advertising CTAs are not organic requirements.</td><td>Offer payoff, related-video bridge, comment prompt, follow-up episode, or natural loop as separate endings. Reject false loops and unavailable interactions.</td></tr>
+      <tr><td>Learn from comparable platform-native outcomes.</td><td><span class="label strong">Strong</span> Both platforms provide format-specific analytics; neither establishes that one edit caused an outcome.</td><td>Compare within platform, surface, duration band, audience, objective, and archetype. Store hypotheses and confounds rather than issuing an automatic retention score.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Claims that remain weak or context-sensitive</h3>
+  <ul>
+    <li>a cut, zoom, caption animation, sound effect, or “pattern interrupt” every fixed number of seconds;</li>
+    <li>that every spoken word should appear as large kinetic text;</li>
+    <li>that every post needs a trending sound, a question, controversy, a list, or a seamless loop;</li>
+    <li>one ideal length for Shorts or TikTok, including inherited 7-, 15-, 30-, or 60-second formulas;</li>
+    <li>that higher completion percentage always matters more than total value, satisfaction, saves, shares, follows, or downstream viewing;</li>
+    <li>that an advertising benchmark transfers to organic creator content;</li>
+    <li>that adding a vertical crop and captions makes a long-form excerpt native to either platform.</li>
+  </ul>
+
+  <h2 id="archetypes">4. Useful short-form archetypes</h2>
+  <table>
+    <thead><tr><th>Archetype</th><th>Functional beat map</th><th>Common failure</th></tr></thead>
+    <tbody>
+      <tr><td>Micro-explainer</td><td>Recognizable problem → answer/claim → one explanation or example → implication.</td><td>Teasing the answer until the end without delivering enough substance.</td></tr>
+      <tr><td>Clip with context</td><td>Why this moment matters → concise source clip → interpretation/qualification → source or related-video bridge.</td><td>A decontextualized excerpt that changes meaning or depends on unseen setup.</td></tr>
+      <tr><td>Demonstration</td><td>Outcome or problem state → visible steps → proof/result → constraint or next action.</td><td>Covering the important action with captions, UI, or an over-tight crop.</td></tr>
+      <tr><td>Commentary / reaction</td><td>Referenced claim → creator perspective → evidence/reason → conclusion.</td><td>The reaction face replaces the underlying evidence or implies a false association.</td></tr>
+      <tr><td>List / comparison</td><td>Scope and criterion → ordered items or sides → discriminating takeaway.</td><td>Arbitrary numbering, repeated filler, or no basis for the ranking.</td></tr>
+      <tr><td>Mini-story</td><td>Inciting situation → escalation/turn → consequence/payoff → optional callback.</td><td>An artificial open loop whose payoff does not match the premise.</td></tr>
+      <tr><td>Reply / remix</td><td>Visible source attribution → answer or transformation → added value → participation path.</td><td>Missing provenance, expired permissions, or an export that loses native attribution.</td></tr>
+    </tbody>
+  </table>
+  <p>These are editorial structures, not templates. Each should support a restrained,
+    medium, or expressive treatment. “No music,” “no effects,” and “single take” remain
+    valid choices when the performance and information carry the piece.</p>
+
+  <h2 id="delineation">5. Long-form and short-form delineation</h2>
+  <table>
+    <thead><tr><th>Decision</th><th>Long-form YouTube default</th><th>Short-form vertical default</th></tr></thead>
+    <tbody>
+      <tr><td>Opening</td><td>Fulfill the clicked package promptly, establish scope, then sustain an arc.</td><td>Make subject, value, or conflict understandable before a viewer can dismiss it; context may need to be embedded rather than deferred.</td></tr>
+      <tr><td>Information density</td><td>Can build definitions, evidence, atmosphere, and qualifications over sections.</td><td>Choose one useful promise and retain only the context needed to understand it honestly.</td></tr>
+      <tr><td>Visual rhythm</td><td>May hold a shot through a complete thought; changes follow structure and performance.</td><td>Can use faster changes because framing, feed competition, and shorter beat maps differ—but every change still needs a function.</td></tr>
+      <tr><td>Captions</td><td>Complete caption track; selective on-screen emphasis when useful.</td><td>Complete verified captions plus a safe, glance-readable burned-in treatment are often valuable; avoid covering faces, hands, evidence, or native UI.</td></tr>
+      <tr><td>Packaging</td><td>Title-thumbnail combination is often the primary pre-view choice.</td><td>First frame/opening carries more acquisition work in the swipe feed; cover/title still matter on search, profile, Home, and channel surfaces.</td></tr>
+      <tr><td>Ending</td><td>Can resolve the full thesis and use end screens or description links.</td><td>Resolve the promised unit, then use a platform-valid bridge. Shorts description links are not clickable; a related-video link is the native YouTube option.</td></tr>
+      <tr><td>Success cohort</td><td>Comparable topic, duration, traffic source, audience, and packaging.</td><td>Also separate platform, feed/search/profile surface, duration band, archetype, sound/remix context, and repurposed-versus-original provenance.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="adaptation">6. Cross-platform adaptation is an editorial derivation</h2>
+  <ol>
+    <li><strong>Return to the source meaning.</strong> Do not derive TikTok from a compressed Short or vice versa. Start from the reviewed master, transcript, content map, and rights ledger.</li>
+    <li><strong>Select one platform-specific promise.</strong> A short may stand alone, answer a search intent, invite participation, or bridge to another video. Those are different briefs.</li>
+    <li><strong>Rebuild the opening.</strong> Remove long-form throat-clearing, but preserve the context needed to avoid a misleading fragment.</li>
+    <li><strong>Reframe shot by shot.</strong> Use tracked subjects and editorially chosen crops. Never assume center crop; preserve faces, hands, demonstrations, text, and source identity.</li>
+    <li><strong>Lay out against platform UI.</strong> Evaluate captions, logos, evidence, and interaction prompts with current safe-area overlays and at actual phone size.</li>
+    <li><strong>Choose platform-native sound and interaction.</strong> The clean master, YouTube sound choice, and TikTok sound choice may be different rights-bearing deliverables.</li>
+    <li><strong>Create separate covers and metadata.</strong> Do not burn a YouTube title card into TikTok or treat a TikTok cover as the Shorts opening frame without review.</li>
+    <li><strong>Validate separately.</strong> Decode, inspect, listen, caption-check, and rights-check each actual platform deliverable. Never infer quality from the shared master.</li>
+  </ol>
+
+  <h2 id="studio">7. Required Studio product model</h2>
+  <table>
+    <thead><tr><th>Object</th><th>Minimum contract</th></tr></thead>
+    <tbody>
+      <tr><td>Source understanding</td><td>Shared reviewed source, transcript, meaning/qualification map, visual anchors, provenance, and restrictions.</td></tr>
+      <tr><td>Platform target</td><td>Platform, surface, organic/ad purpose, account type, locale/territory, duration class, aspect ratio, contract version, and verification date.</td></tr>
+      <tr><td>Short-form brief</td><td>Audience, single promise, archetype, standalone versus bridge objective, tone, ending action, sound strategy, caption strategy, and restraint level.</td></tr>
+      <tr><td>Vertical composition plan</td><td>Per-shot crop/reframe/keyframes, subject/evidence bounds, caption lane, platform-UI overlay, collision warnings, and manual overrides.</td></tr>
+      <tr><td>Sound-rights record</td><td>Clean master, source/license, platform library or external, commercial/noncommercial purpose, allowed duration, territories, claim risk, and attribution/dependency.</td></tr>
+      <tr><td>Package</td><td>Opening frame, platform cover/thumbnail, title or caption text, hashtags/search terms where relevant, related-video or interaction target, and claim-to-source trace.</td></tr>
+      <tr><td>Platform deliverable</td><td>Export hash, codec/dimensions/frame rate/audio properties, caption sidecar/burn-in state, safe-area profile, rights result, visual/listening review, and publication approval state.</td></tr>
+      <tr><td>Observation</td><td>Native metric name and definition, platform/surface, observation window, denominator, audience context, comparison cohort, hypothesis, confounds, and owner interpretation.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout case"><strong>Do not encode mutable platform UI as one rectangle.</strong>
+    Store named occlusion regions by platform, placement, locale/direction, device preview,
+    caption length, and contract version. A preview must reveal uncertainty when Studio
+    lacks a current overlay rather than pretending the canvas is safe.</div>
+
+  <h2 id="analytics">8. Evaluation and learning</h2>
+  <p>Pre-publication evaluation remains editorial: premise comprehension, truthfulness,
+    phone-size legibility, safe-area collisions, crop continuity, caption accuracy,
+    dialogue intelligibility, sound rights, payoff integrity, and full playback. After
+    publication, platform analytics are observations—not creative approval or causal proof.</p>
+  <table>
+    <thead><tr><th>Question</th><th>YouTube Shorts observation</th><th>TikTok observation</th></tr></thead>
+    <tbody>
+      <tr><td>Did people stop?</td><td>Shown in feed and chose-to-view versus swiped-away, with traffic source.</td><td>Views and skip/watch behavior where available; use the exact analytics definition exported by TikTok.</td></tr>
+      <tr><td>Did they stay?</td><td>Average view duration, average percentage viewed, retention shape, and rewatch interpretation.</td><td>Watch time/completion metrics available to the account; retain duration and loop behavior.</td></tr>
+      <tr><td>Did it satisfy or matter?</td><td>Likes, survey signals described by YouTube, comments, subscribers, related-video behavior when available.</td><td>Likes, comments, shares, saves/favorites, follows, search context, and qualitative comment themes where available.</td></tr>
+      <tr><td>What may explain it?</td><td>Topic, opening, sound, duration, audience source, channel familiarity, title/cover, related video, and timing.</td><td>Topic, opening, sound/trend/remix context, duration, search/hashtag context, audience, creator familiarity, timing, and eligibility.</td></tr>
+    </tbody>
+  </table>
+  <p>Never normalize these metrics into a single cross-platform “engagement score.” A view,
+    engaged view, impression, completion, replay, and click have platform-specific
+    definitions and denominators. Studio may propose the next controlled experiment, but
+    it must not automatically mutate a style profile.</p>
+
+  <h2 id="roadmap">9. Recommended delivery sequence</h2>
+  <ol>
+    <li><strong>Freeze versioned platform-target and safe-area contracts.</strong> Add validation before adding creative automation.</li>
+    <li><strong>Add separate long-form, Shorts, TikTok-organic, and TikTok-ad profiles.</strong> No inherited scroll-stop defaults.</li>
+    <li><strong>Build reversible vertical reframing and collision review.</strong> Start with tracked crops, captions, and UI overlays—not effects.</li>
+    <li><strong>Add short-form briefs and archetype beat maps.</strong> Ground every proposal in reviewed source meaning.</li>
+    <li><strong>Add platform-specific packages and rights ledgers.</strong> Covers, related-video targets, sounds, remixes, commercial purpose, and clean masters remain distinct.</li>
+    <li><strong>Add format-native analytics import.</strong> Preserve native definitions and comparison cohorts; no cross-platform score.</li>
+    <li><strong>Qualify two unpublished pilots from the same authorized source.</strong> One YouTube Short and one organic TikTok adaptation, each fully reviewed under the production-quality workflow. Publication remains separately authorized.</li>
+  </ol>
+  <p>Detailed test-first slices are incorporated into the companion
+    <a href="./Editorial%20Techniques%20%E2%80%94%20Implementation%20Roadmap.md">implementation roadmap</a>.
+    The machine-readable planning contract is
+    <a href="./Short-Form%20Platform%20and%20Editorial%20Contract%20%E2%80%94%20Draft.json">available as JSON</a>.</p>
+
+  <h2 id="sources">10. Sources</h2>
+  <h3>YouTube platform guidance</h3>
+  <ul>
+    <li><a href="https://support.google.com/youtube/answer/15424877">Three-minute YouTube Shorts and classification</a></li>
+    <li><a href="https://support.google.com/youtube/answer/11914225">Shorts search and discovery</a></li>
+    <li><a href="https://support.google.com/youtube/answer/12942217">Shorts Content analytics</a></li>
+    <li><a href="https://support.google.com/youtube/answer/16559650">Appeal, engagement, satisfaction, and opening guidance</a></li>
+    <li><a href="https://support.google.com/youtube/answer/16559651">Recommendations across formats and no universal length</a></li>
+    <li><a href="https://support.google.com/youtube/answer/13486873">Music eligibility for Shorts</a></li>
+    <li><a href="https://support.google.com/youtube/answer/10623810">Shorts remixing and source dependencies</a></li>
+    <li><a href="https://support.google.com/youtube/answer/13748639">Clickable and non-clickable links</a></li>
+    <li><a href="https://support.google.com/youtube/answer/14075157">Related videos in Shorts</a></li>
+    <li><a href="https://support.google.com/youtube/answer/72431">Custom Shorts thumbnails</a> and <a href="https://support.google.com/youtube/answer/10343433">in-app frame selection</a></li>
+    <li><a href="https://support.google.com/youtube/answer/16215842">Shorts editor safe-area guides</a></li>
+    <li><a href="https://support.google.com/youtube/answer/1722171">Recommended upload encoding</a></li>
+    <li><a href="https://support.google.com/youtube/answer/6373554">Automatic captions for long-form and Shorts</a></li>
+  </ul>
+  <h3>TikTok platform guidance</h3>
+  <ul>
+    <li><a href="https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content">How TikTok recommends content</a></li>
+    <li><a href="https://support.tiktok.com/en/using-tiktok/creating-videos/creator-tools-on-tiktok">TikTok Studio upload, analytics, editing, and copyright checks</a></li>
+    <li><a href="https://support.tiktok.com/en/using-tiktok/creating-videos/editing-posting-and-deleting">Video covers and editing</a></li>
+    <li><a href="https://support.tiktok.com/en/business-and-creator/creator-and-business-accounts/commercial-use-of-music-on-tiktok">Commercial use of music</a></li>
+    <li><a href="https://support.tiktok.com/en/business-and-creator/creator-rewards-program/how-is-the-creator-rewards-program-different-from-the-tiktok-creator-fund">Creator Rewards original-content and duration scope</a></li>
+    <li><a href="https://ads.tiktok.com/help/article/creative-best-practices">Performance-ad creative guidance</a> (advertising only)</li>
+    <li><a href="https://ads.tiktok.com/help/article/tiktok-reservation-in-feed-ads-reach-frequency">In-feed ad specifications and variable safe zones</a> (advertising only)</li>
+    <li><a href="https://ads.tiktok.com/business/creativecenter/quicktok/online/tiktok_creative_accelerator/pc/en">Creative Accelerator guidance</a> (advertising only)</li>
+  </ul>
+  <h3>Measured research</h3>
+  <ul>
+    <li><a href="https://www.sciencedirect.com/science/article/pii/S1094996820301420">Vertical mobile video, effort, processing fluency, and ad engagement</a></li>
+    <li><a href="https://link.springer.com/article/10.1007/s11747-025-01137-x">Dynamic effects of visual complexity and scene cuts on viewer attention</a></li>
+    <li><a href="https://doi.org/10.1109/MIPRO65660.2025.11131891">Exploratory subtitles and split-screen short-form study</a></li>
+    <li><a href="https://doi.org/10.1207/S15506878JOBEM4401_7">Effects of edit rate on arousal, attention, and memory</a></li>
+  </ul>
+  <p class="small">This report distinguishes platform documentation, organic creator
+    guidance, advertising guidance, measured research, and product judgment. It does not
+    claim a universal short-form formula or authorize publishing.</p>
+</main>
+</body>
+</html>
