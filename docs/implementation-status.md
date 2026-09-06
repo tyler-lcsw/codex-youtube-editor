@@ -164,3 +164,22 @@ research pass.
 No editing capability or authoritative production rule changed. Catalog/profile loading,
 semantic proposals, technique controls, decision history, new render/audio handlers, and
 authentic-footage qualification remain proposed work.
+
+### Short-form research expansion (September 6, 2026)
+
+The research now anticipates separate YouTube Shorts and TikTok support. The companion
+`../plan/Short-Form Vertical Video Research and Studio Specification.html` and
+machine-readable draft contract distinguish YouTube Shorts, organic TikTok, and TikTok
+advertising from long-form YouTube and from each other. They cover classification and
+upload envelopes, feed/search/profile acquisition, editorial archetypes, 9:16 composition,
+versioned safe areas, captions, covers, native interactions, sound/remix rights, packaging,
+analytics definitions, and cross-platform derivation from the reviewed source master.
+
+The implementation roadmap adds a test-first short-form track: platform contracts,
+separate briefs, reversible vertical composition, grounded short-form proposals,
+platform-specific packages and rights records, native-metric observations, and one
+unpublished YouTube Short plus one unpublished organic TikTok qualification from the same
+authorized source. It rejects universal duration/cut/effect rules, cross-platform
+engagement scores, advertising-to-organic transfer, and automatic center-crop workflows.
+No short-form capability, upload, publication test, authoritative rule, or provider changed
+in this research pass.
