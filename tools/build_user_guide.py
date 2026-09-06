@@ -11,7 +11,8 @@ SECTIONS = ('Getting started', 'Brief & sources', 'Understanding', 'Review',
 
 
 def _validate(data):
-    if not isinstance(data, dict) or type(data.get('schema_version')) is not int or data['schema_version'] != 1:
+    version = data.get('schema_version') if isinstance(data, dict) else None
+    if isinstance(version, bool) or not isinstance(version, (int, float)) or version != 1:
         raise ValueError('Guide schema_version must be 1')
 
     def text(value, label):

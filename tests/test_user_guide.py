@@ -67,9 +67,15 @@ class GuideTests(unittest.TestCase):
         self.assertNotIn('<script>alert', result)
         self.assertIn(escape(hostile, quote=True), result)
 
+    def test_whole_number_json_version_spellings_match_native_decoder(self):
+        for spelling in ('1', '1.0', '1e0'):
+            data = guide()
+            data['schema_version'] = json.loads(spelling)
+            self.assertIn('Studio help', render_guide(data))
+
     def test_rejects_malformed_guides(self):
         invalid = [None, [], {}, {**guide(), 'schema_version': 2},
-                   {**guide(), 'schema_version': True}, {**guide(), 'title': ' '},
+                   {**guide(), 'schema_version': True}, {**guide(), 'schema_version': 1.5}, {**guide(), 'title': ' '},
                    {**guide(), 'articles': []}, {**guide(), 'articles': 'bad'}]
         for field, value in [('id', 'Bad ID'), ('id', 'a--b'), ('id', 'a\" onclick=\"x'),
                              ('section', ''), ('section', 'Unknown'), ('id', '123-start'), ('title', None), ('summary', []),
