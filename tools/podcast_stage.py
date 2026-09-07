@@ -332,7 +332,13 @@ def _verify_delivery(path: Path, duration_ms: int, fps: int) -> dict:
     return {"duration_ms": round(duration * 1000), "streams": sorted(kinds)}
 
 
-def render(project: Path, contract_path: Path | None = None, output: Path | None = None) -> Path:
+def render(
+    project: Path,
+    contract_path: Path | None = None,
+    output: Path | None = None,
+    *,
+    record_receipt: bool = True,
+) -> Path:
     """Render picture, mux canonical audio, verify, then atomically publish."""
     project = Path(project).expanduser().resolve()
     contract_path = Path(contract_path or project / "work/podcast/stage.json").resolve()
@@ -384,17 +390,18 @@ def render(project: Path, contract_path: Path | None = None, output: Path | None
                     staged, contract["primary_audio"]["duration_ms"], contract["render"]["fps"]
                 )
                 os.replace(staged, output)
-                atomic_json(
-                    project / "work/podcast/render.json",
-                    {
-                        "schema_version": 1,
-                        "contract_sha256": file_hash(contract_path),
-                        "audio_sha256": contract["primary_audio"]["sha256"],
-                        "output": str(output),
-                        "output_sha256": file_hash(output),
-                        "verification": verification,
-                    },
-                )
+                if record_receipt:
+                    atomic_json(
+                        project / "work/podcast/render.json",
+                        {
+                            "schema_version": 1,
+                            "contract_sha256": file_hash(contract_path),
+                            "audio_sha256": contract["primary_audio"]["sha256"],
+                            "output": str(output),
+                            "output_sha256": file_hash(output),
+                            "verification": verification,
+                        },
+                    )
             return output
         finally:
             shutil.rmtree(scratch, ignore_errors=True)
