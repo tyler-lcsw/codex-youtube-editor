@@ -91,6 +91,23 @@ covering the score-to-reviewed-stage-to-render integration. No semantic model ha
 qualified, no authentic episode was rendered, and proposals, synthetic previews or
 technical render success are not creative acceptance.
 
+The long-form qualification slice adds a production-quality-routed harness and a
+read-only native evidence view. It rejects anything outside 25–45 minutes or outside
+1920×1080 at 30fps, measures wall time and sampled child-tree RSS/memory pressure,
+records waveform-cache behavior and exact bindings, counts frames, verifies stream
+properties and fully decodes the candidate. Successful output/report publication is
+atomic against reviewed-score changes; failed and interrupted attempts preserve the
+prior success and record recovery evidence. The dedicated podcast Remotion entry skips
+the 156-shot legacy registry, snapshots only hash-verified referenced media, keeps
+concurrency at one, bounds progress output and cleans partial files on SIGINT/SIGTERM.
+A synthetic 45-minute descriptor contained 54,000 waveform samples and 81,000 frames;
+metadata selection took 414ms and a warm dedicated bundle 625ms in the development
+measurement, with about 586MB peak for the combined bundle/metadata check. These are
+setup metrics, not full-render memory measurements. Current automated evidence is 196
+Python tests plus 33 subtests, 38 native checks, a signed release build and a clean
+Remotion typecheck. No 25–45 minute end-to-end render soak, normal-speed listening,
+authentic-source visual inspection or owner acceptance has been completed.
+
 ## Story production exercise
 
 The September 5 lighthouse production extends the earlier short fixtures into a coherent 40.53-second horizontal story and a 20.4-second vertical adaptation. See `../productions/lighthouse/Execution Report.md` and the production specification in `plan/`. Deliverables include original local illustrations, narration, Remotion shots, captions, three thumbnails, a procedural score, aligned stems and a local viewing room.
