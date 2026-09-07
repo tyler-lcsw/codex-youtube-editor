@@ -62,6 +62,19 @@ the exact selected asset and time but intentionally have no captured frame or pi
 region. This capability does not imply that a branded waveform or visual proposal has
 already been generated.
 
+The first deterministic visual carrier is available through
+`.venv/bin/python -m tools.podcast_stage`. Run `prepare PROJECT --show-title ...
+--episode-title ... --speaker-name ...` to create `work/podcast/stage.json`; it
+uses the canonical audio saved by **Solo podcast visuals** unless `--asset-id`
+is supplied. Run `render PROJECT` to create `output/podcast-stage.mp4`. The
+versioned contract binds the exact imported audio hash and duration, stores a
+bounded streamed-RMS waveform, and drives an explicitly registered Remotion
+composition at the requested FPS and dimensions. The renderer creates picture
+with concurrency one, muxes the canonical audio, verifies audio/video streams
+and duration, and only then atomically replaces a prior successful output.
+Optional artwork must already be a hash-bound file under `media/`; the current
+CLI does not expose artwork or chapter editing controls.
+
 `config/studio-workflow.json` defines the editable ordered stages, prerequisites, instructions and required evidence artifacts. `docs/production-rules.md` remains the authoritative rule wording. These files are not copied into the app. Workflow changes and changed prerequisite assessments invalidate dependent evidence, including transitive dependencies. The workflow coordinator verifies hashes and evidence existence, not the truth of a narrative analysis.
 
 For Studio projects, `production_quality run` enforces workflow prerequisites, defaulting to the edit stage. Use `--stage intake` or `--stage source_understanding` for appropriate earlier media preparation; do not misclassify cuts to bypass strategy review. Final QA receipts bind current Studio inputs and pre-final evidence so CLI tracking cannot accept an outdated brief/workflow.
