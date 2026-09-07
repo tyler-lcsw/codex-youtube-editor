@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 public struct PodcastEpisodeChapter:Equatable,Identifiable {
     public let id:String
@@ -42,6 +43,7 @@ public struct PodcastVisualPreview:Equatable,Identifiable {
     public var id:String {chapterID+"\u{0}"+path}
     public let chapterID:String
     public let path:String
+    public let sha256:String
 }
 
 public struct PodcastVisualEvent:Equatable,Identifiable {
@@ -55,7 +57,6 @@ public struct PodcastVisualEvent:Equatable,Identifiable {
     public let provenanceSummary:String
     public let cameraPolicySummary:String
     public let transcriptAnchorSummary:String
-    public let previewPath:String?
 
     public var isSupported:Bool {
         ["base","chapter_card","quote","progressive_list","comparison","image_source"].contains(type)
@@ -105,14 +106,20 @@ public struct PodcastVisualScore:Equatable {
                 treatmentSummary:PodcastVisualScoreJSON.summary(row["treatment"]),
                 provenanceSummary:PodcastVisualScoreJSON.summary(row["provenance"]),
                 cameraPolicySummary:PodcastVisualScoreJSON.summary(row["camera_policy"]),
-                transcriptAnchorSummary:PodcastVisualScoreJSON.summary(row["transcript_anchor"]),
-                previewPath:PodcastVisualScoreJSON.optionalText(row["preview_path"])
+                transcriptAnchorSummary:PodcastVisualScoreJSON.summary(row["transcript_anchor"])
             )
         }
-        let previews=(root["representative_previews"] as? [[String:Any]] ?? []).compactMap {row -> PodcastVisualPreview? in
-            guard let chapter=PodcastVisualScoreJSON.optionalText(row["chapter_id"]),
-                  let path=PodcastVisualScoreJSON.optionalText(row["path"]) else{return nil}
-            return PodcastVisualPreview(chapterID:chapter,path:path)
+        let previews=try (root["representative_previews"] as? [[String:Any]] ?? []).map {row in
+            let chapter=try PodcastVisualScoreJSON.text(row["chapter_id"],name:"representative preview chapter")
+            let path=try PodcastVisualScoreJSON.text(row["path"],name:"representative preview path")
+            guard PodcastVisualScoreJSON.isSafeRelativePath(path) else {
+                throw PodcastVisualScoreError("Representative preview paths must stay inside the project.")
+            }
+            let sha256=try PodcastVisualScoreJSON.text(row["sha256"],name:"representative preview SHA-256")
+            guard PodcastVisualScoreJSON.isSHA256(sha256) else {
+                throw PodcastVisualScoreError("Representative preview SHA-256 is invalid.")
+            }
+            return PodcastVisualPreview(chapterID:chapter,path:path,sha256:sha256)
         }
         return PodcastVisualScore(
             revisionID:revision,episodeMapSHA256:PodcastVisualScoreJSON.optionalText(root["episode_map_sha256"]),
@@ -233,6 +240,20 @@ public enum PodcastVisualScoreBinding {
     }
 }
 
+public enum PodcastVisualPreviewAccess {
+    public static func openableURL(_ preview:PodcastVisualPreview,projectPath:String)->URL? {
+        guard PodcastVisualScoreJSON.isSafeRelativePath(preview.path),PodcastVisualScoreJSON.isSHA256(preview.sha256) else{return nil}
+        let root=URL(fileURLWithPath:projectPath,isDirectory:true).resolvingSymlinksInPath().standardizedFileURL
+        let candidate=root.appendingPathComponent(preview.path).resolvingSymlinksInPath().standardizedFileURL
+        guard candidate.path.hasPrefix(root.path+"/") else{return nil}
+        var isDirectory:ObjCBool=false
+        guard FileManager.default.fileExists(atPath:candidate.path,isDirectory:&isDirectory),!isDirectory.boolValue,
+              let data=try? Data(contentsOf:candidate) else{return nil}
+        let digest=SHA256.hash(data:data).map {String(format:"%02x",$0)}.joined()
+        return digest == preview.sha256 ? candidate : nil
+    }
+}
+
 public struct PodcastVisualScoreError:LocalizedError {
     public let errorDescription:String?
     public init(_ message:String) {errorDescription=message}
@@ -278,5 +299,10 @@ private enum PodcastVisualScoreJSON {
     }
     static func isSHA256(_ value:String)->Bool {
         value.count == 64 && value.allSatisfy {("0"..."9").contains($0) || ("a"..."f").contains($0)}
+    }
+    static func isSafeRelativePath(_ value:String)->Bool {
+        guard !value.hasPrefix("/") else{return false}
+        let parts=value.split(separator:"/",omittingEmptySubsequences:false)
+        return !parts.isEmpty && parts.allSatisfy {!$0.isEmpty && $0 != "." && $0 != ".."}
     }
 }

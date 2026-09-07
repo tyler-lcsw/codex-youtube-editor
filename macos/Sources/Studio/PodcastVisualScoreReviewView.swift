@@ -121,8 +121,8 @@ struct PodcastVisualScoreReviewView:View {
             if !event.isSupported {
                 Label("This Studio build does not recognize the proposal type. Accept is disabled; reject it or explicitly keep the base stage.",systemImage:"exclamationmark.triangle").font(.caption).foregroundStyle(StudioTheme.accent)
             }
-            if let path=previewPath(for:event,artifacts:artifacts) {
-                previewControl(path)
+            if let preview=preview(for:event,artifacts:artifacts) {
+                previewControl(preview)
             } else {
                 Text("No representative preview path was recorded for this proposal.").font(.caption).foregroundStyle(.secondary)
             }
@@ -147,15 +147,16 @@ struct PodcastVisualScoreReviewView:View {
     @ViewBuilder func detail(_ label:String,_ value:String)->some View {
         Text("\(label): ").bold()+Text(value)
     }
-    @ViewBuilder func previewControl(_ path:String)->some View {
-        let url=previewURL(path)
+    @ViewBuilder func previewControl(_ preview:PodcastVisualPreview)->some View {
+        let url=PodcastVisualPreviewAccess.openableURL(preview,projectPath:w.project)
         HStack {
             Label("Representative preview",systemImage:"photo")
-            Text(path).font(.caption).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
+            Text(preview.path).font(.caption).lineLimit(1).truncationMode(.middle).textSelection(.enabled)
             Spacer()
-            Button("Open preview") {NSWorkspace.shared.open(url)}.accessibilityLabel("Open representative preview")
-                .disabled(!FileManager.default.fileExists(atPath:url.path))
+            Button("Open preview") {if let url {NSWorkspace.shared.open(url)}}.accessibilityLabel("Open representative preview")
+                .disabled(url == nil)
         }
+        if url == nil {Text("The preview is missing or its recorded SHA-256 no longer matches. Open is disabled.").font(.caption).foregroundStyle(StudioTheme.accent)}
     }
     func load() {
         artifacts=nil;unavailable="";loadError=nil;bindingCurrent=nil;bindingError=nil;pending=nil
@@ -205,13 +206,8 @@ struct PodcastVisualScoreReviewView:View {
         } catch {loadError=error.localizedDescription}
     }
     func noteIsEmpty(_ event:PodcastVisualEvent)->Bool {notes[event.id]?.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty != false}
-    func previewURL(_ path:String)->URL {
-        if path.hasPrefix("/") {return URL(fileURLWithPath:path)}
-        return URL(fileURLWithPath:w.project,isDirectory:true).appendingPathComponent(path)
-    }
-    func previewPath(for event:PodcastVisualEvent,artifacts:PodcastVisualScoreArtifacts)->String? {
-        if let path=event.previewPath {return path}
-        return artifacts.score.previews.last {$0.chapterID == event.chapterID}?.path
+    func preview(for event:PodcastVisualEvent,artifacts:PodcastVisualScoreArtifacts)->PodcastVisualPreview? {
+        artifacts.score.previews.last {$0.chapterID == event.chapterID}
     }
     func chapterTitle(_ id:String,artifacts:PodcastVisualScoreArtifacts)->String {artifacts.episodeMap.chapters.first {$0.id == id}?.title ?? id}
     func decisionStatus(_ decision:PodcastVisualScoreDecision?)->String {

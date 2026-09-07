@@ -16,17 +16,17 @@ func testPodcastVisualScoreParsesChaptersEventsPreviewsAndDecisions() throws {
      "visual_events":[
        {"id":"event-1","type":"chapter_card","chapter_id":"opening","start_ms":0,"end_ms":2500,
         "transcript_anchor":{"start_word_id":"w1","end_word_id":"w4"},"purpose":"Orient the listener","treatment":{"title":"Opening"},
-        "provenance":{"kind":"episode_map"},"camera_policy":"base_only","preview_path":"/tmp/opening.png"},
+        "provenance":{"kind":"episode_map"},"camera_policy":"base_only"},
        {"id":"event-2","type":"future_card","chapter_id":"close","start_ms":40000,"end_ms":42000,
         "transcript_anchor":{},"purpose":"Future proposal","treatment":{},"provenance":{},"camera_policy":"none","extra_future_field":true}
-     ],"representative_previews":[{"chapter_id":"close","path":"/tmp/close.png"}]}
+     ],"representative_previews":[{"chapter_id":"close","path":"work/podcast/previews/close.png","sha256":"5975cf1bba432391c94667f5886225f69377c0aa8b9fa21fddfb21c89bcf9092"}]}
     """.utf8))
     XCTAssertEqual(score.revisionID,"score-rev-1")
     XCTAssertEqual(score.events.count,2)
     XCTAssertEqual(score.events[0].typeLabel,"Chapter card")
-    XCTAssertEqual(score.events[0].previewPath,"/tmp/opening.png")
     XCTAssertFalse(score.events[1].isSupported)
-    XCTAssertEqual(score.previews.first?.path,"/tmp/close.png")
+    XCTAssertEqual(score.previews.first?.path,"work/podcast/previews/close.png")
+    XCTAssertEqual(score.previews.first?.sha256,"5975cf1bba432391c94667f5886225f69377c0aa8b9fa21fddfb21c89bcf9092")
 
     let decisions = try PodcastVisualScoreDecisionLog.decode(Data("""
     {"schema_version":1,"decisions":[
@@ -51,6 +51,12 @@ func testPodcastVisualScoreRejectsInvalidVersionsRangesAndNonOwnerDecisions() {
       {"id":"decision","revision_id":"rev","event_id":"event","action":"accept","decided_at":"now","owner_action":false}
     ]}
     """.utf8)))
+    for path in ["/private/outside.png","../outside.png","work/podcast/../outside.png"] {
+        XCTAssertThrowsError(try PodcastVisualScore.decode(Data("""
+        {"schema_version":1,"revision_id":"rev","visual_density":"balanced","visual_events":[],
+         "representative_previews":[{"chapter_id":"chapter","path":"\(path)","sha256":"5975cf1bba432391c94667f5886225f69377c0aa8b9fa21fddfb21c89bcf9092"}]}
+        """.utf8)))
+    }
 }
 
 func testPodcastVisualScoreDecisionPayloadIsRevisionBoundAndExplicit() throws {
@@ -91,8 +97,11 @@ func testPodcastVisualScoreArtifactsLoadCurrentRevisionAndTolerateMissingReview(
 
     let podcast=root.appendingPathComponent("work/podcast")
     let revisions=podcast.appendingPathComponent("visual-score/revisions")
+    let previews=podcast.appendingPathComponent("previews")
     let revision=String(repeating:"a",count:64)
     try FileManager.default.createDirectory(at:revisions,withIntermediateDirectories:true)
+    try FileManager.default.createDirectory(at:previews,withIntermediateDirectories:true)
+    try Data("preview".utf8).write(to:previews.appendingPathComponent("chapter.png"))
     try Data("""
     {"schema_version":1,"primary_audio":{"duration_ms":4000},"chapters":[
       {"id":"chapter","title":"Chapter","start_ms":0,"end_ms":4000}
@@ -101,7 +110,8 @@ func testPodcastVisualScoreArtifactsLoadCurrentRevisionAndTolerateMissingReview(
     try Data("{\"schema_version\":1,\"revision_id\":\"\(revision)\"}".utf8)
         .write(to:podcast.appendingPathComponent("visual-score/current.json"))
     try Data("""
-    {"schema_version":1,"revision_id":"\(revision)","visual_density":"balanced","visual_events":[]}
+    {"schema_version":1,"revision_id":"\(revision)","visual_density":"balanced","visual_events":[],
+     "representative_previews":[{"chapter_id":"chapter","path":"work/podcast/previews/chapter.png","sha256":"5975cf1bba432391c94667f5886225f69377c0aa8b9fa21fddfb21c89bcf9092"}]}
     """.utf8).write(to:revisions.appendingPathComponent("\(revision).json"))
 
     let loaded=try PodcastVisualScoreArtifacts.load(projectPath:root.path)
@@ -111,5 +121,11 @@ func testPodcastVisualScoreArtifactsLoadCurrentRevisionAndTolerateMissingReview(
         XCTAssertEqual(artifacts.score.revisionID,revision)
         XCTAssertTrue(artifacts.decisions.decisions.isEmpty)
         XCTAssertEqual(artifacts.episodeMap.durationMS,4000)
+        let preview=artifacts.score.previews[0]
+        XCTAssertTrue(PodcastVisualPreviewAccess.openableURL(preview,projectPath:root.path) != nil)
+        try Data("changed".utf8).write(to:previews.appendingPathComponent("chapter.png"))
+        XCTAssertNil(PodcastVisualPreviewAccess.openableURL(preview,projectPath:root.path))
+        try FileManager.default.removeItem(at:previews.appendingPathComponent("chapter.png"))
+        XCTAssertNil(PodcastVisualPreviewAccess.openableURL(preview,projectPath:root.path))
     }
 }
