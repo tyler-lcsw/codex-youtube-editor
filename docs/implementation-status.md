@@ -84,7 +84,7 @@ change. Native Review adds an accessible episode timeline,
 textual ranges, chapter details, optional representative previews and confirmed
 accept/reject/base controls. The Remotion stage renders these five primitives while
 retaining the waveform and respecting reduced motion. Current implementation evidence
-is 179 Python tests plus 33 subtests, 35 native checks, a signed release build and a
+is 180 Python tests plus 33 subtests, 35 native checks, a signed release build and a
 clean Remotion typecheck. A four-second reduced-motion, accepted-only chapter-card
 fixture rendered at 320x180 with verified audio/video streams and bounded duration,
 covering the score-to-reviewed-stage-to-render integration. No semantic model has been

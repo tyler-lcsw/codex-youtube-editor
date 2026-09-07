@@ -4,6 +4,8 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+import threading
+import time
 import wave
 
 import pytest
@@ -387,6 +389,52 @@ def test_owner_decisions_are_append_only_exact_and_gate_stage_materialization(po
         podcast_stage.render(project, reviewed_path, output)
     assert output.read_bytes() == b"previous successful output"
 
+    # Once final verification begins, owner decisions serialize behind the
+    # same Studio lock and therefore take effect only after publication.
+    call(
+        project,
+        "append_visual_score_decision",
+        revision_id=revision_id,
+        event_id="chapter-1",
+        action="accept",
+        note="Accept again for the publication-lock regression",
+        owner_action=True,
+    )
+    reviewed_path = Path(call(project, "materialize_reviewed_podcast_stage")["path"])
+    decision_started = threading.Event()
+    decision_finished = threading.Event()
+    decision_thread = None
+
+    def mutate_during_verification():
+        decision_started.set()
+        call(
+            project,
+            "append_visual_score_decision",
+            revision_id=revision_id,
+            event_id="chapter-1",
+            action="reject",
+            note="This decision must serialize after publication",
+            owner_action=True,
+        )
+        decision_finished.set()
+
+    def verify_while_decision_waits(*_args):
+        nonlocal decision_thread
+        decision_thread = threading.Thread(target=mutate_during_verification)
+        decision_thread.start()
+        assert decision_started.wait(timeout=1)
+        time.sleep(0.05)
+        assert not decision_finished.is_set()
+        return {"duration_ms": 4_000, "streams": ["audio", "video"]}
+
+    monkeypatch.setattr(podcast_stage, "run_renderer", lambda _contract, picture: Path(picture).write_bytes(b"picture"))
+    monkeypatch.setattr(podcast_stage, "_verify_delivery", verify_while_decision_waits)
+    assert podcast_stage.render(project, reviewed_path, output) == output
+    assert decision_thread is not None
+    decision_thread.join(timeout=2)
+    assert decision_finished.is_set()
+    assert output.read_bytes() == b"staged completed output"
+
 
 @pytest.mark.skipif(
     not (Path(__file__).resolve().parents[1] / "remotion/node_modules/@remotion/renderer").exists(),
@@ -536,3 +584,25 @@ def test_visual_score_decisions_stale_workflow_and_completion_binding(podcast_pr
     )
     assert all(item["status"] != "complete" for item in call(project, "workflow")["stages"][:4])
     assert studio_workflow.completion_binding(project)["inputs"] != completion_before["inputs"]
+
+
+def test_workflow_binding_rejects_traversal_score_pointer_without_reading_outside(podcast_project, monkeypatch):
+    from tools import studio_workflow
+
+    project, _asset, _episode_map = podcast_project
+    outside = project.parent / "outside.json"
+    outside.write_text('{"sensitive":"must not be read"}')
+    pointer = project / "work/podcast/visual-score/current.json"
+    pointer.parent.mkdir(parents=True, exist_ok=True)
+    pointer.write_text('{"schema_version":1,"revision_id":"../../../../../outside"}')
+
+    original_hash = studio_workflow.file_hash
+
+    def guarded_hash(path):
+        if Path(path).resolve() == outside.resolve():
+            raise AssertionError("workflow binding read outside the score revisions directory")
+        return original_hash(path)
+
+    monkeypatch.setattr(studio_workflow, "file_hash", guarded_hash)
+    artifacts = studio_workflow._podcast_artifact_binding(project)
+    assert artifacts["score_revision"] is None

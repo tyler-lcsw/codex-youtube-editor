@@ -374,26 +374,27 @@ def render(project: Path, contract_path: Path | None = None, output: Path | None
             if validate_contract(json.loads(contract_path.read_text())) != contract:
                 raise ValueError("Podcast stage contract changed during render")
             _validate_artwork(contract["identity"])
-            if validate_reviewed_stage is not None:
-                # Owner decisions, the current score, transcript/map binding, or
-                # podcast setup can change during a long render. Recheck all of
-                # them immediately before the staged file becomes authoritative.
-                validate_reviewed_stage(project, studio_project.read(project), contract)
-            verification = _verify_delivery(
-                staged, contract["primary_audio"]["duration_ms"], contract["render"]["fps"]
-            )
-            os.replace(staged, output)
-            atomic_json(
-                project / "work/podcast/render.json",
-                {
-                    "schema_version": 1,
-                    "contract_sha256": file_hash(contract_path),
-                    "audio_sha256": contract["primary_audio"]["sha256"],
-                    "output": str(output),
-                    "output_sha256": file_hash(output),
-                    "verification": verification,
-                },
-            )
+            # Owner decisions use the Studio state lock. Hold it from the last
+            # reviewed-binding check through verification, publication and its
+            # receipt so no decision can race the publication boundary.
+            with file_lock(project / "work/studio/.lock"):
+                if validate_reviewed_stage is not None:
+                    validate_reviewed_stage(project, studio_project.read(project), contract)
+                verification = _verify_delivery(
+                    staged, contract["primary_audio"]["duration_ms"], contract["render"]["fps"]
+                )
+                os.replace(staged, output)
+                atomic_json(
+                    project / "work/podcast/render.json",
+                    {
+                        "schema_version": 1,
+                        "contract_sha256": file_hash(contract_path),
+                        "audio_sha256": contract["primary_audio"]["sha256"],
+                        "output": str(output),
+                        "output_sha256": file_hash(output),
+                        "verification": verification,
+                    },
+                )
             return output
         finally:
             shutil.rmtree(scratch, ignore_errors=True)

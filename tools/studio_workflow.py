@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+import re
 from . import production_quality as quality
 from .jobs import file_hash
 
@@ -60,7 +61,12 @@ def _podcast_artifact_binding(project):
         try:
             pointer = json.loads(paths['score_pointer'].read_text())
             revision_id = pointer.get('revision_id') if isinstance(pointer, dict) else None
-            revision = podcast / 'visual-score/revisions' / f'{revision_id}.json'
+            revisions = (podcast / 'visual-score/revisions').resolve()
+            if not isinstance(revision_id, str) or re.fullmatch(r'[0-9a-f]{64}', revision_id) is None:
+                raise ValueError('Invalid current score revision')
+            revision = (revisions / f'{revision_id}.json').resolve()
+            if not revision.is_relative_to(revisions):
+                raise ValueError('Current score revision escaped its directory')
             result['score_revision'] = file_hash(revision) if revision.is_file() else None
             score = json.loads(revision.read_text()) if revision.is_file() else None
         except (OSError, ValueError, TypeError):
