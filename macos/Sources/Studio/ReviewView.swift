@@ -14,6 +14,8 @@ struct ReviewView:View {
     @State private var rect: CGRect?
     @State private var draw=false
     @State private var capturePath=""
+    @State private var markerReady=false
+    @State private var selectedHasVideo=false
     @State private var drafts=AnnotationDrafts()
     @State private var reviewContext:AnnotationContext?
     @State private var integrityError:String?
@@ -33,9 +35,14 @@ struct ReviewView:View {
                 GeometryReader {geometry in
                     ZStack {
                         if asset == nil {
-                            StudioEmptyState(symbol:"play.rectangle",title:"Choose footage to review",detail:"Import a source in Brief & sources, or choose an existing source or revision above.")
+                            StudioEmptyState(symbol:"play.rectangle",title:"Choose media to review",detail:"Import a source in Brief & sources, or choose an existing source or revision above.")
                                 .frame(maxWidth:.infinity,maxHeight:.infinity).background(StudioTheme.panel)
-                        } else {NativeReviewPlayer(player:player)}
+                        } else {
+                            NativeReviewPlayer(player:player)
+                            if validatedID == selected && !selectedHasVideo {
+                                Label("Audio-only source",systemImage:"waveform").foregroundStyle(.white).padding(10).background(.black.opacity(0.65),in:RoundedRectangle(cornerRadius:8)).accessibilityLabel("Audio-only source; use playback controls and mark a time to annotate")
+                            }
+                        }
                         if draw {AnnotationOverlay(videoSize:videoSize,selection:$rect)}
                         if !draw,let rect=reviewContext?.rect ?? rect {
                             let bounds=ReviewGeometry.videoRect(container:geometry.size,video:videoSize)
@@ -44,16 +51,17 @@ struct ReviewView:View {
                     }.background(.black)
                 }.frame(minHeight:280)
                 HStack {
-                    Button("Pause & annotate",systemImage:"pause.circle") {capture()}.accessibilityLabel("Pause & annotate").disabled(asset==nil || validatedID != selected || w.busy)
-                    Toggle("Draw region",isOn:$draw).accessibilityLabel("Draw region").toggleStyle(.button).disabled(capturePath.isEmpty)
-                    Button("Clear region"){rect=nil}.accessibilityLabel("Clear region")
+                    Button(selectedHasVideo ? "Pause & capture frame" : "Pause & mark time",systemImage:"pause.circle") {capture()}.accessibilityLabel(selectedHasVideo ? "Pause and capture frame" : "Pause and mark audio time").disabled(asset==nil || validatedID != selected || w.busy)
+                    Toggle("Draw region",isOn:$draw).accessibilityLabel("Draw region").toggleStyle(.button).disabled(!selectedHasVideo || capturePath.isEmpty)
+                    Button("Clear region"){rect=nil}.accessibilityLabel("Clear region").disabled(!selectedHasVideo || rect == nil)
                     Text(String(format:"%.3f s",Double(markerMS)/1000)).monospacedDigit()
                 }
                 if let integrityError {Text("Historical feedback only: \(integrityError)").foregroundStyle(StudioTheme.accent)}
                 if !capturePath.isEmpty {Label("Frame captured for this version",systemImage:"checkmark.circle").font(.caption).foregroundStyle(StudioTheme.accent)}
+                else if markerReady {Label("Audio time marked for this version",systemImage:"checkmark.circle").font(.caption).foregroundStyle(StudioTheme.accent)}
                 TextField("Optional range end (seconds)",text:$endSeconds).accessibilityLabel("Optional range end (seconds)").textFieldStyle(.roundedBorder)
                 TextField("What should change here, and why?",text:$comment,axis:.vertical).accessibilityLabel("What should change here, and why?").lineLimit(3...6).textFieldStyle(.roundedBorder)
-                Button("Save annotation",systemImage:"text.bubble") {saveAnnotation()}.accessibilityLabel("Save annotation").buttonStyle(.borderedProminent).tint(StudioTheme.button).disabled(capturePath.isEmpty || comment.isEmpty || w.busy)
+                Button("Save annotation",systemImage:"text.bubble") {saveAnnotation()}.accessibilityLabel("Save annotation").buttonStyle(.borderedProminent).tint(StudioTheme.button).disabled(!markerReady || comment.isEmpty || w.busy)
                 DisclosureGroup("Transcript anchors") {
                     if transcriptWords.isEmpty {Text("No matching render-derived transcript for this selected revision. Frame/time annotations remain available.").font(.caption).foregroundStyle(.secondary)}
                     else {ScrollView {LazyVStack(alignment:.leading) {ForEach(transcriptWords.indices,id:\.self) {i in let word=transcriptWords[i];let id=word["id"] as? String ?? String(i)
@@ -65,7 +73,7 @@ struct ReviewView:View {
             ScrollView {VStack(alignment:.leading,spacing:16) {
                 Text("Feedback on this version").font(.title3.bold())
                 Text("\(w.annotations.filter{$0["status"] as? String != "accepted"}.count) unresolved across this production. Select the original reviewed version to see its notes.").font(.caption).foregroundStyle(.secondary)
-                if feedback.isEmpty {StudioEmptyState(symbol:"text.bubble",title:"No feedback on this version",detail:"Pause the video to add a frame, region, or time-range note.")}
+                if feedback.isEmpty {StudioEmptyState(symbol:"text.bubble",title:"No feedback on this version",detail:"Pause the selected media to add a frame, region, moment, or time-range note.")}
                 ForEach(feedback.indices,id:\.self) {i in let note=feedback[i];let noteID=note["id"] as? String ?? ""
                     GroupBox {
                         VStack(alignment:.leading,spacing:10) {
@@ -90,7 +98,7 @@ struct ReviewView:View {
         .onDisappear {player.pause()}
     }
     func loadMedia() {
-        player.pause();player.replaceCurrentItem(with:nil);capturePath="";rect=nil;draw=false;selectedWords=[];transcriptWords=[];reviewContext=nil;integrityError=nil;validatedID=""
+        player.pause();player.replaceCurrentItem(with:nil);capturePath="";markerReady=false;selectedHasVideo=false;rect=nil;draw=false;selectedWords=[];transcriptWords=[];reviewContext=nil;integrityError=nil;validatedID=""
         guard let a=asset,let id=a["id"] as? String else {return}
         let project=w.project,bridge=w.bridge
         Task {
@@ -102,7 +110,7 @@ struct ReviewView:View {
                     let size=try await track.load(.naturalSize),transform=try await track.load(.preferredTransform)
                     let transformed=size.applying(transform)
                     guard selected==id,w.project==project else{return}
-                    videoSize=CGSize(width:abs(transformed.width),height:abs(transformed.height))
+                    videoSize=CGSize(width:abs(transformed.width),height:abs(transformed.height));selectedHasVideo=true
                 }
                 guard selected==id,w.project==project else{return}
                 validatedID=id;player.replaceCurrentItem(with:AVPlayerItem(asset:av))
@@ -113,20 +121,27 @@ struct ReviewView:View {
     func capture() {
         player.pause();draw=false;rect=nil;reviewContext=nil
         let time=player.currentTime().seconds
-        guard time.isFinite,let id=asset?["id"] as? String else {return}
-        markerMS=max(0,Int((time*1000).rounded()));let ms=markerMS
-        w.perform {
-            let result=try await w.bridge.request("capture_frame",project:w.project,params:["asset_id":id,"time_ms":ms])
-            guard selected==id else {return}
-            markerMS=result["time_ms"] as? Int ?? ms;capturePath=result["path"] as? String ?? "";await player.seek(to:CMTime(value:Int64(markerMS),timescale:1000));w.notice="Paused frame captured. Add a note or draw a region."
+        guard let id=asset?["id"] as? String,let action=ReviewMarkerDecision.action(seconds:time,hasVideo:selectedHasVideo) else {return}
+        switch action {
+        case .markTime(let ms):
+            markerMS=ms;capturePath="";markerReady=true
+            w.notice="Audio time marked. Add a note, optional range, or transcript anchors."
+        case .captureFrame(let ms):
+            capturePath="";markerReady=false
+            w.perform {
+                let result=try await w.bridge.request("capture_frame",project:w.project,params:["asset_id":id,"time_ms":ms])
+                guard selected==id else {return}
+                markerMS=result["time_ms"] as? Int ?? ms;capturePath=result["path"] as? String ?? "";markerReady = !capturePath.isEmpty;await player.seek(to:CMTime(value:Int64(markerMS),timescale:1000));w.notice="Paused frame captured. Add a note or draw a region."
+            }
         }
     }
     func saveAnnotation() {
         guard let id=asset?["id"] as? String else {return}
-        var params:[String:Any]=["asset_id":id,"time_ms":markerMS,"text":comment,"frame_path":capturePath,"transcript_ids":Array(selectedWords).sorted()]
+        var params:[String:Any]=["asset_id":id,"time_ms":markerMS,"text":comment,"transcript_ids":Array(selectedWords).sorted()]
+        if !capturePath.isEmpty {params["frame_path"]=capturePath}
         if !endSeconds.isEmpty {guard let end=Double(endSeconds),end.isFinite else {w.error="Enter a valid end time in seconds.";return};params["end_ms"]=Int((end*1000).rounded())}
         if let rect {params["rect"]=["x":rect.minX,"y":rect.minY,"width":rect.width,"height":rect.height]}
-        w.perform {try await w.request("add_annotation",params);comment="";capturePath="";endSeconds="";rect=nil;draw=false;selectedWords=[];w.notice="Annotation saved against this exact revision."}
+        w.perform {try await w.request("add_annotation",params);comment="";capturePath="";markerReady=false;endSeconds="";rect=nil;draw=false;selectedWords=[];w.notice="Annotation saved against this exact revision."}
     }
     func canTransition(_ note:[String:Any],_ status:String)->Bool {
         guard !w.busy,let id=note["id"] as? String,!drafts.note(for:id).trimmingCharacters(in:.whitespacesAndNewlines).isEmpty else{return false}

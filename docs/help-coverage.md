@@ -17,7 +17,8 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Keep or emphasize | `brief-required` | macos/Sources/Studio/IntakeView.swift |
 | Context and editing instructions | `brief-context` | macos/Sources/Studio/IntakeView.swift |
 | Save brief; Reload saved brief; dirty/baseline warning | `brief-conflict` | macos/Sources/Studio/IntakeView.swift |
-| Import footage or documents; file multi-select; drop target; asset list/roles | `import-sources` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/Workspace.swift |
+| Import media or documents; file multi-select; drop target; asset list/roles | `import-sources` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/Workspace.swift |
+| Solo podcast visuals; Primary audio; Optional camera; No camera; Visual density; Restrained/Balanced/Illustrative; Save/Clear/Reload podcast setup; setup-only and synchronization limits | `podcast-setup` | macos/Sources/Studio/IntakeView.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
 | Label; https://…; Use as; Reference; Source; Background; Add link; saved Link | `add-resource-link` | macos/Sources/Studio/IntakeView.swift |
 | Intake stage; prerequisites/artifacts/status | `stage-intake` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
 | Source understanding stage; prerequisites/artifacts/status | `stage-source-understanding` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
@@ -28,7 +29,8 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Open authoritative workflow | `read-workflow` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
 | Viewing; Choose a source or revision; player playback/seek; unresolved count | `review-media` | macos/Sources/Studio/ReviewView.swift |
 | Add revision; Add rendered revision file picker | `add-revision` | macos/Sources/Studio/ReviewView.swift; macos/Sources/Studio/Workspace.swift |
-| Pause & annotate; captured time/notice; Optional range end (seconds); What should change here, and why?; Save annotation | `annotate-frame` | macos/Sources/Studio/ReviewView.swift |
+| Pause & capture frame; captured time/notice; Optional range end (seconds); What should change here, and why?; Save annotation | `annotate-frame` | macos/Sources/Studio/ReviewView.swift |
+| Audio-only source; Pause & mark time; audio marker notice; frame-free time/range/transcript annotation | `annotate-audio` | macos/Sources/Studio/ReviewView.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
 | Draw region toggle; drag overlay; Clear region | `annotate-region` | macos/Sources/Studio/ReviewView.swift |
 | Transcript anchors disclosure; dynamic word/time toggles; no matching transcript | `transcript-anchors` | macos/Sources/Studio/ReviewView.swift |
 | Feedback on this version; note time button; status; marked frame; range/transcript labels; History | `inspect-feedback` | macos/Sources/Studio/ReviewView.swift |
