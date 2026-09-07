@@ -54,8 +54,20 @@ range and transcript annotations for audio-only assets without manufacturing a f
 video assets retain frame capture and region drawing. Current evidence is 41 Studio
 bridge tests, 31 native checks, a signed release build and an audio-only Review launch
 smoke. The picker/save/annotation flow has not yet received a full interactive
-accessibility pass. Waveform rendering, semantic visual scores and long-form readiness
-remain later PRs.
+accessibility pass.
+
+The waveform-stage slice adds a versioned, strict descriptor bound to the exact
+canonical imported audio; cached streamed-RMS extraction; and an explicitly
+registered data-driven Remotion composition with calculated duration, resolution
+and FPS. It renders picture with concurrency one, muxes the canonical audio,
+verifies streams and duration, records output provenance, and preserves a prior
+successful output on failure. A three-second synthetic silence/tone proof passed
+at 320x180 and 1920x1080 with 90 H.264 frames, a 3.000-second AAC track, full
+decode and representative-frame inspection. This is a deterministic visual
+carrier, not long-form qualification or creative acceptance. Semantic visual
+scores, camera synchronization/cutaways, captions, native render controls, a
+25–45 minute pressure/throughput soak, normal-speed listening and owner review
+remain later work.
 
 ## Story production exercise
 
