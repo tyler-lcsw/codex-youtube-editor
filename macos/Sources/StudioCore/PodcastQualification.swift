@@ -22,6 +22,7 @@ public struct PodcastQualificationTarget:Equatable {
     public let height:Int
     public let expectedFrameCount:Int
     public let durationToleranceMS:Int
+    public let audioDurationToleranceMS:Int
     public let frameCountTolerance:Int
     public let fpsTolerance:Double
 }
@@ -42,6 +43,7 @@ public struct PodcastQualificationDelivery:Equatable {
     public let formatName:String?
     public let videoCodec:String?
     public let audioCodec:String?
+    public let audioDurationSeconds:Double?
     public let durationSeconds:Double?
     public let width:Int?
     public let height:Int?
@@ -59,6 +61,16 @@ public struct PodcastQualificationDecode:Equatable {
 public struct PodcastQualificationInterruption:Equatable {
     public let status:String
     public let recoveryStatus:String
+    public init(status:String,recoveryStatus:String) {self.status=status;self.recoveryStatus=recoveryStatus}
+    public var recoveryLabel:String {
+        switch recoveryStatus {
+        case "child_process_terminated":return "Launched child process terminated and reaped"
+        case "child_process_termination_failed":return "Child-process cleanup was attempted but termination could not be verified"
+        case "not_needed":return "No live child required cleanup"
+        case "not_exercised":return "No interruption cleanup was exercised"
+        default:return "Unsupported recovery state"
+        }
+    }
 }
 
 public struct PodcastQualificationReviews:Equatable {
@@ -102,7 +114,7 @@ public struct PodcastQualificationAttempt:Equatable,Identifiable {
     public var isComplete:Bool {false}
     public var summary:String {
         switch status {
-        case .succeeded:return "Technical long-form qualification succeeded; human review pending."
+        case .succeeded:return "Saved technical long-form evidence succeeded at run time; human review pending."
         case .failed:return "Qualification failed; inspect the recorded failure and preservation state."
         case .interrupted:return "Qualification was interrupted; inspect the recorded recovery and preservation state."
         }
@@ -166,7 +178,7 @@ public struct PodcastQualificationAttempt:Equatable,Identifiable {
         let interruptionStatus=QualificationJSON.status(interruption["status"],fallback:"")
         let recoveryStatus=QualificationJSON.status(interruption["recovery"],fallback:"")
         guard ["not_interrupted","interrupted","timeout"].contains(interruptionStatus),
-              ["not_exercised","not_needed","child_process_terminated"].contains(recoveryStatus) else {
+              ["not_exercised","not_needed","child_process_terminated","child_process_termination_failed"].contains(recoveryStatus) else {
             throw PodcastQualificationError("Qualification interruption and recovery status must be explicitly recorded.")
         }
         if status == .succeeded {
@@ -209,6 +221,7 @@ public struct PodcastQualificationAttempt:Equatable,Identifiable {
             delivery:PodcastQualificationDelivery(
                 formatName:QualificationJSON.optionalText(delivery["format_name"]),videoCodec:QualificationJSON.stream(delivery,type:"video")?["codec"] as? String,
                 audioCodec:QualificationJSON.stream(delivery,type:"audio")?["codec"] as? String,
+                audioDurationSeconds:QualificationJSON.double(QualificationJSON.stream(delivery,type:"audio")?["duration_ms"]).map {$0/1000},
                 durationSeconds:QualificationJSON.double(delivery["duration_ms"]).map {$0/1000},
                 width:QualificationJSON.integer(QualificationJSON.stream(delivery,type:"video")?["width"]),
                 height:QualificationJSON.integer(QualificationJSON.stream(delivery,type:"video")?["height"]),
@@ -252,6 +265,89 @@ public struct PodcastQualificationSnapshot:Equatable {
 public struct PodcastQualificationError:LocalizedError {
     public let errorDescription:String?
     public init(_ message:String) {errorDescription=message}
+}
+
+public enum PodcastQualificationStaleReason:String,Equatable {
+    case reportMissing="report_missing"
+    case reportInvalid="report_invalid"
+    case reportNotSucceeded="report_not_succeeded"
+    case reviewedStageStale="reviewed_stage_stale"
+    case sourceChanged="source_changed"
+    case contractChanged="contract_changed"
+    case visualScoreChanged="visual_score_changed"
+    case qualificationTargetChanged="qualification_target_changed"
+    case outputMissing="output_missing"
+    case outputChanged="output_changed"
+
+    public var label:String {
+        switch self {
+        case .reportMissing:return "Successful qualification report is missing"
+        case .reportInvalid:return "Qualification report is invalid"
+        case .reportNotSucceeded:return "Saved report is not a successful run"
+        case .reviewedStageStale:return "Reviewed podcast stage is stale"
+        case .sourceChanged:return "Source audio changed"
+        case .contractChanged:return "Reviewed-stage contract changed"
+        case .visualScoreChanged:return "Visual-score revision changed"
+        case .qualificationTargetChanged:return "Long-form qualification target changed"
+        case .outputMissing:return "Qualified output is missing"
+        case .outputChanged:return "Qualified output changed"
+        }
+    }
+}
+
+public struct PodcastQualificationLiveStatus:Equatable {
+    public let current:Bool
+    public let reasons:[String]
+    public let reportAttemptID:String?
+    public let reportVisualScoreRevisionID:String?
+
+    public static func decode(_ root:[String:Any]) throws ->PodcastQualificationLiveStatus {
+        guard root["schema_version"] as? Int == 1,let current=QualificationJSON.boolean(root["current"]),
+              let rawReasons=root["reasons"] as? [String],rawReasons.count <= 10 else {
+            throw PodcastQualificationError("Qualification live status has an unsupported response shape.")
+        }
+        let reasons=try rawReasons.map {raw ->String in
+            guard PodcastQualificationStaleReason(rawValue:raw) != nil else {
+                throw PodcastQualificationError("Qualification live status has an unsupported stale reason.")
+            }
+            return raw
+        }
+        guard Set(reasons).count == reasons.count,!current || reasons.isEmpty,!(!current && reasons.isEmpty) else {
+            throw PodcastQualificationError("Qualification live status is internally inconsistent.")
+        }
+        return PodcastQualificationLiveStatus(
+            current:current,reasons:reasons,reportAttemptID:QualificationJSON.optionalText(root["report_attempt_id"]),
+            reportVisualScoreRevisionID:QualificationJSON.optionalText(root["report_visual_score_revision_id"])
+        )
+    }
+}
+
+public struct PodcastQualificationPresentation:Equatable {
+    public let isCurrent:Bool
+    public let headline:String
+    public let detail:String
+
+    public init(report:PodcastQualificationAttempt,live:PodcastQualificationLiveStatus?,verificationError:String?) {
+        let sameAttempt=live?.reportAttemptID == report.attemptID
+        let sameRevision=live?.reportVisualScoreRevisionID == report.bindings.visualScoreRevisionID
+        if live?.current == true,sameAttempt,sameRevision {
+            isCurrent=true
+            headline="Current technical long-form qualification"
+            detail="Backend revalidation confirms the saved report still matches the current source, reviewed stage, visual score, target, and output. Human reviews remain pending."
+        } else {
+            isCurrent=false
+            headline="Saved at-run evidence — current status not established"
+            if let verificationError {
+                detail="Live backend revalidation failed: \(verificationError)"
+            } else if let live,live.current {
+                detail="Live status applies to a different saved report or visual-score revision."
+            } else if let live {
+                detail=live.reasons.compactMap {PodcastQualificationStaleReason(rawValue:$0)?.label}.joined(separator:" · ")
+            } else {
+                detail="Live backend revalidation is pending."
+            }
+        }
+    }
 }
 
 private enum QualificationJSON {
@@ -304,23 +400,31 @@ private enum QualificationJSON {
         guard let object,let duration=integer(object["duration_ms"]),let fps=double(object["fps"]),
               let width=integer(object["width"]),let height=integer(object["height"]),
               let frames=integer(object["expected_frame_count"]),let durationTolerance=integer(object["duration_tolerance_ms"]),
+              let audioDurationTolerance=integer(object["audio_duration_tolerance_ms"]),
               let frameTolerance=integer(object["frame_count_tolerance"]),let fpsTolerance=double(object["fps_tolerance"]) else{return nil}
         return PodcastQualificationTarget(durationMS:duration,fps:fps,width:width,height:height,expectedFrameCount:frames,
-                                          durationToleranceMS:durationTolerance,frameCountTolerance:frameTolerance,fpsTolerance:fpsTolerance)
+                                          durationToleranceMS:durationTolerance,audioDurationToleranceMS:audioDurationTolerance,
+                                          frameCountTolerance:frameTolerance,fpsTolerance:fpsTolerance)
     }
     static func validateLongFormTarget(_ object:[String:Any]?,delivery:[String:Any]) throws {
         guard let target=target(object),target.durationMS >= 1_500_000,target.durationMS <= 2_700_000,
-              target.fps == 30,target.width == 1920,target.height == 1080,target.durationToleranceMS == 40,
+              target.fps == 30,target.width == 1920,target.height == 1080,target.durationToleranceMS == 40,target.audioDurationToleranceMS == 100,
               target.frameCountTolerance == 1,target.fpsTolerance == 0.001 else {
             throw PodcastQualificationError("A successful technical long-form qualification requires the recorded 25–45 minute 1080p30 target.")
         }
         let expected=Int(ceil(Double(target.durationMS)*target.fps/1000))
-        let videos=(delivery["streams"] as? [[String:Any]])?.filter {$0["type"] as? String == "video"} ?? []
-        guard target.expectedFrameCount == expected,videos.count == 1,let video=videos.first,
+        let streams=delivery["streams"] as? [[String:Any]] ?? []
+        let videos=streams.filter {$0["type"] as? String == "video"}
+        let audios=streams.filter {$0["type"] as? String == "audio"}
+        guard target.expectedFrameCount == expected,streams.count == 2,videos.count == 1,audios.count == 1,let video=videos.first,let audio=audios.first,
               let duration=integer(delivery["duration_ms"]),abs(Double(duration)-Double(target.durationMS)) <= Double(target.durationToleranceMS),
+              let audioDuration=integer(audio["duration_ms"]),
+              abs(Double(audioDuration)-Double(target.durationMS)) <= Double(target.audioDurationToleranceMS),
+              abs(Double(audioDuration)-Double(duration)) <= Double(target.audioDurationToleranceMS),
               integer(video["width"]) == target.width,integer(video["height"]) == target.height,
               let rate=frameRate(video["avg_frame_rate"]),abs(rate-target.fps) <= target.fpsTolerance,
-              let frames=integer(video["frame_count"]),abs(Double(frames)-Double(target.expectedFrameCount)) <= Double(target.frameCountTolerance) else {
+              let frames=integer(video["frame_count"]),abs(Double(frames)-Double(target.expectedFrameCount)) <= Double(target.frameCountTolerance),
+              abs(Double(audioDuration)-(Double(frames)/rate*1000)) <= Double(target.audioDurationToleranceMS) else {
             throw PodcastQualificationError("Successful long-form qualification delivery does not agree with its recorded duration, dimensions, frame rate, or frame count target.")
         }
     }

@@ -6,6 +6,9 @@ struct PodcastQualificationView:View {
     let currentVisualScoreRevisionID:String?
     @State private var snapshot:PodcastQualificationSnapshot?
     @State private var loadError:String?
+    @State private var liveStatus:PodcastQualificationLiveStatus?
+    @State private var verificationError:String?
+    @State private var verificationGeneration=0
 
     var body:some View {
         GroupBox("Long-form qualification") {
@@ -24,6 +27,7 @@ struct PodcastQualificationView:View {
                         qualificationReport(report)
                     } else {
                         StudioEmptyState(symbol:"gauge.with.dots.needle.33percent",title:"No successful technical report",detail:snapshot.availability+" Failed or interrupted attempts remain visible below when recorded.")
+                        liveTruth()
                     }
                     attemptHistory(snapshot.attempts)
                 } else {
@@ -37,13 +41,15 @@ struct PodcastQualificationView:View {
     }
 
     @ViewBuilder func qualificationReport(_ report:PodcastQualificationAttempt)->some View {
+        let presentation=PodcastQualificationPresentation(report:report,live:liveStatus,verificationError:verificationError)
         VStack(alignment:.leading,spacing:14) {
             HStack {
-                Label("Technical long-form qualification succeeded",systemImage:"checkmark.circle").font(.headline)
+                Label(presentation.headline,systemImage:presentation.isCurrent ? "checkmark.circle" : "clock.badge.exclamationmark").font(.headline)
                 Spacer()
                 Text("Attempt \(report.attemptID)").font(.caption).monospaced().textSelection(.enabled)
             }
-            Text(report.summary).font(.callout)
+            Text(presentation.detail).font(.callout).foregroundStyle(presentation.isCurrent ? .primary : StudioTheme.accent)
+            Text(report.summary).font(.caption).foregroundStyle(.secondary)
             GroupBox("Recorded technical metrics") {
                 VStack(alignment:.leading,spacing:7) {
                     metric("Runtime",report.performance.wallSeconds.map {duration($0)} ?? "Not recorded")
@@ -58,8 +64,8 @@ struct PodcastQualificationView:View {
             }
             GroupBox("Evidence binding") {
                 VStack(alignment:.leading,spacing:7) {
-                    metric("Reviewed stage current",report.bindings.reviewedStageCurrent ? "yes" : "no")
-                    metric("Matches displayed score revision",scoreBinding(report))
+                    metric("Reviewed stage current at run",report.bindings.reviewedStageCurrent ? "yes" : "no")
+                    metric("Saved revision matches displayed score",scoreBinding(report))
                     metric("Qualification target",qualificationTarget(report.bindings.target))
                     metric("Visual-score revision",report.bindings.visualScoreRevisionID ?? "Not recorded")
                     metric("Source",boundFile(report.bindings.sourcePath,report.bindings.sourceSHA256))
@@ -83,6 +89,21 @@ struct PodcastQualificationView:View {
         }
     }
 
+    @ViewBuilder func liveTruth()->some View {
+        if let verificationError {
+            Label("Live backend status could not be verified: \(verificationError)",systemImage:"exclamationmark.triangle")
+                .font(.caption).foregroundStyle(StudioTheme.accent).textSelection(.enabled)
+        } else if let liveStatus {
+            VStack(alignment:.leading,spacing:4) {
+                ForEach(liveStatus.reasons,id:\.self) {reason in
+                    Label(PodcastQualificationStaleReason(rawValue:reason)?.label ?? reason,systemImage:"exclamationmark.triangle")
+                }
+            }.font(.caption).foregroundStyle(StudioTheme.accent)
+        } else {
+            ProgressView("Revalidating current qualification status…").controlSize(.small)
+        }
+    }
+
     @ViewBuilder func attemptHistory(_ attempts:[PodcastQualificationAttempt])->some View {
         DisclosureGroup("Attempt history (\(attempts.count))") {
             if attempts.isEmpty {
@@ -94,7 +115,7 @@ struct PodcastQualificationView:View {
                             VStack(alignment:.leading,spacing:6) {
                                 Text(attempt.summary)
                                 metric("Interruption",attempt.interruption.status)
-                                metric("Recovery",attempt.interruption.recoveryStatus)
+                                metric("Recovery",attempt.interruption.recoveryLabel)
                                 if let failure=attempt.failure {
                                     Label("\(failure.type): \(failure.message)",systemImage:"exclamationmark.triangle").foregroundStyle(StudioTheme.accent)
                                 }
@@ -118,10 +139,26 @@ struct PodcastQualificationView:View {
         HStack {Text(label);Spacer();StudioStatus(status:status)}.accessibilityElement(children:.combine)
     }
     func load() {
-        snapshot=nil;loadError=nil
+        snapshot=nil;loadError=nil;liveStatus=nil;verificationError=nil;verificationGeneration += 1
         guard !w.project.isEmpty else{return}
-        do {snapshot=try PodcastQualificationSnapshot.load(projectPath:w.project)}
+        let project=w.project
+        let generation=verificationGeneration
+        do {snapshot=try PodcastQualificationSnapshot.load(projectPath:project)}
         catch {loadError=error.localizedDescription}
+        verifyCurrent(project:project,generation:generation)
+    }
+    func verifyCurrent(project:String,generation:Int) {
+        let bridge=w.bridge
+        Task { @MainActor in
+            do {
+                let response=try await bridge.request("podcast_qualification_status",project:project)
+                guard w.project == project,verificationGeneration == generation else{return}
+                liveStatus=try PodcastQualificationLiveStatus.decode(response)
+            } catch {
+                guard w.project == project,verificationGeneration == generation else{return}
+                verificationError=error.localizedDescription
+            }
+        }
     }
     func pressure(_ performance:PodcastQualificationPerformance)->String {
         let values=[performance.pressureBeforePercent,performance.pressureAfterPercent,performance.minimumFreePercent]
