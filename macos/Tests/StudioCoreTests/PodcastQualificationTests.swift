@@ -116,6 +116,12 @@ func testPodcastQualificationStatusParsesRevisionBoundCurrentAndStaleResponses()
     ])
     XCTAssertFalse(stale.current)
     XCTAssertEqual(stale.reasons,["source_changed","output_missing"])
+    let invalidAction=try PodcastQualificationLiveStatus.decode([
+        "schema_version":1,"current":false,"reasons":["quality_action_invalid"],
+        "report_attempt_id":"attempt-success","report_visual_score_revision_id":String(repeating:"d",count:64),
+    ])
+    XCTAssertEqual(invalidAction.reasons,["quality_action_invalid"])
+    XCTAssertTrue(PodcastQualificationStaleReason.qualityActionInvalid.label.contains("missing"))
     XCTAssertThrowsError(try PodcastQualificationLiveStatus.decode([
         "schema_version":1,"current":true,"reasons":["source_changed"],"report_attempt_id":"attempt-success",
         "report_visual_score_revision_id":String(repeating:"d",count:64),
@@ -134,6 +140,13 @@ func testPodcastQualificationPresentationNeverPromotesSavedEvidenceWithoutLiveCu
     ]),verificationError:nil)
     XCTAssertFalse(stale.isCurrent)
     XCTAssertTrue(stale.detail.contains("Reviewed-stage contract changed"))
+
+    let invalidAction=PodcastQualificationPresentation(report:report,live:try PodcastQualificationLiveStatus.decode([
+        "schema_version":1,"current":false,"reasons":["quality_action_invalid"],"report_attempt_id":"attempt-success",
+        "report_visual_score_revision_id":String(repeating:"d",count:64),
+    ]),verificationError:nil)
+    XCTAssertFalse(invalidAction.isCurrent)
+    XCTAssertTrue(invalidAction.detail.contains("Production-quality action is missing, unfinished, failed, or does not match"))
 
     let current=PodcastQualificationPresentation(report:report,live:try PodcastQualificationLiveStatus.decode([
         "schema_version":1,"current":true,"reasons":[String](),"report_attempt_id":"attempt-success",

@@ -276,6 +276,7 @@ public enum PodcastQualificationStaleReason:String,Equatable {
     case contractChanged="contract_changed"
     case visualScoreChanged="visual_score_changed"
     case qualificationTargetChanged="qualification_target_changed"
+    case qualityActionInvalid="quality_action_invalid"
     case outputMissing="output_missing"
     case outputChanged="output_changed"
 
@@ -289,6 +290,7 @@ public enum PodcastQualificationStaleReason:String,Equatable {
         case .contractChanged:return "Reviewed-stage contract changed"
         case .visualScoreChanged:return "Visual-score revision changed"
         case .qualificationTargetChanged:return "Long-form qualification target changed"
+        case .qualityActionInvalid:return "Production-quality action is missing, unfinished, failed, or does not match this qualification run"
         case .outputMissing:return "Qualified output is missing"
         case .outputChanged:return "Qualified output changed"
         }
