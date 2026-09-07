@@ -2,11 +2,7 @@ import React from 'react';
 import { Composition } from 'remotion';
 import { shots } from './registry.gen';
 import {useBundledFonts} from './fonts';
-import {
-  calculatePodcastStageMetadata,
-  defaultPodcastStageProps,
-  PodcastStageComposition,
-} from './compositions/PodcastStageComposition';
+import {PodcastRoot} from './PodcastRoot';
 
 const fontReadyShots = shots.map(({Comp, config}) => ({
   config,
@@ -21,16 +17,7 @@ const fontReadyShots = shots.map(({Comp, config}) => ({
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition
-        id="PodcastStage"
-        component={PodcastStageComposition}
-        durationInFrames={150}
-        fps={30}
-        width={1920}
-        height={1080}
-        defaultProps={defaultPodcastStageProps}
-        calculateMetadata={calculatePodcastStageMetadata}
-      />
+      <PodcastRoot />
       {fontReadyShots.map(({ Comp, config }) => (
         <Composition
           key={config.id}
