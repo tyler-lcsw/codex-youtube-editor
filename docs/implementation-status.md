@@ -31,6 +31,23 @@ The acceptance runner records bounded Astra/Sol discovery, timeline and recovery
 
 Remaining limits are listed in `known-limits.md`. General job-cache integration across all legacy commands, full creative/identity parity, large media models and multi-node scaling are not claimed. Ordinary production work needs the owner's footage/brand/reference inputs and review; it does not require the upstream example video.
 
+### Audio-first visual podcast development — September 7, 2026
+
+The approved [audio-first visual podcast concept](ideas/Audio-First%20Visual%20Podcast%20Mode.md)
+and [multi-PR implementation plan](../plan/Audio-First%20Visual%20Podcast%20Mode%20%E2%80%94%20Implementation%20Plan.html)
+target one speaker and a 25–45 minute episode. Audio is the canonical source; an
+associated camera file is optional enrichment. Multiple speakers, diarization,
+multicamera direction, synthetic presenters and publication remain outside this track.
+
+The first contract slice adds explicit podcast source settings and durable imported
+stream capabilities without changing the project schema version. It validates one
+audio-bearing primary source and an optional video-bearing camera source, permits one
+muxed file in both roles, preserves unknown and legacy project fields, and includes
+active podcast settings in workflow evidence binding. This slice does not yet render a
+waveform, generate a visual score, expose native setup controls, or claim long-form
+readiness. Those capabilities are separated into later PRs so configuration truth lands
+before dependent UI and rendering.
+
 ## Story production exercise
 
 The September 5 lighthouse production extends the earlier short fixtures into a coherent 40.53-second horizontal story and a 20.4-second vertical adaptation. See `../productions/lighthouse/Execution Report.md` and the production specification in `plan/`. Deliverables include original local illustrations, narration, Remotion shots, captions, three thumbnails, a procedural score, aligned stems and a local viewing room.

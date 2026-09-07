@@ -174,6 +174,144 @@ def video(tmp_path):
     return output
 
 
+@pytest.fixture
+def muxed_media(tmp_path):
+    output = tmp_path / 'muxed.mp4'
+    subprocess.run([
+        'ffmpeg', '-v', 'error', '-f', 'lavfi', '-i',
+        'testsrc2=size=32x32:rate=10:duration=1', '-f', 'lavfi', '-i',
+        'sine=frequency=440:sample_rate=8000:duration=1', '-c:v', 'libx264',
+        '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', str(output)
+    ], check=True)
+    return output
+
+
+def test_podcast_settings_bind_canonical_audio_and_optional_camera(project, media, video):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    camera = call(project, 'import_media', path=str(video), role='source')['assets'][1]
+
+    assert audio['stream_types'] == ['audio']
+    assert camera['stream_types'] == ['video']
+
+    state = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'], camera_asset_id=camera['id'])
+    assert state['podcast'] == {
+        'schema_version': 1,
+        'kind': 'solo_audio_first',
+        'primary_audio_asset_id': audio['id'],
+        'camera_asset_id': camera['id'],
+    }
+    assert call(project, 'open')['podcast'] == state['podcast']
+    assert audio['id'] in call(project, 'export_handoff')['text']
+
+
+def test_podcast_settings_patch_preserves_extensions_and_can_be_cleared(project, media, video):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    camera = call(project, 'import_media', path=str(video), role='source')['assets'][1]
+    call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    stored = json.loads((project / 'work/studio/project.json').read_text())
+    stored['podcast']['future_extension'] = {'value': 3}
+    (project / 'work/studio/project.json').write_text(json.dumps(stored))
+
+    state = call(project, 'set_podcast_settings', camera_asset_id=camera['id'])
+    assert state['podcast']['primary_audio_asset_id'] == audio['id']
+    assert state['podcast']['camera_asset_id'] == camera['id']
+    assert state['podcast']['future_extension'] == {'value': 3}
+    assert call(project, 'clear_podcast_settings')['podcast'] is None
+
+
+def test_podcast_settings_validate_streams_sources_and_exact_bytes(project, media, video, muxed_media):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    camera = call(project, 'import_media', path=str(video), role='source')['assets'][1]
+    muxed = call(project, 'import_media', path=str(muxed_media), role='source')['assets'][2]
+    revision = call(project, 'add_revision', path=str(media), label='Audio revision')['revisions'][0]
+    document = project / 'notes.txt'; document.write_text('reference')
+    document_asset = call(project, 'import_media', path=str(document), role='document')['assets'][3]
+
+    for params in (
+        {'primary_audio_asset_id': 'missing'},
+        {'primary_audio_asset_id': camera['id']},
+        {'primary_audio_asset_id': revision['id']},
+        {'primary_audio_asset_id': document_asset['id']},
+        {'primary_audio_asset_id': audio['id'], 'camera_asset_id': audio['id']},
+    ):
+        with pytest.raises(ValueError):
+            call(project, 'set_podcast_settings', **params)
+
+    same_asset = call(project, 'set_podcast_settings', primary_audio_asset_id=muxed['id'], camera_asset_id=muxed['id'])
+    assert same_asset['podcast']['primary_audio_asset_id'] == same_asset['podcast']['camera_asset_id']
+
+    Path(audio['path']).write_bytes(b'changed')
+    with pytest.raises(ValueError):
+        call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+
+
+def test_legacy_assets_are_probed_on_selection_and_unknown_fields_survive(project, media):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    state_path = project / 'work/studio/project.json'
+    stored = json.loads(state_path.read_text())
+    stored.pop('podcast')
+    stored['future_project_field'] = {'kept': True}
+    stored['assets'][0].pop('stream_types')
+    stored['assets'][0]['future_asset_field'] = 'kept'
+    state_path.write_text(json.dumps(stored))
+
+    opened = call(project, 'open')
+    assert opened['podcast'] is None
+    configured = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    assert configured['assets'][0]['stream_types'] == ['audio']
+    assert configured['assets'][0]['future_asset_field'] == 'kept'
+    assert configured['future_project_field'] == {'kept': True}
+
+
+def test_podcast_settings_conditionally_participate_in_workflow_binding(project, media):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    evidence = project / 'work/intake.md'; evidence.write_text('Reviewed canonical source choice.')
+    call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Reviewed sources')
+    assert call(project, 'workflow')['stages'][0]['status'] == 'complete'
+
+    # Opening an unconfigured project performs the additive null migration without
+    # invalidating evidence recorded by the general Studio workflow.
+    assert call(project, 'open')['podcast'] is None
+    assert call(project, 'workflow')['stages'][0]['status'] == 'complete'
+
+    call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    assert call(project, 'workflow')['stages'][0]['status'] == 'stale'
+
+
+def test_clearing_podcast_settings_cannot_revive_pre_podcast_review(project, media):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    evidence = project / 'work/intake.md'; evidence.write_text('Reviewed source mode.')
+    call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='General intake reviewed')
+
+    configured = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    assert configured['podcast_settings_revision'] == 1
+    assert call(project, 'workflow')['stages'][0]['status'] == 'stale'
+    call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Podcast intake reviewed')
+    assert call(project, 'workflow')['stages'][0]['status'] == 'complete'
+
+    cleared = call(project, 'clear_podcast_settings')
+    assert cleared['podcast'] is None
+    assert cleared['podcast_settings_revision'] == 2
+    assert call(project, 'workflow')['stages'][0]['status'] == 'stale'
+    call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Cleared mode reviewed')
+
+    reconfigured = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    assert reconfigured['podcast_settings_revision'] == 3
+    assert call(project, 'workflow')['stages'][0]['status'] == 'stale'
+
+
+def test_identical_podcast_settings_are_idempotent_for_workflow_evidence(project, media):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    configured = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    evidence = project / 'work/intake.md'; evidence.write_text('Reviewed podcast source selection.')
+    call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Podcast intake reviewed')
+    assert call(project, 'workflow')['stages'][0]['status'] == 'complete'
+
+    unchanged = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'], camera_asset_id=None)
+    assert unchanged['podcast_settings_revision'] == configured['podcast_settings_revision']
+    assert call(project, 'workflow')['stages'][0]['status'] == 'complete'
+
+
 def test_capture_receipt_binds_exact_asset_time_and_bytes(project, video, media):
     asset = call(project, 'import_media', path=str(video), role='source')['assets'][0]
     revision = call(project, 'add_revision', path=str(video), label='Second')['revisions'][0]

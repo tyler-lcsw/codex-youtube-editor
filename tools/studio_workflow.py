@@ -38,7 +38,14 @@ def binding(data):
     for asset in data['assets'] + data['revisions']:
         p = Path(asset['path'])
         files.append({'id':asset['id'], 'registered':asset['sha256'], 'current':file_hash(p) if p.is_file() else None})
-    return digest(dict(brief=data['brief'], assets=files, resources=data['resources'], routes=data['routes'], annotations=data['annotations'], workflow=file_hash(WORKFLOW), rules=file_hash(quality.RULES)))
+    inputs = dict(brief=data['brief'], assets=files, resources=data['resources'], routes=data['routes'], annotations=data['annotations'], workflow=file_hash(WORKFLOW), rules=file_hash(quality.RULES))
+    # A null additive migration is equivalent to the legacy general-production
+    # state. Once configured, podcast source semantics are review-bound inputs.
+    podcast_revision = data.get('podcast_settings_revision', 0)
+    if data.get('podcast') is not None or podcast_revision:
+        inputs['podcast'] = data['podcast']
+        inputs['podcast_settings_revision'] = podcast_revision
+    return digest(inputs)
 
 
 def workflow(project, data):

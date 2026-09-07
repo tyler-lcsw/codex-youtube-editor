@@ -24,6 +24,8 @@ def dispatch(request):
         elif method in ('import_media','add_revision'):
             revision = method == 'add_revision'
             data['revisions' if revision else 'assets'].append(projects.import_asset(project, params, revision))
+        elif method == 'set_podcast_settings': projects.set_podcast_settings(data, params)
+        elif method == 'clear_podcast_settings': projects.clear_podcast_settings(data)
         elif method == 'validate_asset': return projects.asset_by_id(data, params.get('asset_id'))
         elif method == 'capture_frame':
             capture = projects.capture_frame(project, data, params)

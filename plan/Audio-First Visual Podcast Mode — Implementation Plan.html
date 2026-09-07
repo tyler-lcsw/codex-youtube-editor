@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audio-First Visual Podcast Mode — Implementation Plan</title>
+  <style>
+    :root { color-scheme: light dark; --paper:#fffaf0; --ink:#252629; --muted:#62656b; --accent:#e66f51; --line:#d9d3c8; --card:#fffdf7; }
+    @media (prefers-color-scheme:dark) { :root { --paper:#171717; --ink:#f2eee6; --muted:#bbb5ab; --accent:#ff9478; --line:#44413c; --card:#22211f; } }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 system-ui,-apple-system,sans-serif; }
+    main { max-width:980px; margin:auto; padding:48px 26px 90px; }
+    h1 { line-height:1.12; font-size:clamp(2rem,5vw,3.6rem); max-width:850px; }
+    h2 { margin-top:48px; padding-top:22px; border-top:1px solid var(--line); }
+    h3 { margin-top:30px; }
+    .meta,.muted { color:var(--muted); }
+    .callout { border-left:5px solid var(--accent); background:var(--card); padding:18px 22px; margin:24px 0; }
+    .card { border:1px solid var(--line); background:var(--card); border-radius:12px; padding:18px 22px; margin:18px 0; }
+    code { font:0.92em ui-monospace,SFMono-Regular,monospace; }
+    li { margin:7px 0; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { text-align:left; vertical-align:top; border-bottom:1px solid var(--line); padding:10px 8px; }
+    @media print { body { background:white; color:black; } main { max-width:none; padding:0; } }
+  </style>
+</head>
+<body><main>
+  <h1>Audio-First Visual Podcast Mode</h1>
+  <p class="meta">Implementation plan · 7 September 2026 · Status: approved for autonomous development</p>
+
+  <div class="callout">
+    <strong>Goal.</strong> Let Codex Media Studio turn a 25–45 minute, single-speaker audio recording into a complete branded visual episode. Associated camera footage is optional enrichment. Audio remains the canonical timing and editorial source.
+  </div>
+
+  <h2>Confirmed product contract</h2>
+  <ul>
+    <li>One speaker only. Do not add diarization, guest logic, reaction layouts, or multicamera switching.</li>
+    <li>An audio-only source must be sufficient for a complete production.</li>
+    <li>The continuous base is a branded, restrained, audio-reactive stage. Custom visuals appear at semantically justified moments.</li>
+    <li>Optional camera footage participates in the same project and visual score; it does not create a second workflow.</li>
+    <li>Visual density is a preference, never a fixed effects-per-minute rule.</li>
+    <li>All generated plans, visuals, and renders remain reversible, provenance-bound, and subject to current production-quality gates.</li>
+    <li>No hosted fallback, implicit model download, synthetic presenter, publication test, or upload.</li>
+  </ul>
+
+  <h2>Architecture decisions</h2>
+  <div class="card">
+    <h3>Audio-canonical project state</h3>
+    <p>Studio records one primary audio-bearing source and an optional video-bearing camera source. Imported assets retain durable stream capabilities. Source configuration is explicit and reversible; no file is selected automatically and camera synchronization is not inferred.</p>
+  </div>
+  <div class="card">
+    <h3>Dedicated data-driven Remotion composition</h3>
+    <p>The podcast stage does not use the legacy shot registry, whose compositions have literal durations and no input props. A separately registered composition consumes a versioned descriptor, derives duration through Remotion metadata, and renders video-only before the canonical mastered audio is muxed and verified.</p>
+  </div>
+  <div class="card">
+    <h3>One workflow, additive stages</h3>
+    <p>The existing intake, source-understanding, editorial-strategy, edit, and final-review workflow remains authoritative. Podcast source choices bind to evidence staleness only when podcast mode is configured. Episode-map and visual-score requirements are introduced only when their implementation exists, so general and legacy projects are not blocked prematurely.</p>
+  </div>
+  <div class="card">
+    <h3>Preview before long render</h3>
+    <p>Chapter and representative previews are the ordinary iteration unit. A short fixture proves plumbing; a measured render of at least 25 minutes is required before claiming long-form operational readiness.</p>
+  </div>
+
+  <h2>Pull request sequence</h2>
+
+  <h3>PR 1 — Audio-canonical project contract</h3>
+  <p><strong>Outcome:</strong> Studio projects can explicitly record a solo podcast’s canonical audio and optional camera source through the Python bridge and handoff.</p>
+  <ul>
+    <li>Add per-asset <code>stream_types</code> discovered from the actual imported bytes.</li>
+    <li>Add additive, schema-version-1 podcast settings with fixed solo/audio-first semantics.</li>
+    <li>Add patch-style <code>set_podcast_settings</code> and explicit <code>clear_podcast_settings</code> bridge methods.</li>
+    <li>Require an audio-bearing source; allow one optional video-bearing source; permit the same muxed asset for both roles.</li>
+    <li>Reject documents, revisions, unknown assets, wrong stream types, and changed bytes.</li>
+    <li>Probe older assets lazily when selected, preserve unknown project and nested podcast fields, and keep unconfigured legacy projects valid.</li>
+    <li>Include active podcast configuration in workflow input binding so changed settings stale dependent reviews.</li>
+  </ul>
+  <p><strong>Verification:</strong> focused red/green Python tests; full Python suite excluding publication; skill audit; whitespace check.</p>
+
+  <h3>PR 2 — Native podcast setup and audio-only review</h3>
+  <p><strong>Outcome:</strong> A user can configure the audio-first project from the Mac app and create time/range annotations even when no video frame exists.</p>
+  <ul>
+    <li>Add strict StudioCore parsing and request payload helpers for podcast settings and media capabilities.</li>
+    <li>Add a “Solo podcast visuals” group to Brief &amp; sources with primary-audio, optional-camera, and density controls.</li>
+    <li>Truthfully label configuration as setup only until visual generation exists; never imply camera synchronization.</li>
+    <li>Allow audio-only playback markers and time/range/transcript annotations without frame captures.</li>
+    <li>Keep region drawing and provenance-bound frame annotations video-only.</li>
+    <li>Add synchronized help content and coverage for setup and audio-only review.</li>
+  </ul>
+  <p><strong>Verification:</strong> native red/green checks through <code>tools/build_studio_app.py --checks</code>; focused bridge/help tests; release app build; audio-only and muxed-video fixture launch checks. Visual creative acceptance is not claimed.</p>
+
+  <h3>PR 3 — Branded waveform stage and render proof</h3>
+  <p><strong>Outcome:</strong> A configured audio source can produce a provenance-bound branded visual master with synchronized canonical audio.</p>
+  <ul>
+    <li>Add a versioned podcast-stage descriptor schema containing immutable audio identity, render settings, visual identity, bounded waveform data, chapters, and standard/reduced motion.</li>
+    <li>Extract and cache a compact speech-energy envelope without loading full long-form PCM into memory.</li>
+    <li>Add a reusable, frame-driven PodcastStage component and explicit data-driven Remotion composition.</li>
+    <li>Add a dedicated renderer with one-worker default, staged replacement, progress reporting, audio muxing, and render receipt.</li>
+    <li>Render and inspect a short silence/tone/chapter-boundary fixture under the local/network boundary.</li>
+    <li>Preserve prior successful outputs when descriptor validation, rendering, or mux verification fails.</li>
+  </ul>
+  <p><strong>Verification:</strong> descriptor/envelope/cache unit tests; TypeScript typecheck; short real render with stream/frame/duration/A&amp;V checks; representative frame inspection; skill audit.</p>
+
+  <h3>PR 4 — Semantic visual score and Studio review</h3>
+  <p><strong>Outcome:</strong> The user can review chapter-scoped visual proposals before they mutate or render an episode.</p>
+  <ul>
+    <li>Add versioned episode-map and visual-score schemas with transcript anchors, purpose, treatment, timing, asset provenance, camera policy, and an explicit unchanged/base-stage option.</li>
+    <li>Support five initial visual primitives: chapter card, quote/key point, progressive list, simple diagram/comparison, and image/source card.</li>
+    <li>Add restrained, balanced, and illustrative preferences without universal cadence rules.</li>
+    <li>Add append-only decisions and revision binding; owner acceptance remains an explicit user action.</li>
+    <li>Add chapter-level Studio review, representative previews, and a whole-episode visual-density timeline.</li>
+    <li>Route actual media actions through the production-quality coordinator and stale downstream evidence after changes.</li>
+  </ul>
+  <p><strong>Verification:</strong> schema and decision-state tests; native checks; short end-to-end project; accessibility and reduced-motion inspection; current production-quality gates. A model proposal is never itself approval or rendered evidence.</p>
+
+  <h3>Qualification — Long-form readiness</h3>
+  <p><strong>Outcome:</strong> prove the completed pipeline operates safely at the intended duration.</p>
+  <ul>
+    <li>Run one actual 25–45 minute, 1080p30 audio-first production or representative authorized source.</li>
+    <li>Measure wall time, peak memory pressure, output size, cache behavior, and interruption recovery.</li>
+    <li>Fully decode the output and measure frame count, audio duration, and A/V drift.</li>
+    <li>Inspect representative chapter frames and complete normal-speed audiovisual review.</li>
+    <li>Record honest limitations and do not infer creative acceptance from technical success.</li>
+  </ul>
+
+  <h2>Dependency graph</h2>
+  <table>
+    <thead><tr><th>Slice</th><th>Depends on</th><th>Unlocks</th></tr></thead>
+    <tbody>
+      <tr><td>PR 1 project contract</td><td>Existing Studio bridge</td><td>Typed native setup and exact renderer source binding</td></tr>
+      <tr><td>PR 2 native setup</td><td>PR 1</td><td>User-configured source truth and audio-only feedback</td></tr>
+      <tr><td>PR 3 waveform stage</td><td>PR 1; may integrate PR 2 controls afterward</td><td>Complete audio-only visual master</td></tr>
+      <tr><td>PR 4 visual score</td><td>PR 3 stage contract and renderer</td><td>Semantic custom visuals and chapter review</td></tr>
+      <tr><td>Long-form qualification</td><td>PRs 1–4</td><td>Operational readiness claim</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Cross-PR acceptance</h2>
+  <ul>
+    <li>Each PR begins with a failing behavior test and lands only with focused and regression checks passing.</li>
+    <li>Each PR is independently reviewable and revertible; shared contracts land before dependent UI or renderer work.</li>
+    <li>Documentation and end-user help describe only behavior that exists in the merged revision.</li>
+    <li>Existing project JSON preserves unknown fields and remains readable.</li>
+    <li>Original audio, optional video, successful outputs, and review history remain durable.</li>
+    <li>No publication tests or uploads are performed.</li>
+  </ul>
+
+  <h2>Deferred beyond this track</h2>
+  <p>Multiple speakers, diarization, guest/reaction layouts, multicamera direction, synthetic avatars, lip-synced presenters, arbitrary generated video, and automatic short-form extraction remain outside this implementation. They require separate product decisions and qualification.</p>
+</main></body></html>
