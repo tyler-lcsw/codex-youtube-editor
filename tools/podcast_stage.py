@@ -73,6 +73,36 @@ def validate_contract(value: dict) -> dict:
         if chapter["end_ms"] > duration:
             raise ValueError("Podcast chapter exceeds primary audio duration")
         previous_end = chapter["end_ms"]
+    visual_ids = set()
+    for event in value.get("visual_events", []):
+        anchor = event["transcript_anchor"]
+        if (
+            not event["id"].strip()
+            or not event["chapter_id"].strip()
+            or not event["purpose"].strip()
+            or not anchor["text"].strip()
+        ):
+            raise ValueError("Podcast visual event context cannot be whitespace only")
+        if event["id"] in visual_ids:
+            raise ValueError("Podcast visual event IDs must be unique")
+        visual_ids.add(event["id"])
+        if event["end_ms"] <= event["start_ms"] or event["end_ms"] > duration:
+            raise ValueError("Podcast visual event timing exceeds primary audio")
+        if anchor["end_ms"] <= anchor["start_ms"] or anchor["end_ms"] > duration:
+            raise ValueError("Podcast visual event transcript anchor exceeds primary audio")
+        if event["type"] != event["treatment"]["kind"]:
+            raise ValueError("Podcast visual event type must match its treatment")
+        if event["type"] == "base" and event["camera_policy"] != "base_only":
+            raise ValueError("An unchanged base-stage event cannot permit camera")
+        if any(not source["label"].strip() for source in event["provenance"]):
+            raise ValueError("Podcast visual provenance labels cannot be whitespace only")
+        asset = event["treatment"].get("asset")
+        if asset is not None:
+            source = (MEDIA_ROOT / asset["path"]).resolve()
+            if not source.is_relative_to(MEDIA_ROOT.resolve()) or not source.is_file():
+                raise ValueError("Podcast visual asset must be a file in the Remotion media root")
+            if file_hash(source) != asset["sha256"]:
+                raise ValueError("Podcast visual asset changed after selection")
     return value
 
 
@@ -307,6 +337,11 @@ def render(project: Path, contract_path: Path | None = None, output: Path | None
     project = Path(project).expanduser().resolve()
     contract_path = Path(contract_path or project / "work/podcast/stage.json").resolve()
     contract = validate_contract(json.loads(contract_path.read_text()))
+    if "visual_score_revision_id" in contract:
+        # Lazy import avoids a module cycle: score tooling reuses this validator.
+        from .podcast_visual_score import validate_reviewed_stage
+
+        validate_reviewed_stage(project, studio_project.read(project), contract)
     _validate_artwork(contract["identity"])
     output = Path(output or project / "output/podcast-stage.mp4").resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
