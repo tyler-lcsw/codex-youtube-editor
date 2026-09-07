@@ -1,6 +1,7 @@
 import React from 'react';
 import {PodcastStage, PodcastStageProps} from '../lib/podcast/PodcastStage';
 import {useBundledFonts} from '../fonts';
+import {validatePodcastVisualEvents} from '../lib/podcast/PodcastVisualEvents';
 
 export const defaultPodcastStageProps: PodcastStageProps = {
   schema_version: 1,
@@ -20,12 +21,15 @@ export const defaultPodcastStageProps: PodcastStageProps = {
   motion: 'standard',
 };
 
-export const calculatePodcastStageMetadata = ({props}: {props: PodcastStageProps}) => ({
-  durationInFrames: Math.max(1, Math.ceil(props.primary_audio.duration_ms * props.render.fps / 1000)),
-  fps: props.render.fps,
-  width: props.render.width,
-  height: props.render.height,
-});
+export const calculatePodcastStageMetadata = ({props}: {props: PodcastStageProps}) => {
+  validatePodcastVisualEvents(props.visual_events ?? [], props.primary_audio.duration_ms);
+  return {
+    durationInFrames: Math.max(1, Math.ceil(props.primary_audio.duration_ms * props.render.fps / 1000)),
+    fps: props.render.fps,
+    width: props.render.width,
+    height: props.render.height,
+  };
+};
 
 export const PodcastStageComposition: React.FC<PodcastStageProps> = (props) => {
   useBundledFonts();

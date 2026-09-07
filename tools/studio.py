@@ -3,6 +3,7 @@ import json
 import sys
 from . import studio_project as projects
 from . import studio_workflow as flow
+from . import podcast_visual_score as podcast_scores
 from .run_state import atomic_json, file_lock
 
 
@@ -26,6 +27,16 @@ def dispatch(request):
             data['revisions' if revision else 'assets'].append(projects.import_asset(project, params, revision))
         elif method == 'set_podcast_settings': projects.set_podcast_settings(data, params)
         elif method == 'clear_podcast_settings': projects.clear_podcast_settings(data)
+        elif method == 'set_episode_map':
+            return podcast_scores.set_episode_map(project, data, params.get('episode_map'))
+        elif method == 'create_visual_score_revision':
+            return podcast_scores.create_visual_score_revision(project, data, params.get('score'))
+        elif method == 'append_visual_score_decision':
+            return podcast_scores.append_owner_decision(project, data, params)
+        elif method == 'podcast_visual_score':
+            return podcast_scores.visual_score_state(project, data)
+        elif method == 'materialize_reviewed_podcast_stage':
+            return podcast_scores.materialize_reviewed_stage(project, data)
         elif method == 'validate_asset': return projects.asset_by_id(data, params.get('asset_id'))
         elif method == 'capture_frame':
             capture = projects.capture_frame(project, data, params)

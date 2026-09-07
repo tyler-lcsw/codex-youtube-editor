@@ -62,6 +62,16 @@ the exact selected asset and time but intentionally have no captured frame or pi
 region. This capability does not imply that a branded waveform or visual proposal has
 already been generated.
 
+When a current transcript-bound episode map and visual-score revision exist, choose
+**Podcast visual score** in Review to inspect the whole-episode density timeline and
+chapter-scoped proposals. Each event records its purpose, treatment, transcript
+anchor, provenance and camera policy. A required-note confirmation appends an explicit,
+revision-bound owner decision: accept the proposal, reject it, or keep the continuous
+base stage. Stale bindings disable decisions. A score revision, representative preview
+or owner decision is still not a render or creative-quality acceptance; only accepted
+current-revision events can be materialized into the separate
+`work/podcast/stage-reviewed.json` descriptor.
+
 The first deterministic visual carrier is available through
 `.venv/bin/python -m tools.podcast_stage`. Run `prepare PROJECT --show-title ...
 --episode-title ... --speaker-name ...` to create `work/podcast/stage.json`; it

@@ -45,6 +45,9 @@ struct StudioStatus:View {
     var symbol:String {
         switch status {
         case "complete","completed","passed","accepted":return "checkmark.circle"
+        case "rejected":return "xmark.circle"
+        case "base stage":return "rectangle"
+        case "changes requested":return "arrow.triangle.2.circlepath"
         case "blocked","failed","stale":return "exclamationmark.triangle"
         case "addressed","ready_for_review":return "arrow.triangle.2.circlepath"
         default:return "circle.dotted"

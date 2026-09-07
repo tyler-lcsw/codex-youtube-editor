@@ -4,6 +4,10 @@
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "primary_audio", "render", "identity", "waveform", "chapters", "motion"],
+  "dependentRequired": {
+    "visual_score_revision_id": ["visual_events"],
+    "visual_events": ["visual_score_revision_id"]
+  },
   "properties": {
     "schema_version": {"const": 1},
     "primary_audio": {
@@ -78,6 +82,104 @@
         }
       }
     },
-    "motion": {"enum": ["standard", "reduced"]}
+    "motion": {"enum": ["standard", "reduced"]},
+    "visual_score_revision_id": {"$ref": "#/$defs/sha256"},
+    "visual_events": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/visual_event"}
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_ms", "end_ms", "text"],
+      "properties": {
+        "start_ms": {"type": "integer", "minimum": 0},
+        "end_ms": {"type": "integer", "minimum": 1},
+        "text": {"type": "string", "minLength": 1}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label"],
+      "properties": {
+        "kind": {"enum": ["transcript", "project_asset", "project_resource", "local_generation", "none"]},
+        "label": {"type": "string", "minLength": 1},
+        "asset_id": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "resource_url": {"type": "string", "minLength": 1}
+      }
+    },
+    "comparison_side": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "items"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "items": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "image_asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "treatment": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false, "required": ["kind"],
+          "properties": {"kind": {"const": "base"}}
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["kind", "heading"],
+          "properties": {"kind": {"const": "chapter_card"}, "heading": {"type": "string", "minLength": 1}, "subheading": {"type": "string", "minLength": 1}}
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["kind", "mode", "text"],
+          "properties": {"kind": {"const": "quote"}, "mode": {"enum": ["quote", "key_point"]}, "text": {"type": "string", "minLength": 1}, "attribution": {"type": "string", "minLength": 1}}
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["kind", "heading", "items"],
+          "properties": {"kind": {"const": "progressive_list"}, "heading": {"type": "string", "minLength": 1}, "items": {"type": "array", "minItems": 2, "items": {"type": "string", "minLength": 1}}}
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["kind", "heading", "left", "right"],
+          "properties": {
+            "kind": {"const": "comparison"},
+            "heading": {"type": "string", "minLength": 1},
+            "left": {"$ref": "#/$defs/comparison_side"},
+            "right": {"$ref": "#/$defs/comparison_side"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["kind", "heading"],
+          "properties": {"kind": {"const": "image_source"}, "heading": {"type": "string", "minLength": 1}, "caption": {"type": "string", "minLength": 1}, "asset": {"$ref": "#/$defs/image_asset"}}
+        }
+      ]
+    },
+    "visual_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "chapter_id", "start_ms", "end_ms", "transcript_anchor", "purpose", "treatment", "provenance", "camera_policy"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "type": {"enum": ["base", "chapter_card", "quote", "progressive_list", "comparison", "image_source"]},
+        "chapter_id": {"type": "string", "minLength": 1},
+        "start_ms": {"type": "integer", "minimum": 0},
+        "end_ms": {"type": "integer", "minimum": 1},
+        "transcript_anchor": {"$ref": "#/$defs/anchor"},
+        "purpose": {"type": "string", "minLength": 1},
+        "treatment": {"$ref": "#/$defs/treatment"},
+        "provenance": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/provenance"}},
+        "camera_policy": {"enum": ["base_only", "camera_permitted"]}
+      }
+    }
   }
 }

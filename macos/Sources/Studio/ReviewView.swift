@@ -5,6 +5,7 @@ import StudioCore
 
 struct ReviewView:View {
     @EnvironmentObject var w:Workspace
+    @State private var reviewArea="media"
     @State private var selected=""
     @State private var player=AVPlayer()
     @State private var videoSize=CGSize(width:1920,height:1080)
@@ -26,7 +27,15 @@ struct ReviewView:View {
     var asset:[String:Any]? {media.first{$0["id"] as? String == selected}}
     var feedback:[[String:Any]] {w.annotations.filter{$0["asset_id"] as? String == selected}}
     var body:some View {
-        HSplitView {
+        VStack(spacing:0) {
+            Picker("Review area",selection:$reviewArea) {
+                Text("Media feedback").tag("media")
+                Text("Podcast visual score").tag("podcast")
+            }.pickerStyle(.segmented).frame(maxWidth:420).padding(.vertical,10).accessibilityLabel("Review area")
+            if reviewArea == "podcast" {
+                PodcastVisualScoreReviewView()
+            } else {
+                HSplitView {
             VStack(alignment:.leading,spacing:12) {
                 HStack {
                     Picker("Viewing",selection:$selected) {Text("Choose a source or revision").tag("");ForEach(media.indices,id:\.self){i in Text(media[i]["label"] as? String ?? "Media").tag(media[i]["id"] as? String ?? "")}}
@@ -94,7 +103,10 @@ struct ReviewView:View {
                     }
                 }
             }.padding(18)}.frame(minWidth:300,idealWidth:340,maxWidth:450)
-        }.onChange(of:selected){_,_ in loadMedia()}.onChange(of:w.project){_,_ in selected="";drafts=AnnotationDrafts();reviewContext=nil;player.replaceCurrentItem(with:nil)}
+                }
+            }
+        }.onChange(of:reviewArea){_,area in if area == "podcast" {player.pause()}}
+        .onChange(of:selected){_,_ in loadMedia()}.onChange(of:w.project){_,_ in selected="";drafts=AnnotationDrafts();reviewContext=nil;player.replaceCurrentItem(with:nil)}
         .onDisappear {player.pause()}
     }
     func loadMedia() {

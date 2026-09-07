@@ -2,6 +2,13 @@ import React from 'react';
 import {AbsoluteFill, Img, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {COLORS, RADIUS, SHADOW} from '../../brand';
 import {FONT_BODY, FONT_DISPLAY, FONT_MONO} from '../../fonts';
+import {
+  activeVisualEventAt,
+  PodcastVisualEventLayer,
+} from './PodcastVisualEvents';
+import type {PodcastVisualEvent} from './PodcastVisualEvents';
+
+export type {PodcastVisualEvent} from './PodcastVisualEvents';
 
 export type PodcastChapter = {
   id: string;
@@ -35,12 +42,44 @@ export type PodcastStageProps = {
   };
   chapters: PodcastChapter[];
   motion: 'standard' | 'reduced';
+  visual_events?: PodcastVisualEvent[];
 };
 
 const BAR_COUNT = 52;
 
 const chapterAt = (chapters: PodcastChapter[], timeMs: number): PodcastChapter | undefined =>
   chapters.find((chapter) => chapter.start_ms <= timeMs && timeMs < chapter.end_ms);
+
+const WaveformRail: React.FC<{
+  values: number[];
+  currentSample: number;
+  energy: number;
+  unit: number;
+  compact?: boolean;
+}> = ({values, currentSample, energy, unit, compact = false}) => (
+  <div style={{height: Math.max(46, (compact ? 164 : 200) * unit), marginTop: compact ? 28 * unit : 54 * unit, marginBottom: compact ? 24 * unit : 0, display: 'flex', alignItems: 'center', gap: Math.max(2, 8 * unit), padding: `0 ${20 * unit}px`, borderRadius: RADIUS.card * unit, backgroundColor: `${COLORS.paper}cc`, border: `${Math.max(1, unit)}px solid ${COLORS.line}`, boxShadow: SHADOW.soft}}>
+    {Array.from({length: BAR_COUNT}, (_, index) => {
+      const sampleIndex = currentSample - BAR_COUNT + index + 1;
+      const value = values[sampleIndex] ?? 0;
+      const isNow = index === BAR_COUNT - 1;
+      const heightPx = Math.max(3 * unit, (20 + value * 150) * unit);
+      return (
+        <div
+          key={index}
+          style={{
+            flex: 1,
+            minWidth: 1,
+            height: heightPx,
+            maxHeight: '86%',
+            borderRadius: RADIUS.pill,
+            background: isNow ? COLORS.accent : value > 0.68 ? COLORS.accent2 : COLORS.signal,
+            opacity: isNow ? 0.9 + energy * 0.1 : 0.34 + value * 0.56,
+          }}
+        />
+      );
+    })}
+  </div>
+);
 
 export const PodcastStage: React.FC<PodcastStageProps> = (props) => {
   const frame = useCurrentFrame();
@@ -52,6 +91,8 @@ export const PodcastStage: React.FC<PodcastStageProps> = (props) => {
   const unit = Math.min(width / 1920, height / 1080);
   const ambient = props.motion === 'reduced' ? 0 : Math.sin(frame / 90) * 22 * unit;
   const energy = props.waveform.values[currentSample] ?? 0;
+  const activeVisualEvent = activeVisualEventAt(props.visual_events ?? [], currentMs);
+  const showBaseIdentity = !activeVisualEvent || activeVisualEvent.type === 'base';
 
   return (
     <AbsoluteFill
@@ -86,45 +127,32 @@ export const PodcastStage: React.FC<PodcastStageProps> = (props) => {
           </div>
         </header>
 
-        <main style={{flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: props.identity.artwork ? '0.78fr 1.22fr' : '1fr', alignItems: 'center', gap: 72 * unit}}>
-          {props.identity.artwork ? (
-            <div style={{justifySelf: 'center', width: Math.min(520 * unit, height * 0.48), aspectRatio: '1', borderRadius: RADIUS.card * unit, overflow: 'hidden', border: `${Math.max(1, unit)}px solid ${COLORS.line}`, boxShadow: SHADOW.card}}>
-              <Img src={staticFile(props.identity.artwork.path)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-            </div>
-          ) : null}
+        {showBaseIdentity ? (
+          <main style={{flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: props.identity.artwork ? '0.78fr 1.22fr' : '1fr', alignItems: 'center', gap: 72 * unit}}>
+            {props.identity.artwork ? (
+              <div style={{justifySelf: 'center', width: Math.min(520 * unit, height * 0.48), aspectRatio: '1', borderRadius: RADIUS.card * unit, overflow: 'hidden', border: `${Math.max(1, unit)}px solid ${COLORS.line}`, boxShadow: SHADOW.card}}>
+                <Img src={staticFile(props.identity.artwork.path)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+              </div>
+            ) : null}
 
-          <div style={{minWidth: 0}}>
-            <div style={{fontFamily: FONT_DISPLAY, fontSize: Math.max(18, 76 * unit), fontWeight: 700, lineHeight: 1.04, letterSpacing: -1.5 * unit, maxWidth: 1120 * unit}}>
-              {props.identity.episode_title}
+            <div style={{minWidth: 0}}>
+              <div style={{fontFamily: FONT_DISPLAY, fontSize: Math.max(18, 76 * unit), fontWeight: 700, lineHeight: 1.04, letterSpacing: -1.5 * unit, maxWidth: 1120 * unit}}>
+                {props.identity.episode_title}
+              </div>
+              <div style={{marginTop: 18 * unit, fontSize: Math.max(12, 28 * unit), fontWeight: 600, color: COLORS.muted}}>
+                {props.identity.speaker_name}
+              </div>
+              <WaveformRail values={props.waveform.values} currentSample={currentSample} energy={energy} unit={unit} />
             </div>
-            <div style={{marginTop: 18 * unit, fontSize: Math.max(12, 28 * unit), fontWeight: 600, color: COLORS.muted}}>
-              {props.identity.speaker_name}
-            </div>
-
-            <div style={{height: Math.max(46, 200 * unit), marginTop: 54 * unit, display: 'flex', alignItems: 'center', gap: Math.max(2, 8 * unit), padding: `0 ${20 * unit}px`, borderRadius: RADIUS.card * unit, backgroundColor: `${COLORS.paper}cc`, border: `${Math.max(1, unit)}px solid ${COLORS.line}`, boxShadow: SHADOW.soft}}>
-              {Array.from({length: BAR_COUNT}, (_, index) => {
-                const sampleIndex = currentSample - BAR_COUNT + index + 1;
-                const value = props.waveform.values[sampleIndex] ?? 0;
-                const isNow = index === BAR_COUNT - 1;
-                const heightPx = Math.max(3 * unit, (20 + value * 150) * unit);
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      flex: 1,
-                      minWidth: 1,
-                      height: heightPx,
-                      maxHeight: '86%',
-                      borderRadius: RADIUS.pill,
-                      background: isNow ? COLORS.accent : value > 0.68 ? COLORS.accent2 : COLORS.signal,
-                      opacity: isNow ? 0.9 + energy * 0.1 : 0.34 + value * 0.56,
-                    }}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        </main>
+          </main>
+        ) : (
+          <>
+            <main style={{flex: 1, minHeight: 0, position: 'relative', marginTop: 32 * unit}}>
+              <PodcastVisualEventLayer event={activeVisualEvent} timeMs={currentMs} motion={props.motion} unit={unit} />
+            </main>
+            <WaveformRail values={props.waveform.values} currentSample={currentSample} energy={energy} unit={unit} compact />
+          </>
+        )}
 
         <footer>
           <div style={{height: Math.max(3, 7 * unit), borderRadius: RADIUS.pill, backgroundColor: COLORS.line, overflow: 'hidden'}}>
