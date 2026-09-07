@@ -28,6 +28,7 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Stage picker; What was established, and where is it documented?; Select evidence files; paths; Record evidence | `record-stage-evidence` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
 | Open authoritative workflow | `read-workflow` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
 | Viewing; Choose a source or revision; player playback/seek; unresolved count | `review-media` | macos/Sources/Studio/ReviewView.swift |
+| Review area; Podcast visual score; current/stale binding; Reload score; episode density timeline and text ranges; chapter picker; proposal details/provenance/camera/transcript; representative preview; Accept proposal; Keep base stage; Reject proposal; revision-bound confirmation | `review-podcast-visual-score` | macos/Sources/Studio/ReviewView.swift; macos/Sources/Studio/PodcastVisualScoreReviewView.swift; macos/Sources/StudioCore/PodcastVisualScore.swift |
 | Add revision; Add rendered revision file picker | `add-revision` | macos/Sources/Studio/ReviewView.swift; macos/Sources/Studio/Workspace.swift |
 | Pause & capture frame; captured time/notice; Optional range end (seconds); What should change here, and why?; Save annotation | `annotate-frame` | macos/Sources/Studio/ReviewView.swift |
 | Audio-only source; Pause & mark time; audio marker notice; frame-free time/range/transcript annotation | `annotate-audio` | macos/Sources/Studio/ReviewView.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
@@ -94,4 +95,4 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 - No production, hosted generation, model download, publication test or upload was run for this documentation task.
 - Planned editorial/short-form research is explicitly labeled; authentic raw-footage and full audiovisual qualification remain production-specific work.
 
-Content inventory: 76 articles across 9 sections; 18 primary skill articles.
+Content inventory: 77 articles across 9 sections; 18 primary skill articles.

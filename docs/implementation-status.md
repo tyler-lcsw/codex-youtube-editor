@@ -69,6 +69,24 @@ scores, camera synchronization/cutaways, captions, native render controls, a
 25–45 minute pressure/throughput soak, normal-speed listening and owner review
 remain later work.
 
+The semantic-review slice adds strict episode-map and visual-score schemas bound to
+the canonical audio, transcript bytes, podcast-settings revision and visual-density
+preference. It supports an explicit unchanged base plus chapter card, quote/key point,
+progressive list, comparison and image/source-card proposals. Score revisions are
+content-addressed and immutable; owner decisions are append-only, require an explicit
+action and remain bound to the exact current revision. Only accepted or keep-base
+decisions can populate the separately derived reviewed stage descriptor, which is
+revalidated before rendering. Native Review adds an accessible episode timeline,
+textual ranges, chapter details, optional representative previews and confirmed
+accept/reject/base controls. The Remotion stage renders these five primitives while
+retaining the waveform and respecting reduced motion. Current implementation evidence
+is 178 Python tests plus 33 subtests, 35 native checks, a signed release build and a
+clean Remotion typecheck. A four-second reduced-motion, accepted-only chapter-card
+fixture rendered at 320x180 with verified audio/video streams and bounded duration,
+covering the score-to-reviewed-stage-to-render integration. No semantic model has been
+qualified, no authentic episode was rendered, and proposals, synthetic previews or
+technical render success are not creative acceptance.
+
 ## Story production exercise
 
 The September 5 lighthouse production extends the earlier short fixtures into a coherent 40.53-second horizontal story and a 20.4-second vertical adaptation. See `../productions/lighthouse/Execution Report.md` and the production specification in `plan/`. Deliverables include original local illustrations, narration, Remotion shots, captions, three thumbnails, a procedural score, aligned stems and a local viewing room.

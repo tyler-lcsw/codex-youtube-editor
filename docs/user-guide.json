@@ -232,7 +232,7 @@
       "section": "Brief & sources",
       "title": "Configure a solo audio-first podcast",
       "summary": "Choose one canonical audio source, an optional camera source and a visual-density preference.",
-      "status": "Setup available; visual generation not yet available",
+      "status": "Available",
       "steps": [
         "Import an audio-bearing source, then find Solo podcast visuals in Brief & sources.",
         "Choose Primary audio. Choose Optional camera or leave No camera selected.",
@@ -243,7 +243,7 @@
       "notes": [
         "Audio is canonical. An optional camera selection is an association only; Studio does not infer or verify synchronization.",
         "Visual density is an editorial preference, not a fixed effects-per-minute rule.",
-        "This setup does not generate a waveform, visual proposal, preview or render. Those capabilities remain later development work.",
+        "Saving setup does not itself generate media. Codex can now prepare and render the deterministic waveform stage, and can create a transcript-bound visual score for separate owner review.",
         "Older imported media without stream metadata is checked against the actual staged bytes when you save. A mismatched selection is rejected without replacing the saved setup."
       ]
     },
@@ -394,6 +394,26 @@
       "notes": [
         "Feedback stays attached to its original version. The unresolved count covers the entire production, not just the selected item.",
         "Switching selected media clears frame/region/transcript selections. Save the current annotation first. Playback pauses when you leave Review."
+      ]
+    },
+    {
+      "id": "review-podcast-visual-score",
+      "section": "Review",
+      "title": "Review podcast visuals by chapter",
+      "summary": "Inspect transcript-bound proposals and record an explicit decision before they can enter a reviewed stage.",
+      "status": "Available when Codex has prepared a visual score",
+      "steps": [
+        "In Review, choose Podcast visual score instead of Media feedback.",
+        "Confirm that the score binding says Current, then inspect the whole-episode proposal timeline and choose a chapter.",
+        "Read each proposal's purpose, treatment, transcript anchor, provenance and camera policy. Open a representative preview when one is available.",
+        "Enter a required decision note, then choose Accept proposal, Keep base stage or Reject proposal.",
+        "Confirm the decision in the sheet. Reload score after Codex creates a new revision."
+      ],
+      "notes": [
+        "A proposal, preview path or accepted decision is not a rendered result or creative-quality approval. Media rendering and final audiovisual review remain separate.",
+        "Decisions are append-only and bind the exact content-addressed score revision and event. Studio disables decisions when source, transcript, setup or score binding is stale.",
+        "Keep base stage is an explicit editorial choice. Unsupported future proposal types cannot be accepted by this Studio build, but may be rejected or replaced with the base stage.",
+        "The density timeline summarizes proposed ranges; it is not a fixed effects-per-minute rule or proof that a requested density is aesthetically appropriate."
       ]
     },
     {

@@ -61,12 +61,17 @@ struct PodcastVisualScoreReviewView:View {
                     Text("\(artifacts.score.events.count) proposed moments across \(artifacts.episodeMap.chapters.count) chapters")
                     Spacer()
                     Text("Revision \(shortRevision(artifacts.score.revisionID))").font(.caption).monospaced().textSelection(.enabled)
+                    Button("Reload score",systemImage:"arrow.clockwise") {load()}
+                        .accessibilityLabel("Reload podcast visual score").disabled(w.busy)
                 }
                 PodcastVisualDensityTimeline(events:artifacts.score.events,durationMS:artifacts.episodeMap.durationMS)
                 if bindingCurrent == nil {
                     ProgressView("Checking score binding…").controlSize(.small).accessibilityLabel("Checking visual score binding")
                 } else if bindingCurrent == false {
                     Label(bindingError ?? "This score no longer matches the current podcast settings, source, or episode map. Decisions are disabled.",systemImage:"exclamationmark.triangle")
+                        .font(.caption).foregroundStyle(StudioTheme.accent)
+                } else {
+                    Label("Current score binding verified",systemImage:"checkmark.shield")
                         .font(.caption).foregroundStyle(StudioTheme.accent)
                 }
                 ForEach(artifacts.score.events) {event in

@@ -353,6 +353,52 @@ def test_owner_decisions_are_append_only_exact_and_gate_stage_materialization(po
         podcast_stage.render(project, reviewed_path)
 
 
+@pytest.mark.skipif(
+    not (Path(__file__).resolve().parents[1] / "remotion/node_modules/@remotion/renderer").exists(),
+    reason="Remotion dependencies are not installed in this checkout",
+)
+def test_reviewed_visual_score_renders_only_explicitly_accepted_event(podcast_project):
+    project, asset, episode_map = podcast_project
+    episode_map_sha = install_episode_map(project, episode_map)
+    score = score_for(asset, episode_map_sha, episode_map["transcript"]["sha256"])
+    state = call(project, "create_visual_score_revision", score=score)
+    revision_id = state["current_revision_id"]
+    call(
+        project,
+        "append_visual_score_decision",
+        revision_id=revision_id,
+        event_id="chapter-1",
+        action="accept",
+        note="Use the chapter reset in the proof render",
+        owner_action=True,
+    )
+
+    from tools.podcast_stage import prepare, render
+
+    prepare(
+        project,
+        asset["id"],
+        {"show_title": "Show", "episode_title": "Episode", "speaker_name": "Speaker"},
+        width=320,
+        height=180,
+        sample_period_ms=1_000,
+        motion="reduced",
+    )
+    reviewed = call(project, "materialize_reviewed_podcast_stage")
+    reviewed_contract = json.loads(Path(reviewed["path"]).read_text())
+    assert [event["id"] for event in reviewed_contract["visual_events"]] == ["chapter-1"]
+
+    output = render(project, Path(reviewed["path"]), project / "output/reviewed-proof.mp4")
+    probe = json.loads(
+        subprocess.check_output(
+            ["ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", str(output)],
+            text=True,
+        )
+    )
+    assert {stream["codec_type"] for stream in probe["streams"]} >= {"audio", "video"}
+    assert abs(float(probe["format"]["duration"]) - 4) <= 1 / 30 + 0.04
+
+
 def test_old_revision_decisions_never_accept_events_in_current_revision(podcast_project):
     project, asset, episode_map = podcast_project
     episode_map_sha = install_episode_map(project, episode_map)
