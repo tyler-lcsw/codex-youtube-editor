@@ -98,7 +98,9 @@ It atomically publishes `output/podcast-qualified.mp4` and
 score; failures and interruptions retain attempt records without replacing the
 prior success. The native qualification section is read-only, checks current source,
 contract, score decision and output hashes before calling a saved success current, and
-otherwise labels it as historical evidence with bounded stale reasons. It deliberately
+also requires the exact referenced production-quality action to have completed
+successfully with the canonical worker command. Otherwise it labels the report as
+historical evidence with bounded stale reasons. It deliberately
 leaves visual inspection, normal-speed listening, owner acceptance and creative
 acceptance pending.
 

@@ -101,7 +101,9 @@ prior success and record recovery evidence tied to the actual child lifecycle. A
 requires exactly one video and one audio stream; audio duration must remain within 100ms
 of the target, container and frame-derived video duration. The native view revalidates
 the current source, contract, score decision and output hashes under the Studio lock,
-and labels saved evidence historical whenever those live bindings no longer match. The
+requires the report's exact quality action to have succeeded with exit code zero and
+the canonical worker command, and labels saved evidence historical whenever those live
+bindings or action provenance no longer match. The
 dedicated podcast Remotion entry skips
 the 156-shot legacy registry, snapshots only hash-verified referenced media, keeps
 concurrency at one, bounds progress output and cleans partial files on SIGINT/SIGTERM.
