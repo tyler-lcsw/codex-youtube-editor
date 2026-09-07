@@ -39,7 +39,7 @@ def create(project, params):
     title = text(params.get('title'), 'title')
     for folder in ('source', 'revisions', 'output', 'work/studio', 'work/transcript', 'work/transcripts', 'work/audio', 'work/analysis', 'work/quality', 'work/frames'):
         (project / folder).mkdir(parents=True, exist_ok=True)
-    return dict(schema_version=1, project=str(project), title=title, brief={}, assets=[], revisions=[], annotations=[], resources=[], routes={}, thread_id=None, stage_reviews={})
+    return dict(schema_version=1, project=str(project), title=title, brief={}, assets=[], revisions=[], annotations=[], resources=[], routes={}, thread_id=None, stage_reviews={}, podcast=None, podcast_settings_revision=0)
 
 
 def read(project):
@@ -60,6 +60,10 @@ def read(project):
         if path.is_relative_to(old): capture['path'] = str(project / path.relative_to(old))
         captures[capture['path']] = capture
     data['captures'] = captures
+    # Additive schema-v1 migration. An unconfigured podcast must remain equivalent
+    # to the original general-production state for workflow evidence binding.
+    data.setdefault('podcast', None)
+    data.setdefault('podcast_settings_revision', 0)
     data['project'] = str(project)
     return data
 
@@ -70,12 +74,13 @@ def probe(path):
         raise ValueError('Media could not be decoded by ffprobe')
     info = json.loads(result.stdout)
     streams = info.get('streams', [])
-    if not any(s.get('codec_type') in ('audio','video') for s in streams):
+    stream_types = [kind for kind in ('audio', 'video') if any(s.get('codec_type') == kind for s in streams)]
+    if not stream_types:
         raise ValueError('No audio or video stream')
     duration = float(info.get('format', {}).get('duration', 0))
     if not math.isfinite(duration) or duration < 0:
         raise ValueError('Invalid media duration')
-    return round(duration * 1000)
+    return round(duration * 1000), stream_types
 
 
 def import_asset(project, params, revision=False):
@@ -95,13 +100,14 @@ def import_asset(project, params, revision=False):
             if source.suffix.lower() not in ('.txt', '.md', '.pdf', '.json', '.csv', '.docx'):
                 raise ValueError('Unsupported document format')
             duration = None
+            stream_types = []
         else:
-            duration = probe(staged)
+            duration, stream_types = probe(staged)
         target = target_dir / (digest + source.suffix.lower())
         if target.exists() and file_hash(target) != digest:
             raise ValueError('Existing staged source has changed')
         if not target.exists(): os.replace(staged, target)
-        return dict(id=uuid.uuid4().hex, path=str(target), sha256=digest, source_path=str(source), label=text(params.get('label', source.name), 'label'), role=role, duration_ms=duration)
+        return dict(id=uuid.uuid4().hex, path=str(target), sha256=digest, source_path=str(source), label=text(params.get('label', source.name), 'label'), role=role, duration_ms=duration, stream_types=stream_types)
     finally:
         staged.unlink(missing_ok=True)
 
@@ -113,6 +119,68 @@ def asset_by_id(data, asset_id):
                 raise ValueError('Selected asset changed; register a new revision')
             return item
     raise ValueError('Unknown asset')
+
+
+def source_asset_by_id(data, asset_id):
+    """Resolve an immutable imported source, excluding revisions and documents."""
+    asset = next((item for item in data['assets'] if item['id'] == asset_id), None)
+    if asset is None or asset.get('role') == 'document':
+        raise ValueError('Podcast sources must identify imported media assets')
+    path = Path(asset['path'])
+    if file_hash(path) != asset['sha256']:
+        raise ValueError('Selected asset changed; register a new revision')
+    streams = asset.get('stream_types')
+    if streams is None:
+        duration, streams = probe(path)
+        asset['duration_ms'] = duration
+        asset['stream_types'] = streams
+    if not isinstance(streams, list) or not streams or any(kind not in ('audio', 'video') for kind in streams):
+        raise ValueError('Selected asset has invalid stream metadata')
+    return asset
+
+
+def set_podcast_settings(data, params):
+    """Patch the audio-first source selection while preserving future fields."""
+    known = {'primary_audio_asset_id', 'camera_asset_id'}
+    if not params or not set(params) <= known:
+        raise ValueError('Podcast settings contain unsupported fields')
+    existing = data.get('podcast')
+    if existing is None:
+        current = dict(schema_version=1, kind='solo_audio_first', camera_asset_id=None)
+    elif not isinstance(existing, dict) or existing.get('schema_version') != 1 or existing.get('kind') != 'solo_audio_first':
+        raise ValueError('Unsupported podcast settings')
+    else:
+        current = existing
+    updated = dict(current)
+    updated.update(params)
+    audio = source_asset_by_id(data, updated.get('primary_audio_asset_id'))
+    if 'audio' not in audio['stream_types']:
+        raise ValueError('Primary podcast source must contain audio')
+    camera_id = updated.get('camera_asset_id')
+    if camera_id is not None:
+        camera = source_asset_by_id(data, camera_id)
+        if 'video' not in camera['stream_types']:
+            raise ValueError('Optional podcast camera source must contain video')
+    if updated != existing:
+        data['podcast'] = updated
+        data['podcast_settings_revision'] = podcast_settings_revision(data) + 1
+
+
+def podcast_settings_revision(data):
+    revision = data.get('podcast_settings_revision', 0)
+    if type(revision) is not int or revision < 0:
+        raise ValueError('Invalid podcast settings revision')
+    return revision
+
+
+def clear_podcast_settings(data):
+    """Clear configured sources without reviving evidence for an older null state."""
+    revision = podcast_settings_revision(data)
+    if data.get('podcast') is not None:
+        data['podcast'] = None
+        data['podcast_settings_revision'] = revision + 1
+    else:
+        data['podcast_settings_revision'] = revision
 
 
 def add_annotation(project, data, params):

@@ -45,6 +45,17 @@ printf '%s\n' '{"method":"open","project":"/absolute/project","params":{}}' | .v
 
 Responses are `{ "ok": true, "result": ... }` or `{ "ok": false, "error": "..." }`. Methods cover create/open, brief/resources/imports, revisions, capture/annotation/resolution, provider preferences, task association, workflow evidence, QA status and handoff export. `capture_frame` returns `time_ms`; use that actual frame time when adding an annotation. Staged import hashes and capture receipts detect altered media or images. A resolution must point to an existing different revision.
 
+Imported media records its actual `stream_types` (`audio`, `video`, or both). The
+audio-first podcast contract is additive to the same project format: call
+`set_podcast_settings` with `primary_audio_asset_id` and an optional
+`camera_asset_id`, or call `clear_podcast_settings` to return to a general
+production. The primary selection must contain audio, the optional camera selection
+must contain video, and one muxed asset may fill both roles. Studio never chooses a
+source automatically or treats camera association as synchronization proof. Older
+projects and assets remain readable; stream capabilities are probed when an older
+asset is first selected. Active podcast settings are workflow-bound inputs, so a
+change makes prior stage assessments stale.
+
 `config/studio-workflow.json` defines the editable ordered stages, prerequisites, instructions and required evidence artifacts. `docs/production-rules.md` remains the authoritative rule wording. These files are not copied into the app. Workflow changes and changed prerequisite assessments invalidate dependent evidence, including transitive dependencies. The workflow coordinator verifies hashes and evidence existence, not the truth of a narrative analysis.
 
 For Studio projects, `production_quality run` enforces workflow prerequisites, defaulting to the edit stage. Use `--stage intake` or `--stage source_understanding` for appropriate earlier media preparation; do not misclassify cuts to bypass strategy review. Final QA receipts bind current Studio inputs and pre-final evidence so CLI tracking cannot accept an outdated brief/workflow.
