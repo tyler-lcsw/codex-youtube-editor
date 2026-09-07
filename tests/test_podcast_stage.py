@@ -1,8 +1,12 @@
 import json
 import io
 import math
+import os
 from pathlib import Path
+import signal
 import subprocess
+import tempfile
+import time
 import wave
 
 import pytest
@@ -259,6 +263,63 @@ def test_render_failure_preserves_previous_output(tmp_path, monkeypatch):
     with pytest.raises(RuntimeError, match="render failed"):
         podcast_stage.render(project, contract_path, output)
     assert output.read_bytes() == b"previous success"
+
+
+@pytest.mark.skipif(
+    not (Path(__file__).resolve().parents[1] / "remotion/node_modules/@remotion/renderer").exists(),
+    reason="Remotion dependencies are not installed in this checkout",
+)
+def test_forced_renderer_termination_keeps_media_snapshot_in_parent_owned_scratch(tmp_path):
+    """SIGKILL cannot run Node cleanup, so its residue must stay parent-owned."""
+    root = Path(__file__).resolve().parents[1]
+    scratch = tmp_path / ".podcast-stage-parent-scratch"
+    scratch.mkdir()
+    contract = valid_contract()
+    contract["primary_audio"]["duration_ms"] = 60_000
+    contract["render"] = {"fps": 30, "width": 320, "height": 180}
+    contract["chapters"] = [
+        {"id": "episode", "title": "Episode", "start_ms": 0, "end_ms": 60_000}
+    ]
+    contract["waveform"]["values"] = [0, 0.5, 1, 0.5] * 300
+    contract_path = scratch / "contract.json"
+    contract_path.write_text(json.dumps(contract))
+    output = scratch / "picture.mp4"
+    global_temp_before = set(Path(tempfile.gettempdir()).glob("podcast-stage-media-*"))
+
+    process = subprocess.Popen(
+        [
+            "node",
+            str(root / "remotion/scripts/render-podcast-stage.mjs"),
+            str(contract_path),
+            str(output),
+        ],
+        cwd=root / "remotion",
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        deadline = time.monotonic() + 15
+        staged = []
+        while process.poll() is None and time.monotonic() < deadline:
+            staged = list(scratch.glob(".podcast-stage-media-*"))
+            if staged:
+                break
+            time.sleep(0.02)
+        assert staged, "renderer never created its parent-owned media snapshot"
+        os.kill(process.pid, signal.SIGKILL)
+        assert process.wait(timeout=10) == -signal.SIGKILL
+        assert staged[0].exists(), "forced termination should exercise parent cleanup"
+        assert set(Path(tempfile.gettempdir()).glob("podcast-stage-media-*")) == global_temp_before
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait(timeout=10)
+
+    # Mirrors podcast_stage.render's output-adjacent scratch finally cleanup.
+    import shutil
+
+    shutil.rmtree(scratch)
+    assert not scratch.exists()
 
 
 @pytest.mark.skipif(

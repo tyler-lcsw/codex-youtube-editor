@@ -4,7 +4,6 @@ import {createReadStream} from 'fs';
 import {copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync} from 'fs';
 import {createHash} from 'crypto';
 import {fileURLToPath} from 'url';
-import os from 'os';
 import path from 'path';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -38,7 +37,11 @@ const sha256 = (file) => new Promise((resolve, reject) => {
 });
 
 const stagePublicMedia = async () => {
-  const staged = mkdtempSync(path.join(os.tmpdir(), 'podcast-stage-media-'));
+  // The Python caller publishes through an output-adjacent scratch directory
+  // and removes that entire tree in its finally block. Keep the disposable
+  // media snapshot inside that ownership boundary so even an uncatchable
+  // SIGKILL of this Node child cannot orphan files in the system temp folder.
+  const staged = mkdtempSync(path.join(path.dirname(output), '.podcast-stage-media-'));
   try {
     // Fonts are repository-owned static assets rather than contract inputs.
     cpSync(path.join(mediaRoot, 'library', 'fonts'), path.join(staged, 'library', 'fonts'), {recursive: true});
