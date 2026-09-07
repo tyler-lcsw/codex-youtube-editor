@@ -91,10 +91,14 @@ quality coordinator with `.venv/bin/python -m tools.podcast_qualification qualif
 PROJECT --evidence PROJECT/work/edit-plan.md`. The command enforces current
 edit-stage prerequisites, renders with one worker, samples child-process RSS and
 macOS memory pressure, checks cache state, counts frames, probes streams and fully
-decodes audio/video. It atomically publishes `output/podcast-qualified.mp4` and
+decodes audio/video. Success requires exactly one video and one audio stream, with the
+audio duration within 100ms of the target, container and frame-derived video duration.
+It atomically publishes `output/podcast-qualified.mp4` and
 `work/podcast/qualification/report.json` only after revalidating the reviewed
 score; failures and interruptions retain attempt records without replacing the
-prior success. The native qualification section is read-only and deliberately
+prior success. The native qualification section is read-only, checks current source,
+contract, score decision and output hashes before calling a saved success current, and
+otherwise labels it as historical evidence with bounded stale reasons. It deliberately
 leaves visual inspection, normal-speed listening, owner acceptance and creative
 acceptance pending.
 

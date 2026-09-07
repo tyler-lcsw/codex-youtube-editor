@@ -97,14 +97,21 @@ read-only native evidence view. It rejects anything outside 25–45 minutes or o
 records waveform-cache behavior and exact bindings, counts frames, verifies stream
 properties and fully decodes the candidate. Successful output/report publication is
 atomic against reviewed-score changes; failed and interrupted attempts preserve the
-prior success and record recovery evidence. The dedicated podcast Remotion entry skips
+prior success and record recovery evidence tied to the actual child lifecycle. A success
+requires exactly one video and one audio stream; audio duration must remain within 100ms
+of the target, container and frame-derived video duration. The native view revalidates
+the current source, contract, score decision and output hashes under the Studio lock,
+and labels saved evidence historical whenever those live bindings no longer match. The
+dedicated podcast Remotion entry skips
 the 156-shot legacy registry, snapshots only hash-verified referenced media, keeps
 concurrency at one, bounds progress output and cleans partial files on SIGINT/SIGTERM.
+A force-killed renderer leaves its snapshot inside the parent-owned scratch tree so the
+Python cleanup path can remove it.
 A synthetic 45-minute descriptor contained 54,000 waveform samples and 81,000 frames;
 metadata selection took 414ms and a warm dedicated bundle 625ms in the development
 measurement, with about 586MB peak for the combined bundle/metadata check. These are
-setup metrics, not full-render memory measurements. Current automated evidence is 196
-Python tests plus 33 subtests, 38 native checks, a signed release build and a clean
+setup metrics, not full-render memory measurements. Current automated evidence is 209
+Python tests plus 33 subtests, 41 native checks, a signed release build and a clean
 Remotion typecheck. No 25–45 minute end-to-end render soak, normal-speed listening,
 authentic-source visual inspection or owner acceptance has been completed.
 
