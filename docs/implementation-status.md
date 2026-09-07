@@ -76,11 +76,15 @@ progressive list, comparison and image/source-card proposals. Score revisions ar
 content-addressed and immutable; owner decisions are append-only, require an explicit
 action and remain bound to the exact current revision. Only accepted or keep-base
 decisions can populate the separately derived reviewed stage descriptor, which is
-revalidated before rendering. Native Review adds an accessible episode timeline,
+revalidated both before rendering and immediately before publication so a mid-render
+decision change cannot replace the prior output. Episode maps, current score bytes,
+decisions, reviewed descriptors, transcripts, previews and visual assets participate
+in workflow/completion binding, making downstream evidence stale after a semantic
+change. Native Review adds an accessible episode timeline,
 textual ranges, chapter details, optional representative previews and confirmed
 accept/reject/base controls. The Remotion stage renders these five primitives while
 retaining the waveform and respecting reduced motion. Current implementation evidence
-is 178 Python tests plus 33 subtests, 35 native checks, a signed release build and a
+is 179 Python tests plus 33 subtests, 35 native checks, a signed release build and a
 clean Remotion typecheck. A four-second reduced-motion, accepted-only chapter-card
 fixture rendered at 320x180 with verified audio/video streams and bounded duration,
 covering the score-to-reviewed-stage-to-render integration. No semantic model has been

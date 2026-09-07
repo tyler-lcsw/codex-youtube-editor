@@ -337,10 +337,12 @@ def render(project: Path, contract_path: Path | None = None, output: Path | None
     project = Path(project).expanduser().resolve()
     contract_path = Path(contract_path or project / "work/podcast/stage.json").resolve()
     contract = validate_contract(json.loads(contract_path.read_text()))
+    validate_reviewed_stage = None
     if "visual_score_revision_id" in contract:
         # Lazy import avoids a module cycle: score tooling reuses this validator.
-        from .podcast_visual_score import validate_reviewed_stage
+        from .podcast_visual_score import validate_reviewed_stage as reviewed_stage_validator
 
+        validate_reviewed_stage = reviewed_stage_validator
         validate_reviewed_stage(project, studio_project.read(project), contract)
     _validate_artwork(contract["identity"])
     output = Path(output or project / "output/podcast-stage.mp4").resolve()
@@ -372,6 +374,11 @@ def render(project: Path, contract_path: Path | None = None, output: Path | None
             if validate_contract(json.loads(contract_path.read_text())) != contract:
                 raise ValueError("Podcast stage contract changed during render")
             _validate_artwork(contract["identity"])
+            if validate_reviewed_stage is not None:
+                # Owner decisions, the current score, transcript/map binding, or
+                # podcast setup can change during a long render. Recheck all of
+                # them immediately before the staged file becomes authoritative.
+                validate_reviewed_stage(project, studio_project.read(project), contract)
             verification = _verify_delivery(
                 staged, contract["primary_audio"]["duration_ms"], contract["render"]["fps"]
             )

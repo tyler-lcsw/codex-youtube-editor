@@ -33,7 +33,66 @@ def definitions():
     return data
 
 
-def binding(data):
+def _podcast_artifact_binding(project):
+    """Hash semantic planning state and the current bytes it references."""
+    project = Path(project).resolve()
+    podcast = project / 'work/podcast'
+    paths = {
+        'stage': podcast / 'stage.json',
+        'episode_map': podcast / 'episode-map.json',
+        'score_pointer': podcast / 'visual-score/current.json',
+        'decisions': podcast / 'visual-score/decisions.json',
+        'reviewed_stage': podcast / 'stage-reviewed.json',
+    }
+    result = {name: file_hash(path) if path.is_file() else None for name,path in paths.items()}
+
+    episode = None
+    if paths['episode_map'].is_file():
+        try: episode = json.loads(paths['episode_map'].read_text())
+        except (OSError, ValueError, TypeError): episode = None
+    transcript = episode.get('transcript') if isinstance(episode, dict) else None
+    if isinstance(transcript, dict) and isinstance(transcript.get('path'), str):
+        candidate = (project / transcript['path']).resolve()
+        result['transcript_current'] = file_hash(candidate) if candidate.is_relative_to(project) and candidate.is_file() else None
+
+    score = None
+    if paths['score_pointer'].is_file():
+        try:
+            pointer = json.loads(paths['score_pointer'].read_text())
+            revision_id = pointer.get('revision_id') if isinstance(pointer, dict) else None
+            revision = podcast / 'visual-score/revisions' / f'{revision_id}.json'
+            result['score_revision'] = file_hash(revision) if revision.is_file() else None
+            score = json.loads(revision.read_text()) if revision.is_file() else None
+        except (OSError, ValueError, TypeError):
+            result['score_revision'] = None
+    previews = score.get('representative_previews', []) if isinstance(score, dict) else []
+    result['preview_files'] = [
+        {
+            'path': item.get('path'),
+            'registered': item.get('sha256'),
+            'current': file_hash(candidate) if candidate.is_relative_to(project) and candidate.is_file() else None,
+        }
+        for item in previews if isinstance(item, dict) and isinstance(item.get('path'), str)
+        for candidate in [(project / item['path']).resolve()]
+    ]
+    events = score.get('visual_events', []) if isinstance(score, dict) else []
+    result['visual_asset_files'] = [
+        {
+            'path': asset.get('path'),
+            'registered': asset.get('sha256'),
+            'current': file_hash(candidate) if candidate.is_relative_to((ROOT / 'media').resolve()) and candidate.is_file() else None,
+        }
+        for event in events if isinstance(event, dict)
+        for treatment in [event.get('treatment')]
+        if isinstance(treatment, dict)
+        for asset in [treatment.get('asset')]
+        if isinstance(asset, dict) and isinstance(asset.get('path'), str)
+        for candidate in [((ROOT / 'media') / asset['path']).resolve()]
+    ]
+    return result
+
+
+def binding(project, data):
     files = []
     for asset in data['assets'] + data['revisions']:
         p = Path(asset['path'])
@@ -45,12 +104,13 @@ def binding(data):
     if data.get('podcast') is not None or podcast_revision:
         inputs['podcast'] = data['podcast']
         inputs['podcast_settings_revision'] = podcast_revision
+        inputs['podcast_artifacts'] = _podcast_artifact_binding(project)
     return digest(inputs)
 
 
 def workflow(project, data):
     result = definitions()
-    current = binding(data)
+    current = binding(project, data)
     statuses = {}
     for stage in result['stages']:
         review = data['stage_reviews'].get(stage['id'])
@@ -85,7 +145,7 @@ def record_stage(project, data, params):
     if any(not p.is_relative_to(project) for p in resolved): raise ValueError('Evidence must be project-local')
     if stage['id'] == 'final_review':
         quality.require_complete(project)
-    data['stage_reviews'][stage['id']] = dict(binding=binding(data), prerequisites={p:digest(data['stage_reviews'][p]) for p in stage['requires']}, evidence=quality.snapshot(resolved), reason=reason)
+    data['stage_reviews'][stage['id']] = dict(binding=binding(project, data), prerequisites={p:digest(data['stage_reviews'][p]) for p in stage['requires']}, evidence=quality.snapshot(resolved), reason=reason)
 
 
 def quality_status(project):
@@ -128,4 +188,4 @@ def completion_binding(project):
     reviews = {stage:review for stage,review in data['stage_reviews'].items() if stage != 'final_review'}
     if any(not quality.current(review['evidence']) for review in reviews.values()):
         raise ValueError('Studio prerequisite review evidence is stale')
-    return {'inputs':binding(data), 'pre_final_reviews':digest(reviews)}
+    return {'inputs':binding(project, data), 'pre_final_reviews':digest(reviews)}

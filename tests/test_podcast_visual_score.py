@@ -352,6 +352,41 @@ def test_owner_decisions_are_append_only_exact_and_gate_stage_materialization(po
     with pytest.raises(ValueError, match="unaccepted"):
         podcast_stage.render(project, reviewed_path)
 
+    # A decision can change while a long render is in progress. The completed
+    # staged bytes must not replace the previous successful output in that case.
+    reviewed_path = Path(call(project, "materialize_reviewed_podcast_stage")["path"])
+    output = project / "output/podcast-stage.mp4"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(b"previous successful output")
+
+    def change_decision_during_render(_contract, picture):
+        Path(picture).write_bytes(b"staged picture")
+        call(
+            project,
+            "append_visual_score_decision",
+            revision_id=revision_id,
+            event_id="chapter-1",
+            action="reject",
+            note="Owner changed the decision during rendering",
+            owner_action=True,
+        )
+
+    def fake_mux(command, **_kwargs):
+        Path(command[-1]).write_bytes(b"staged completed output")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(podcast_stage, "run_renderer", change_decision_during_render)
+    monkeypatch.setattr(podcast_stage, "resolve_audio", lambda *_args: Path(asset["path"]))
+    monkeypatch.setattr(podcast_stage.subprocess, "run", fake_mux)
+    monkeypatch.setattr(
+        podcast_stage,
+        "_verify_delivery",
+        lambda *_args: {"duration_ms": 4_000, "streams": ["audio", "video"]},
+    )
+    with pytest.raises(ValueError, match="unaccepted"):
+        podcast_stage.render(project, reviewed_path, output)
+    assert output.read_bytes() == b"previous successful output"
+
 
 @pytest.mark.skipif(
     not (Path(__file__).resolve().parents[1] / "remotion/node_modules/@remotion/renderer").exists(),
@@ -465,3 +500,39 @@ def test_visual_score_bridge_preserves_unknown_project_state(podcast_project):
     project_path.write_text(json.dumps(project_state))
     install_episode_map(project, episode_map)
     assert call(project, "open")["future_extension"] == {"kept": True}
+
+
+def test_visual_score_decisions_stale_workflow_and_completion_binding(podcast_project):
+    from tools import studio_workflow
+
+    project, asset, episode_map = podcast_project
+    episode_map_sha = install_episode_map(project, episode_map)
+    score = score_for(asset, episode_map_sha, episode_map["transcript"]["sha256"])
+    state = call(project, "create_visual_score_revision", score=score)
+
+    evidence = project / "work/visual-score-review.md"
+    evidence.write_text("Synthetic visual-score workflow binding evidence.")
+    (project / "work/analysis").mkdir(parents=True, exist_ok=True)
+    (project / "work/analysis/source-understanding.md").write_text("Synthetic source understanding.")
+    (project / "work/analysis/content-map.json").write_text('{"segments":[]}')
+    (project / "work/edit-plan.md").write_text("Synthetic edit strategy.")
+    for stage in ("intake", "source_understanding", "editorial_strategy", "edit"):
+        call(project, "record_stage", stage=stage, evidence=[str(evidence)], reason=f"Reviewed {stage}")
+    assert [item["status"] for item in call(project, "workflow")["stages"][:4]] == ["complete"] * 4
+    completion_before = studio_workflow.completion_binding(project)
+
+    # Read-only score inspection is a true no-op for workflow state.
+    call(project, "podcast_visual_score")
+    assert studio_workflow.completion_binding(project) == completion_before
+
+    call(
+        project,
+        "append_visual_score_decision",
+        revision_id=state["current_revision_id"],
+        event_id="chapter-1",
+        action="accept",
+        note="Explicit owner decision changes the edit plan",
+        owner_action=True,
+    )
+    assert all(item["status"] != "complete" for item in call(project, "workflow")["stages"][:4])
+    assert studio_workflow.completion_binding(project)["inputs"] != completion_before["inputs"]
