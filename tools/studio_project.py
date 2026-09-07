@@ -141,7 +141,7 @@ def source_asset_by_id(data, asset_id):
 
 def set_podcast_settings(data, params):
     """Patch the audio-first source selection while preserving future fields."""
-    known = {'primary_audio_asset_id', 'camera_asset_id'}
+    known = {'primary_audio_asset_id', 'camera_asset_id', 'visual_density'}
     if not params or not set(params) <= known:
         raise ValueError('Podcast settings contain unsupported fields')
     existing = data.get('podcast')
@@ -152,7 +152,11 @@ def set_podcast_settings(data, params):
     else:
         current = existing
     updated = dict(current)
+    updated.setdefault('visual_density', 'balanced')
     updated.update(params)
+    density = updated['visual_density']
+    if not isinstance(density, str) or density not in ('restrained', 'balanced', 'illustrative'):
+        raise ValueError('Podcast visual density must be restrained, balanced, or illustrative')
     audio = source_asset_by_id(data, updated.get('primary_audio_asset_id'))
     if 'audio' not in audio['stream_types']:
         raise ValueError('Primary podcast source must contain audio')

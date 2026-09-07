@@ -199,6 +199,7 @@ def test_podcast_settings_bind_canonical_audio_and_optional_camera(project, medi
         'kind': 'solo_audio_first',
         'primary_audio_asset_id': audio['id'],
         'camera_asset_id': camera['id'],
+        'visual_density': 'balanced',
     }
     assert call(project, 'open')['podcast'] == state['podcast']
     assert audio['id'] in call(project, 'export_handoff')['text']
@@ -310,6 +311,45 @@ def test_identical_podcast_settings_are_idempotent_for_workflow_evidence(project
     unchanged = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'], camera_asset_id=None)
     assert unchanged['podcast_settings_revision'] == configured['podcast_settings_revision']
     assert call(project, 'workflow')['stages'][0]['status'] == 'complete'
+
+
+def test_podcast_visual_density_defaults_validates_and_changes_workflow_binding(project, media):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    configured = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    assert configured['podcast']['visual_density'] == 'balanced'
+    assert configured['podcast_settings_revision'] == 1
+
+    evidence = project / 'work/intake.md'; evidence.write_text('Reviewed balanced visual density.')
+    call(project, 'record_stage', stage='intake', evidence=[str(evidence)], reason='Podcast settings reviewed')
+    unchanged = call(project, 'set_podcast_settings', visual_density='balanced')
+    assert unchanged['podcast_settings_revision'] == 1
+    assert call(project, 'workflow')['stages'][0]['status'] == 'complete'
+
+    before = call(project, 'open')
+    for invalid in (None, 3, '', 'dense'):
+        with pytest.raises(ValueError):
+            call(project, 'set_podcast_settings', visual_density=invalid)
+        assert call(project, 'open') == before
+
+    illustrative = call(project, 'set_podcast_settings', visual_density='illustrative')
+    assert illustrative['podcast']['visual_density'] == 'illustrative'
+    assert illustrative['podcast_settings_revision'] == 2
+    assert call(project, 'workflow')['stages'][0]['status'] == 'stale'
+
+
+def test_legacy_podcast_settings_gain_density_on_next_successful_set(project, media):
+    audio = call(project, 'import_media', path=str(media), role='source')['assets'][0]
+    configured = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    path = project / 'work/studio/project.json'
+    stored = json.loads(path.read_text())
+    stored['podcast'].pop('visual_density', None)
+    stored['podcast']['future_extension'] = {'kept': True}
+    path.write_text(json.dumps(stored))
+
+    normalized = call(project, 'set_podcast_settings', primary_audio_asset_id=audio['id'])
+    assert normalized['podcast']['visual_density'] == 'balanced'
+    assert normalized['podcast']['future_extension'] == {'kept': True}
+    assert normalized['podcast_settings_revision'] == configured['podcast_settings_revision'] + 1
 
 
 def test_capture_receipt_binds_exact_asset_time_and_bytes(project, video, media):

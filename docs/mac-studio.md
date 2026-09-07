@@ -23,11 +23,11 @@ The installed command-line tools on the initial M4 have mismatched private/publi
 
 ## Your workflow
 
-1. Create a production folder (the default location is `~/Movies/Codex Studio`) or open one created by Studio. Import files or drag them onto Brief & sources. Copies are staged and hashed; originals remain untouched. Add the audience, purpose, pacing, required content and meaningful context. Links are labeled as source, reference or background; adding a link does not automatically download it.
+1. Create a production folder (the default location is `~/Movies/Codex Studio`) or open one created by Studio. Import files or drag them onto Brief & sources. Copies are staged and hashed; originals remain untouched. Add the audience, purpose, pacing, required content and meaningful context. Links are labeled as source, reference or background; adding a link does not automatically download it. For a one-speaker podcast, use **Solo podcast visuals** to choose the canonical audio, optional camera and restrained, balanced or illustrative visual-density preference. This records setup only; it does not yet generate a waveform, proposal or render, and camera synchronization remains unverified.
 2. Review the Understanding stages. The responsible AI documents the source's content, narrative and proposed edit using the current workflow definition. Existing evidence can be selected and recorded from the interface. Changing inputs or policy makes prior assessments stale.
 3. Choose task-specific resource preferences. These are included in each handoff. Codex still checks actual provider readiness, qualified limits and approval scope before work. Local PAIR remains bounded assistance; its availability is not proof of useful editorial output. Native images remain a scoped capability/handoff until verified in the actual session; no automatic API substitution.
 4. Open Codex & QA; Studio automatically connects and checks existing managed ChatGPT authentication. If signed out, Sign in with ChatGPT opens the Codex-managed browser login. Keep Studio open until its subscription status is confirmed. Only one browser attempt can be pending; its link and cancellation control survive tab changes. Check sign-in refreshes the account without starting another browser login and shows progress followed by a timestamped result beside the button. If localhost reports an error, check status first; if still signed out, cancel the pending attempt and start again from Studio instead of reloading an old callback page. Completion failures appear in the app, and finished or cancelled links are cleared. The app does not read or copy tokens. Choose Astra or Sol, describe the task, and send it. Current project context, resource choices and feedback accompany the request. Requests for approval and individual user questions are shown explicitly. Unknown request types are declined visibly. Stop task interrupts the app's current turn.
-5. Add an output as a revision, or have Codex register the result through `tools.studio`. Review sources and revisions with native playback. Pause & annotate captures a real frame through the engine and records its actual presentation time. Draw a rectangular region, optionally select a time range and transcript anchors, then save the comment.
+5. Add an output as a revision, or have Codex register the result through `tools.studio`. Review sources and revisions with native playback. For video, **Pause & capture frame** records the actual presentation time and a provenance-bound frame; a rectangular region, optional time range and transcript anchors can accompany the comment. For audio-only media, **Pause & mark time** records a frame-free moment with an optional range and transcript anchors; region drawing remains unavailable because there is no picture to mark.
 6. Compare versions using the media selector. Feedback stays with its original asset/hash/time/frame. Select a replacement revision and enter a resolution note to move a comment through addressed, ready for review and accepted. Acceptance is your explicit action. Reopening keeps history. No automatic timestamp migration after an edit.
 7. Refresh QA and inspect each phase's findings. Final playback/listening and user acceptance remain distinct from technical checks. Completion still requires the existing production-quality receipt. Nothing in Studio automatically publishes.
 
@@ -48,13 +48,19 @@ Responses are `{ "ok": true, "result": ... }` or `{ "ok": false, "error": "..." 
 Imported media records its actual `stream_types` (`audio`, `video`, or both). The
 audio-first podcast contract is additive to the same project format: call
 `set_podcast_settings` with `primary_audio_asset_id` and an optional
-`camera_asset_id`, or call `clear_podcast_settings` to return to a general
+`camera_asset_id`. It also accepts `visual_density` as `restrained`, `balanced`
+or `illustrative`; the default is `balanced`. Call `clear_podcast_settings` to return to a general
 production. The primary selection must contain audio, the optional camera selection
 must contain video, and one muxed asset may fill both roles. Studio never chooses a
 source automatically or treats camera association as synchronization proof. Older
 projects and assets remain readable; stream capabilities are probed when an older
 asset is first selected. Active podcast settings are workflow-bound inputs, so a
 change makes prior stage assessments stale.
+
+Review supports media with no video stream. Audio-only annotations remain bound to
+the exact selected asset and time but intentionally have no captured frame or picture
+region. This capability does not imply that a branded waveform or visual proposal has
+already been generated.
 
 `config/studio-workflow.json` defines the editable ordered stages, prerequisites, instructions and required evidence artifacts. `docs/production-rules.md` remains the authoritative rule wording. These files are not copied into the app. Workflow changes and changed prerequisite assessments invalidate dependent evidence, including transitive dependencies. The workflow coordinator verifies hashes and evidence existence, not the truth of a narrative analysis.
 

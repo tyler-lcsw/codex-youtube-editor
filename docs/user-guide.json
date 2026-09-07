@@ -214,17 +214,37 @@
     {
       "id": "import-sources",
       "section": "Brief & sources",
-      "title": "Import footage or documents",
+      "title": "Import media or documents",
       "summary": "Import copies into the production while preserving originals.",
       "status": "Available",
       "steps": [
-        "Choose Import footage or documents and select one or more local files, or drop files in the import area.",
+        "Choose Import media or documents and select one or more local files, or drop files in the import area.",
         "Wait for the import notice.",
         "Check the listed labels and source or document roles."
       ],
       "notes": [
         "PDF, TXT, MD, DOCX, JSON and CSV are classified as documents; other imports use the source role. Importing a document does not prove Codex has read or understood it.",
         "Review is for media playback; documents are not shown in its Viewing picker."
+      ]
+    },
+    {
+      "id": "podcast-setup",
+      "section": "Brief & sources",
+      "title": "Configure a solo audio-first podcast",
+      "summary": "Choose one canonical audio source, an optional camera source and a visual-density preference.",
+      "status": "Setup available; visual generation not yet available",
+      "steps": [
+        "Import an audio-bearing source, then find Solo podcast visuals in Brief & sources.",
+        "Choose Primary audio. Choose Optional camera or leave No camera selected.",
+        "Choose Restrained, Balanced or Illustrative visual density, then choose Save podcast setup.",
+        "If the saved-setup warning appears, choose Reload saved podcast setup before reapplying and saving your draft.",
+        "Choose Clear podcast setup to return the project to the general production workflow."
+      ],
+      "notes": [
+        "Audio is canonical. An optional camera selection is an association only; Studio does not infer or verify synchronization.",
+        "Visual density is an editorial preference, not a fixed effects-per-minute rule.",
+        "This setup does not generate a waveform, visual proposal, preview or render. Those capabilities remain later development work.",
+        "Older imported media without stream metadata is checked against the actual staged bytes when you save. A mismatched selection is rejected without replacing the saved setup."
       ]
     },
     {
@@ -394,11 +414,11 @@
     {
       "id": "annotate-frame",
       "section": "Review",
-      "title": "Leave a frame or time-range note",
-      "summary": "Pause & annotate captures a real frame from the selected version.",
+      "title": "Leave a video frame or time-range note",
+      "summary": "Pause & capture frame records a real frame from the selected video version.",
       "status": "Available",
       "steps": [
-        "Seek to the issue and choose Pause & annotate.",
+        "Seek to the issue and choose Pause & capture frame.",
         "Wait for Frame captured for this version and check the displayed time.",
         "Enter a comment in “What should change here, and why?”.",
         "For a range, enter Optional range end (seconds) after the captured start time; leave it blank for a single moment.",
@@ -410,13 +430,30 @@
       ]
     },
     {
+      "id": "annotate-audio",
+      "section": "Review",
+      "title": "Leave an audio-only time or range note",
+      "summary": "Audio-only sources can be annotated without manufacturing a video frame.",
+      "status": "Available",
+      "steps": [
+        "Choose the audio-only source in Viewing and seek to the relevant moment.",
+        "Choose Pause & mark time and wait for Audio time marked for this version.",
+        "Enter a comment and, if needed, an Optional range end in seconds or matching transcript anchors.",
+        "Choose Save annotation."
+      ],
+      "notes": [
+        "Audio-only notes retain the exact selected asset and time but have no frame or picture region.",
+        "Draw region remains unavailable for audio-only sources. This does not generate a waveform or visual preview."
+      ]
+    },
+    {
       "id": "annotate-region",
       "section": "Review",
       "title": "Mark an area of the picture",
       "summary": "Draw region adds a rectangle to your captured frame.",
       "status": "Available",
       "steps": [
-        "Choose Pause & annotate first.",
+        "Choose Pause & capture frame first.",
         "Turn on Draw region and drag over the relevant part of the picture.",
         "Use Clear region to remove the box or draw again to replace it.",
         "Add your comment and choose Save annotation."

@@ -43,10 +43,19 @@ The first contract slice adds explicit podcast source settings and durable impor
 stream capabilities without changing the project schema version. It validates one
 audio-bearing primary source and an optional video-bearing camera source, permits one
 muxed file in both roles, preserves unknown and legacy project fields, and includes
-active podcast settings in workflow evidence binding. This slice does not yet render a
-waveform, generate a visual score, expose native setup controls, or claim long-form
-readiness. Those capabilities are separated into later PRs so configuration truth lands
-before dependent UI and rendering.
+active podcast settings in workflow evidence binding. A monotonic settings revision
+prevents cleared settings from reviving older evidence while identical saves remain
+idempotent.
+
+The native setup slice exposes these choices in Brief & sources, adds restrained,
+balanced and illustrative preferences, and states that setup does not yet generate
+visuals or verify camera synchronization. Review can create provenance-bound time,
+range and transcript annotations for audio-only assets without manufacturing a frame;
+video assets retain frame capture and region drawing. Current evidence is 41 Studio
+bridge tests, 31 native checks, a signed release build and an audio-only Review launch
+smoke. The picker/save/annotation flow has not yet received a full interactive
+accessibility pass. Waveform rendering, semantic visual scores and long-form readiness
+remain later PRs.
 
 ## Story production exercise
 
