@@ -85,6 +85,25 @@ and duration, and only then atomically replaces a prior successful output.
 Optional artwork must already be a hash-bound file under `media/`; the current
 CLI does not expose artwork or chapter editing controls.
 
+For an owner-reviewed stage whose canonical audio is 25–45 minutes, exactly
+1920×1080 and 30fps, run the technical qualification through the production
+quality coordinator with `.venv/bin/python -m tools.podcast_qualification qualify
+PROJECT --evidence PROJECT/work/edit-plan.md`. The command enforces current
+edit-stage prerequisites, renders with one worker, samples child-process RSS and
+macOS memory pressure, checks cache state, counts frames, probes streams and fully
+decodes audio/video. Success requires exactly one video and one audio stream, with the
+audio duration within 100ms of the target, container and frame-derived video duration.
+It atomically publishes `output/podcast-qualified.mp4` and
+`work/podcast/qualification/report.json` only after revalidating the reviewed
+score; failures and interruptions retain attempt records without replacing the
+prior success. The native qualification section is read-only, checks current source,
+contract, score decision and output hashes before calling a saved success current, and
+also requires the exact referenced production-quality action to have completed
+successfully with the canonical worker command. Otherwise it labels the report as
+historical evidence with bounded stale reasons. It deliberately
+leaves visual inspection, normal-speed listening, owner acceptance and creative
+acceptance pending.
+
 `config/studio-workflow.json` defines the editable ordered stages, prerequisites, instructions and required evidence artifacts. `docs/production-rules.md` remains the authoritative rule wording. These files are not copied into the app. Workflow changes and changed prerequisite assessments invalidate dependent evidence, including transitive dependencies. The workflow coordinator verifies hashes and evidence existence, not the truth of a narrative analysis.
 
 For Studio projects, `production_quality run` enforces workflow prerequisites, defaulting to the edit stage. Use `--stage intake` or `--stage source_understanding` for appropriate earlier media preparation; do not misclassify cuts to bypass strategy review. Final QA receipts bind current Studio inputs and pre-final evidence so CLI tracking cannot accept an outdated brief/workflow.

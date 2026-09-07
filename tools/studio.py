@@ -4,6 +4,7 @@ import sys
 from . import studio_project as projects
 from . import studio_workflow as flow
 from . import podcast_visual_score as podcast_scores
+from . import podcast_qualification
 from .run_state import atomic_json, file_lock
 
 
@@ -35,6 +36,8 @@ def dispatch(request):
             return podcast_scores.append_owner_decision(project, data, params)
         elif method == 'podcast_visual_score':
             return podcast_scores.visual_score_state(project, data)
+        elif method == 'podcast_qualification_status':
+            return podcast_qualification.qualification_status(project, data)
         elif method == 'materialize_reviewed_podcast_stage':
             return podcast_scores.materialize_reviewed_stage(project, data)
         elif method == 'validate_asset': return projects.asset_by_id(data, params.get('asset_id'))

@@ -417,6 +417,27 @@
       ]
     },
     {
+      "id": "review-podcast-qualification",
+      "section": "Review",
+      "title": "Read long-form podcast qualification evidence",
+      "summary": "Inspect measured 25–45 minute technical evidence without confusing it with creative review.",
+      "status": "Available after a production-quality-routed qualification run",
+      "steps": [
+        "In Review, choose Podcast visual score and find Long-form qualification.",
+        "Choose Reload qualification after Codex completes or interrupts a qualification attempt.",
+        "Check the 1080p30 target, runtime, peak child-process memory, memory pressure, cache, frame count, duration, exactly one audio and one video stream, codecs and full-decode result.",
+        "Confirm Studio calls the report current after its live check of the visual-score revision, owner decision, exact source, reviewed-stage contract, output hashes and successfully completed production-quality action; otherwise read it as historical evidence and inspect the stale reasons.",
+        "Open Attempt history to inspect failures, interruption recovery and whether the prior successful output and report were preserved.",
+        "Treat visual inspection, normal-speed listening and owner acceptance as still required until they are completed through the production review workflow."
+      ],
+      "notes": [
+        "A successful version-1 report is restricted to a 25–45 minute, 1920×1080, 30fps reviewed stage with bounded duration, frame-count and frame-rate agreement. Its single audio stream must be within 100ms of the target, container and frame-derived video duration.",
+        "The qualification command runs through the production-quality action coordinator and requires current edit-stage prerequisites and specific evidence. A current report must still reference its exact successfully completed action and canonical worker command.",
+        "Studio displays this report read-only. Saved at-run bindings are historical evidence rather than live truth when the fresh status check reports a mismatch. Studio cannot initiate a run, change a finding, accept the episode, or authorize publication.",
+        "No full long-form soak is bundled as proof with this release; the section remains empty until a qualifying project is actually measured."
+      ]
+    },
+    {
       "id": "add-revision",
       "section": "Review",
       "title": "Add a rendered revision",

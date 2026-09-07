@@ -17,7 +17,7 @@ export type PodcastChapter = {
   end_ms: number;
 };
 
-export type PodcastStageProps = {
+type PodcastStageBaseProps = {
   schema_version: 1;
   primary_audio: {
     asset_id: string;
@@ -42,13 +42,30 @@ export type PodcastStageProps = {
   };
   chapters: PodcastChapter[];
   motion: 'standard' | 'reduced';
-  visual_events?: PodcastVisualEvent[];
 };
+
+type PodcastVisualScoreProps =
+  | {visual_score_revision_id?: never; visual_events?: never}
+  | {visual_score_revision_id: string; visual_events: PodcastVisualEvent[]};
+
+export type PodcastStageProps = PodcastStageBaseProps & PodcastVisualScoreProps;
 
 const BAR_COUNT = 52;
 
-const chapterAt = (chapters: PodcastChapter[], timeMs: number): PodcastChapter | undefined =>
-  chapters.find((chapter) => chapter.start_ms <= timeMs && timeMs < chapter.end_ms);
+const chapterAt = (chapters: PodcastChapter[], timeMs: number): PodcastChapter | undefined => {
+  // The stage contract guarantees ordered, non-overlapping chapters. Binary
+  // search keeps this lookup bounded for every frame of a long episode.
+  let low = 0;
+  let high = chapters.length - 1;
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2);
+    const chapter = chapters[middle];
+    if (timeMs < chapter.start_ms) high = middle - 1;
+    else if (timeMs >= chapter.end_ms) low = middle + 1;
+    else return chapter;
+  }
+  return undefined;
+};
 
 const WaveformRail: React.FC<{
   values: number[];

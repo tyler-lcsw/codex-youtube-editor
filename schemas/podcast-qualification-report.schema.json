@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex Media Studio long-form podcast qualification report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "attempt_id", "status", "started_at", "finished_at", "quality_action_id", "platform", "bindings", "cache", "performance", "delivery", "decode", "interruption", "reviews", "safety", "failure", "preservation"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "attempt_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["succeeded", "failed", "interrupted"]},
+    "started_at": {"type": "string", "minLength": 1},
+    "finished_at": {"type": "string", "minLength": 1},
+    "quality_action_id": {"type": "string", "minLength": 1},
+    "platform": {
+      "type": "object", "additionalProperties": false,
+      "required": ["system", "release", "machine"],
+      "properties": {"system": {"type": "string"}, "release": {"type": "string"}, "machine": {"type": "string"}}
+    },
+    "bindings": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["source", "contract", "output", "visual_score_revision_id", "reviewed_stage_current", "qualification_target", "qualification_timeout_seconds"],
+      "properties": {
+        "source": {"$ref": "#/$defs/file"},
+        "contract": {"$ref": "#/$defs/file"},
+        "output": {"$ref": "#/$defs/nullable_file"},
+        "visual_score_revision_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "reviewed_stage_current": {"type": "boolean"},
+        "qualification_target": {"$ref": "#/$defs/qualification_target"},
+        "qualification_timeout_seconds": {"type": "number", "exclusiveMinimum": 0, "maximum": 86400}
+      }
+    },
+    "cache": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scope", "before", "after", "reused", "created", "changed"],
+      "properties": {
+        "scope": {"const": "project_waveform_json"},
+        "before": {"type": "array", "items": {"$ref": "#/$defs/cache_file"}},
+        "after": {"type": "array", "items": {"$ref": "#/$defs/cache_file"}},
+        "reused": {"type": "array", "items": {"type": "string"}},
+        "created": {"type": "array", "items": {"type": "string"}},
+        "changed": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "performance": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["wall_time_seconds", "peak_child_tree_rss_bytes", "rss_sample_count", "memory_pressure"],
+      "properties": {
+        "wall_time_seconds": {"type": "number", "minimum": 0},
+        "peak_child_tree_rss_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "rss_sample_count": {"type": "integer", "minimum": 0},
+        "memory_pressure": {
+          "type": "object", "additionalProperties": false,
+          "required": ["before_free_percent", "after_free_percent", "minimum_free_percent", "before_level", "after_level", "peak_level"],
+          "properties": {
+            "before_free_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+            "after_free_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+            "minimum_free_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+            "before_level": {"type": ["integer", "null"], "minimum": 0},
+            "after_level": {"type": ["integer", "null"], "minimum": 0},
+            "peak_level": {"type": ["integer", "null"], "minimum": 0}
+          }
+        }
+      }
+    },
+    "delivery": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/delivery"}]},
+    "decode": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/decode"}]},
+    "interruption": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "recovery"],
+      "properties": {
+        "status": {"enum": ["not_interrupted", "interrupted", "timeout"]},
+        "recovery": {"enum": ["not_exercised", "not_needed", "child_process_terminated", "child_process_termination_failed"]}
+      }
+    },
+    "reviews": {
+      "type": "object", "additionalProperties": false,
+      "required": ["technical_validation", "visual_inspection", "normal_speed_listening", "owner_acceptance", "creative_acceptance"],
+      "properties": {
+        "technical_validation": {"enum": ["passed", "failed"]},
+        "visual_inspection": {"const": "pending"},
+        "normal_speed_listening": {"const": "pending"},
+        "owner_acceptance": {"const": "pending"},
+        "creative_acceptance": {"const": false}
+      }
+    },
+    "safety": {
+      "type": "object", "additionalProperties": false,
+      "required": ["network_invoked", "publication_invoked", "models_invoked"],
+      "properties": {
+        "network_invoked": {"const": false},
+        "publication_invoked": {"const": false},
+        "models_invoked": {"const": false}
+      }
+    },
+    "failure": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["type", "message"],
+      "properties": {"type": {"type": "string", "minLength": 1}, "message": {"type": "string"}}
+    },
+    "preservation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["prior_output_preserved", "prior_report_preserved"],
+      "properties": {"prior_output_preserved": {"type": "boolean"}, "prior_report_preserved": {"type": "boolean"}}
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "qualification_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["duration_ms", "fps", "width", "height", "expected_frame_count", "duration_tolerance_ms", "audio_duration_tolerance_ms", "frame_count_tolerance", "fps_tolerance"],
+      "properties": {
+        "duration_ms": {"type": "integer", "minimum": 1500000, "maximum": 2700000},
+        "fps": {"const": 30},
+        "width": {"const": 1920},
+        "height": {"const": 1080},
+        "expected_frame_count": {"type": "integer", "minimum": 45000, "maximum": 81000},
+        "duration_tolerance_ms": {"const": 40},
+        "audio_duration_tolerance_ms": {"const": 100},
+        "frame_count_tolerance": {"const": 1},
+        "fps_tolerance": {"const": 0.001}
+      }
+    },
+    "file": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "nullable_file": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}}
+    },
+    "cache_file": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size_bytes"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}, "size_bytes": {"type": "integer", "minimum": 0}}
+    },
+    "delivery": {
+      "type": "object", "additionalProperties": false,
+      "required": ["format_name", "duration_ms", "size_bytes", "streams"],
+      "properties": {
+        "format_name": {"type": "string", "minLength": 1},
+        "duration_ms": {"type": "integer", "minimum": 1},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "streams": {
+          "type": "array", "minItems": 2, "maxItems": 2,
+          "items": {"oneOf": [{"$ref": "#/$defs/video_stream"}, {"$ref": "#/$defs/audio_stream"}]}
+        }
+      }
+    },
+    "video_stream": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "codec", "frame_count", "width", "height", "avg_frame_rate"],
+      "properties": {
+        "type": {"const": "video"}, "codec": {"type": "string", "minLength": 1},
+        "frame_count": {"type": "integer", "minimum": 1},
+        "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1},
+        "avg_frame_rate": {"type": "string", "minLength": 1}
+      }
+    },
+    "audio_stream": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "codec", "duration_ms", "sample_rate", "channels"],
+      "properties": {
+        "type": {"const": "audio"}, "codec": {"type": "string", "minLength": 1},
+        "duration_ms": {"type": "integer", "minimum": 1},
+        "sample_rate": {"type": "integer", "minimum": 1}, "channels": {"type": "integer", "minimum": 1}
+      }
+    },
+    "decode": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "exit_code", "stderr_tail"],
+      "properties": {
+        "status": {"enum": ["passed", "failed"]},
+        "exit_code": {"type": "integer"},
+        "stderr_tail": {"type": "string", "maxLength": 4000}
+      }
+    }
+  }
+}

@@ -31,10 +31,13 @@ struct PodcastVisualScoreReviewView:View {
                 if w.project.isEmpty {
                     StudioEmptyState(symbol:"waveform.path",title:"Open a production",detail:"Podcast visual-score artifacts belong to one saved Studio production.")
                 } else if let loadError {
+                    PodcastQualificationView(currentVisualScoreRevisionID:nil)
                     StudioEmptyState(symbol:"exclamationmark.triangle",title:"Podcast review artifacts need attention",detail:loadError)
                 } else if !unavailable.isEmpty {
+                    PodcastQualificationView(currentVisualScoreRevisionID:nil)
                     StudioEmptyState(symbol:"text.badge.plus",title:"No visual score to review",detail:unavailable)
                 } else if let artifacts {
+                    PodcastQualificationView(currentVisualScoreRevisionID:artifacts.score.revisionID)
                     scoreSummary(artifacts)
                     chapterReview(artifacts)
                 } else {
