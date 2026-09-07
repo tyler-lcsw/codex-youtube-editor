@@ -19,14 +19,15 @@
     "bindings": {
       "type": ["object", "null"],
       "additionalProperties": false,
-      "required": ["source", "contract", "output", "visual_score_revision_id", "reviewed_stage_current", "qualification_target"],
+      "required": ["source", "contract", "output", "visual_score_revision_id", "reviewed_stage_current", "qualification_target", "qualification_timeout_seconds"],
       "properties": {
         "source": {"$ref": "#/$defs/file"},
         "contract": {"$ref": "#/$defs/file"},
         "output": {"$ref": "#/$defs/nullable_file"},
         "visual_score_revision_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "reviewed_stage_current": {"type": "boolean"},
-        "qualification_target": {"$ref": "#/$defs/qualification_target"}
+        "qualification_target": {"$ref": "#/$defs/qualification_target"},
+        "qualification_timeout_seconds": {"type": "number", "exclusiveMinimum": 0, "maximum": 86400}
       }
     },
     "cache": {

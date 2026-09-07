@@ -122,6 +122,7 @@ def test_worker_publishes_atomic_success_report_without_claiming_review(tmp_path
     assert report["schema_version"] == 1 and report["status"] == "succeeded"
     assert report["bindings"]["output"]["sha256"]
     assert report["bindings"]["visual_score_revision_id"] == "a" * 64
+    assert report["bindings"]["qualification_timeout_seconds"] == 60
     assert report["performance"]["peak_child_tree_rss_bytes"] == 123_456
     assert report["bindings"]["qualification_target"] == {
         "duration_ms": 1_500_000,

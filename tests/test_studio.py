@@ -80,7 +80,14 @@ def test_podcast_qualification_status_is_read_only_and_detects_bound_input_chang
         qualification, '_require_running_quality_action',
         lambda _project, _command, expected_id=None: expected_id or 'action',
     )
-    qualification.run_worker(project, contract, output, timeout=60)
+    report = qualification.run_worker(project, contract, output, timeout=60)
+    expected_command = qualification._worker_command(project, contract, output, 60)
+    valid_action = {
+        'id': report['quality_action_id'], 'status': 'succeeded', 'exit_code': 0, 'command': expected_command,
+    }
+    quality_state = project / 'work/quality/state.json'
+    quality_state.parent.mkdir(parents=True, exist_ok=True)
+    quality_state.write_text(json.dumps({'actions': [valid_action]}))
     before_state = (project / 'work/studio/project.json').read_bytes()
 
     current = call(project, 'podcast_qualification_status')
@@ -93,6 +100,27 @@ def test_podcast_qualification_status_is_read_only_and_detects_bound_input_chang
         'report_visual_score_revision_id': 'a' * 64,
     }
     assert (project / 'work/studio/project.json').read_bytes() == before_state
+
+    invalid_histories = [
+        [],
+        [valid_action | {'id': 'wrong-action'}],
+        [valid_action | {'status': 'running'}],
+        [valid_action | {'status': 'failed'}],
+        [valid_action | {'exit_code': 1}],
+        [valid_action | {'command': ['mismatched']}],
+    ]
+    for actions in invalid_histories:
+        quality_state.write_text(json.dumps({'actions': actions}))
+        assert call(project, 'podcast_qualification_status')['reasons'] == ['quality_action_invalid']
+    quality_state.write_text(json.dumps({'actions': [valid_action]}))
+
+    report_path = project / 'work/podcast/qualification/report.json'
+    original_report = report_path.read_text()
+    for report_change in ({'quality_action_id': 'forged'}, {'bindings': report['bindings'] | {'qualification_timeout_seconds': 61}}):
+        changed_report = report | report_change
+        report_path.write_text(json.dumps(changed_report))
+        assert call(project, 'podcast_qualification_status')['reasons'] == ['quality_action_invalid']
+    report_path.write_text(original_report)
 
     output.write_bytes(b'changed output')
     assert call(project, 'podcast_qualification_status')['reasons'] == ['output_changed']

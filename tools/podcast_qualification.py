@@ -50,6 +50,7 @@ DURATION_TOLERANCE_MS = 40
 AUDIO_DURATION_TOLERANCE_MS = 100
 FRAME_COUNT_TOLERANCE = 1
 FPS_TOLERANCE = 0.001
+MAX_QUALIFICATION_TIMEOUT_SECONDS = 86_400
 
 
 def now() -> str:
@@ -229,6 +230,18 @@ def _worker_command(project: Path, contract: Path, output: Path, timeout: float)
         "--timeout",
         f"{float(timeout):.17g}",
     ]
+
+
+def _qualification_timeout_seconds(value: float) -> float:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value <= 0
+        or value > MAX_QUALIFICATION_TIMEOUT_SECONDS
+    ):
+        raise ValueError("Qualification timeout must be between 0 and 86400 seconds")
+    return value
 
 
 def _require_running_quality_action(
@@ -541,6 +554,7 @@ def run_worker(
     project = Path(project).expanduser().resolve()
     contract = Path(contract).expanduser().resolve()
     output = Path(output).expanduser().resolve()
+    timeout = _qualification_timeout_seconds(timeout)
     expected_action_command = _worker_command(project, contract, output, timeout)
     action_id = _require_running_quality_action(project, expected_action_command)
     if not contract.is_relative_to(project):
@@ -559,7 +573,10 @@ def run_worker(
     performance = None
     scratch = None
     try:
-        bindings = _input_binding(project, contract)
+        bindings = {
+            **_input_binding(project, contract),
+            "qualification_timeout_seconds": timeout,
+        }
         output.parent.mkdir(parents=True, exist_ok=True)
         scratch = Path(tempfile.mkdtemp(prefix=".podcast-qualification-", dir=output.parent))
         staged = scratch / "candidate.mp4"
@@ -600,7 +617,10 @@ def run_worker(
         # Match the renderer's decision-race boundary: no Studio owner action
         # can land between final reviewed-binding validation and publication.
         with file_lock(project / "work/studio/.lock"):
-            current = _input_binding(project, contract)
+            current = {
+                **_input_binding(project, contract),
+                "qualification_timeout_seconds": timeout,
+            }
             if current != bindings:
                 raise ValueError("Podcast qualification inputs changed during measurement")
             _publish_success(output, staged, report_path, report, scratch)
@@ -659,6 +679,7 @@ def run_worker(
 
 def qualify(project: Path, evidence: list[Path], *, timeout: float = 14_400) -> dict:
     project = Path(project).expanduser().resolve()
+    timeout = _qualification_timeout_seconds(timeout)
     contract = project / DEFAULT_CONTRACT
     output = project / DEFAULT_OUTPUT
     command = _worker_command(project, contract, output, timeout)
@@ -713,6 +734,24 @@ def qualification_status(project: Path, _data: dict) -> dict:
 
     reasons = []
     reported = report["bindings"]
+    expected_action_command = _worker_command(
+        project,
+        project / DEFAULT_CONTRACT,
+        project / DEFAULT_OUTPUT,
+        reported["qualification_timeout_seconds"],
+    )
+    try:
+        action_history = production_quality.state(project).get("actions", [])
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        action_history = []
+    referenced_actions = [action for action in action_history if action.get("id") == report["quality_action_id"]]
+    if (
+        len(referenced_actions) != 1
+        or referenced_actions[0].get("status") != "succeeded"
+        or referenced_actions[0].get("exit_code") != 0
+        or referenced_actions[0].get("command") != expected_action_command
+    ):
+        reasons.append("quality_action_invalid")
     try:
         current = _input_binding(project, (project / DEFAULT_CONTRACT).resolve())
     except (OSError, ValueError):
