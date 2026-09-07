@@ -47,6 +47,7 @@ TARGET_FPS = 30
 TARGET_WIDTH = 1920
 TARGET_HEIGHT = 1080
 DURATION_TOLERANCE_MS = 40
+AUDIO_DURATION_TOLERANCE_MS = 100
 FRAME_COUNT_TOLERANCE = 1
 FPS_TOLERANCE = 0.001
 
@@ -104,6 +105,7 @@ def _validate_qualification_target(target: dict) -> dict:
         raise ValueError("Long-form qualification frame target does not match canonical duration")
     expected_tolerances = {
         "duration_tolerance_ms": DURATION_TOLERANCE_MS,
+        "audio_duration_tolerance_ms": AUDIO_DURATION_TOLERANCE_MS,
         "frame_count_tolerance": FRAME_COUNT_TOLERANCE,
         "fps_tolerance": FPS_TOLERANCE,
     }
@@ -126,6 +128,7 @@ def _qualification_target(contract: dict) -> dict:
             else None
         ),
         "duration_tolerance_ms": DURATION_TOLERANCE_MS,
+        "audio_duration_tolerance_ms": AUDIO_DURATION_TOLERANCE_MS,
         "frame_count_tolerance": FRAME_COUNT_TOLERANCE,
         "fps_tolerance": FPS_TOLERANCE,
     }
@@ -136,8 +139,11 @@ def _validate_delivery_against_target(delivery: dict, target: dict) -> None:
     if abs(delivery.get("duration_ms", -1) - target["duration_ms"]) > target["duration_tolerance_ms"]:
         raise ValueError("Qualified delivery duration does not match the long-form contract")
     videos = [stream for stream in delivery.get("streams", []) if stream.get("type") == "video"]
+    audios = [stream for stream in delivery.get("streams", []) if stream.get("type") == "audio"]
     if len(videos) != 1:
         raise ValueError("Qualified delivery requires exactly one canonical video stream")
+    if len(audios) != 1:
+        raise ValueError("Qualified delivery requires exactly one canonical audio stream")
     video = videos[0]
     if (video.get("width"), video.get("height")) != (target["width"], target["height"]):
         raise ValueError("Qualified delivery dimensions do not match the long-form contract")
@@ -149,6 +155,15 @@ def _validate_delivery_against_target(delivery: dict, target: dict) -> None:
         raise ValueError("Qualified delivery has an invalid average frame rate") from error
     if not math.isfinite(frame_rate) or abs(frame_rate - target["fps"]) > target["fps_tolerance"]:
         raise ValueError("Qualified delivery frame rate does not match the long-form contract")
+    audio_duration = audios[0].get("duration_ms", -1)
+    audio_tolerance = target["audio_duration_tolerance_ms"]
+    video_duration = video["frame_count"] / frame_rate * 1000
+    if (
+        abs(audio_duration - target["duration_ms"]) > audio_tolerance
+        or abs(audio_duration - delivery["duration_ms"]) > audio_tolerance
+        or abs(audio_duration - video_duration) > audio_tolerance
+    ):
+        raise ValueError("Qualified delivery audio duration does not match the canonical target, video, and container")
 
 
 def _platform() -> dict:
@@ -200,18 +215,38 @@ def _input_binding(project: Path, contract_path: Path) -> dict:
     }
 
 
-def _running_quality_action_id(project: Path) -> str | None:
-    running = []
-    for action in production_quality.state(project).get("actions", []):
-        command = action.get("command", [])
-        if (
-            action.get("status") == "running"
-            and isinstance(command, list)
-            and "tools.podcast_qualification" in command
-            and "_worker" in command
-        ):
-            running.append(action.get("id"))
-    return running[0] if len(running) == 1 and isinstance(running[0], str) else None
+def _worker_command(project: Path, contract: Path, output: Path, timeout: float) -> list[str]:
+    return [
+        sys.executable,
+        "-m",
+        "tools.podcast_qualification",
+        "_worker",
+        str(Path(project).resolve()),
+        "--contract",
+        str(Path(contract).resolve()),
+        "--output",
+        str(Path(output).resolve()),
+        "--timeout",
+        f"{float(timeout):.17g}",
+    ]
+
+
+def _require_running_quality_action(
+    project: Path,
+    expected_command: list[str],
+    *,
+    expected_id: str | None = None,
+) -> str:
+    matches = [
+        action
+        for action in production_quality.state(project).get("actions", [])
+        if action.get("status") == "running"
+        and action.get("command") == expected_command
+        and (expected_id is None or action.get("id") == expected_id)
+    ]
+    if len(matches) != 1 or not isinstance(matches[0].get("id"), str):
+        raise ValueError("Podcast qualification requires exactly one matching running production-quality action")
+    return matches[0]["id"]
 
 
 def _memory_pressure_percent() -> float | None:
@@ -297,13 +332,21 @@ def _run_measured(command: list[str], timeout: float) -> dict:
                         level_samples.append(level)
                     next_pressure = current + 2
                 if current - started > timeout:
-                    terminate_group(process)
                     raise subprocess.TimeoutExpired(command, timeout)
                 time.sleep(0.25)
             code = process.wait()
-        except BaseException:
+        except BaseException as error:
+            recovery = "not_needed"
             if process.poll() is None:
-                terminate_group(process)
+                try:
+                    terminate_group(process)
+                    recovery = "child_process_terminated" if process.poll() is not None else "child_process_termination_failed"
+                except BaseException:
+                    recovery = "child_process_termination_failed"
+            try:
+                error._podcast_qualification_recovery = recovery
+            except (AttributeError, TypeError):
+                pass
             raise
         if code:
             log.seek(0, os.SEEK_END)
@@ -342,8 +385,13 @@ def inspect_delivery(path: Path) -> tuple[dict, dict]:
     if result.returncode:
         raise RuntimeError("ffprobe failed: " + result.stderr[-2000:])
     info = json.loads(result.stdout)
+    raw_streams = info.get("streams", [])
+    if sum(stream.get("codec_type") == "video" for stream in raw_streams) != 1:
+        raise ValueError("Qualified delivery requires exactly one video stream")
+    if sum(stream.get("codec_type") == "audio" for stream in raw_streams) != 1:
+        raise ValueError("Qualified delivery requires exactly one audio stream")
     streams = []
-    for stream in info.get("streams", []):
+    for stream in raw_streams:
         kind = stream.get("codec_type")
         if kind == "video":
             raw_count = stream.get("nb_read_frames", stream.get("nb_frames"))
@@ -362,10 +410,12 @@ def inspect_delivery(path: Path) -> tuple[dict, dict]:
                 }
             )
         elif kind == "audio":
+            duration_ms = _stream_duration_ms(stream)
             streams.append(
                 {
                     "type": "audio",
                     "codec": stream.get("codec_name") or "unknown",
+                    "duration_ms": duration_ms,
                     "sample_rate": int(stream.get("sample_rate", 0)),
                     "channels": int(stream.get("channels", 0)),
                 }
@@ -404,7 +454,35 @@ def inspect_delivery(path: Path) -> tuple[dict, dict]:
     return delivery, decode
 
 
-def _execute(project: Path, contract: Path, output: Path, result_path: Path) -> None:
+def _stream_duration_ms(stream: dict) -> int:
+    raw_duration = stream.get("duration")
+    try:
+        seconds = float(raw_duration)
+    except (TypeError, ValueError):
+        seconds = math.nan
+    if not math.isfinite(seconds) or seconds <= 0:
+        try:
+            seconds = float(Fraction(str(stream["duration_ts"])) * Fraction(stream["time_base"]))
+        except (KeyError, TypeError, ValueError, ZeroDivisionError) as error:
+            raise ValueError("ffprobe did not return a bounded audio stream duration") from error
+    duration_ms = round(seconds * 1000)
+    if not math.isfinite(seconds) or duration_ms <= 0:
+        raise ValueError("ffprobe did not return a bounded audio stream duration")
+    return duration_ms
+
+
+def _execute(
+    project: Path,
+    contract: Path,
+    output: Path,
+    result_path: Path,
+    *,
+    quality_action_id: str,
+    worker_output: Path,
+    worker_timeout: float,
+) -> None:
+    expected_command = _worker_command(project, contract, worker_output, worker_timeout)
+    _require_running_quality_action(project, expected_command, expected_id=quality_action_id)
     target = _qualification_target(podcast_stage.validate_contract(json.loads(contract.read_text())))
     podcast_stage.render(project, contract, output, record_receipt=False)
     delivery, decode = inspect_delivery(output)
@@ -459,14 +537,12 @@ def run_worker(
     output: Path,
     *,
     timeout: float,
-    quality_action_id: str | None = None,
 ) -> dict:
     project = Path(project).expanduser().resolve()
     contract = Path(contract).expanduser().resolve()
     output = Path(output).expanduser().resolve()
-    action_id = quality_action_id or _running_quality_action_id(project)
-    if not action_id:
-        raise ValueError("Podcast qualification must run inside a production-quality action")
+    expected_action_command = _worker_command(project, contract, output, timeout)
+    action_id = _require_running_quality_action(project, expected_action_command)
     if not contract.is_relative_to(project):
         raise ValueError("Podcast qualification contract must remain inside the project")
     if not output.is_relative_to((project / "output").resolve()):
@@ -491,6 +567,7 @@ def run_worker(
         command = [
             sys.executable, "-m", "tools.podcast_qualification", "_execute", str(project),
             "--contract", str(contract), "--output", str(staged), "--result", str(result_path),
+            "--quality-action-id", action_id, "--worker-output", str(output), "--worker-timeout", f"{float(timeout):.17g}",
         ]
         performance = _run_measured(command, timeout)
         result = json.loads(result_path.read_text())
@@ -558,7 +635,11 @@ def run_worker(
             "decode": None,
             "interruption": {
                 "status": "interrupted" if interrupted else "timeout" if timeout_failure else "not_interrupted",
-                "recovery": "child_process_terminated" if interrupted or timeout_failure else "not_needed",
+                "recovery": (
+                    getattr(error, "_podcast_qualification_recovery", "not_needed")
+                    if interrupted or timeout_failure
+                    else "not_needed"
+                ),
             },
             "reviews": _reviews(False),
             "safety": _safety(),
@@ -580,10 +661,7 @@ def qualify(project: Path, evidence: list[Path], *, timeout: float = 14_400) -> 
     project = Path(project).expanduser().resolve()
     contract = project / DEFAULT_CONTRACT
     output = project / DEFAULT_OUTPUT
-    command = [
-        sys.executable, "-m", "tools.podcast_qualification", "_worker", str(project),
-        "--contract", str(contract), "--output", str(output), "--timeout", str(timeout),
-    ]
+    command = _worker_command(project, contract, output, timeout)
     action = production_quality.run_action(
         project,
         command,
@@ -596,6 +674,69 @@ def qualify(project: Path, evidence: list[Path], *, timeout: float = 14_400) -> 
     report_path = project / REPORT_PATH
     report = json.loads(report_path.read_text()) if action.get("status") == "succeeded" and report_path.is_file() else None
     return {"action": action, "report": report}
+
+
+def qualification_status(project: Path, _data: dict) -> dict:
+    """Return currentness of canonical qualification evidence without changing state."""
+    project = Path(project).expanduser().resolve()
+    report_path = project / REPORT_PATH
+    result = {
+        "schema_version": 1,
+        "current": False,
+        "reasons": [],
+        "report_attempt_id": None,
+        "report_visual_score_revision_id": None,
+    }
+    if not report_path.is_file():
+        result["reasons"] = ["report_missing"]
+        return result
+    try:
+        report = json.loads(report_path.read_text())
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        result["reasons"] = ["report_invalid"]
+        return result
+    if isinstance(report, dict):
+        attempt_id = report.get("attempt_id")
+        if isinstance(attempt_id, str):
+            result["report_attempt_id"] = attempt_id
+        bindings = report.get("bindings")
+        if isinstance(bindings, dict) and isinstance(bindings.get("visual_score_revision_id"), str):
+            result["report_visual_score_revision_id"] = bindings["visual_score_revision_id"]
+    try:
+        validate_report(report)
+    except (TypeError, ValueError):
+        result["reasons"] = ["report_invalid"]
+        return result
+    if report["status"] != "succeeded":
+        result["reasons"] = ["report_not_succeeded"]
+        return result
+
+    reasons = []
+    reported = report["bindings"]
+    try:
+        current = _input_binding(project, (project / DEFAULT_CONTRACT).resolve())
+    except (OSError, ValueError):
+        current = None
+        reasons.append("reviewed_stage_stale")
+    if current is not None:
+        if current["source"] != reported["source"]:
+            reasons.append("source_changed")
+        if current["contract"] != reported["contract"]:
+            reasons.append("contract_changed")
+        if current["visual_score_revision_id"] != reported["visual_score_revision_id"]:
+            reasons.append("visual_score_changed")
+        if current["qualification_target"] != reported["qualification_target"]:
+            reasons.append("qualification_target_changed")
+
+    expected_output = (project / DEFAULT_OUTPUT).resolve()
+    reported_output = reported["output"]
+    if not expected_output.is_file():
+        reasons.append("output_missing")
+    elif reported_output["path"] != str(expected_output) or reported_output["sha256"] != file_hash(expected_output):
+        reasons.append("output_changed")
+    result["reasons"] = list(dict.fromkeys(reasons))[:10]
+    result["current"] = not result["reasons"]
+    return result
 
 
 def _install_interrupt_handler():
@@ -625,6 +766,9 @@ def main() -> None:
     execute.add_argument("--contract", type=Path, required=True)
     execute.add_argument("--output", type=Path, required=True)
     execute.add_argument("--result", type=Path, required=True)
+    execute.add_argument("--quality-action-id", required=True)
+    execute.add_argument("--worker-output", type=Path, required=True)
+    execute.add_argument("--worker-timeout", type=float, required=True)
     args = parser.parse_args()
     if args.command == "qualify":
         result = qualify(args.project, args.evidence, timeout=args.timeout)
@@ -632,7 +776,15 @@ def main() -> None:
         if result["action"].get("status") != "succeeded":
             raise SystemExit(1)
     elif args.command == "_execute":
-        _execute(args.project, args.contract, args.output, args.result)
+        _execute(
+            args.project,
+            args.contract,
+            args.output,
+            args.result,
+            quality_action_id=args.quality_action_id,
+            worker_output=args.worker_output,
+            worker_timeout=args.worker_timeout,
+        )
     else:
         previous = _install_interrupt_handler()
         try:

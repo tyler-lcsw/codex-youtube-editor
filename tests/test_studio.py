@@ -23,6 +23,92 @@ def media(tmp_path):
 def call(p, method, **params):
     return dispatch({'method': method, 'project': str(p), 'params': params})
 
+
+def test_podcast_qualification_status_is_read_only_and_detects_bound_input_changes(project, monkeypatch):
+    from tools import podcast_qualification as qualification
+
+    contract = project / 'work/podcast/stage-reviewed.json'
+    output = project / 'output/podcast-qualified.mp4'
+    source = project / 'source/audio.wav'
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_bytes(b'source')
+    contract.parent.mkdir(parents=True, exist_ok=True)
+    contract.write_bytes(b'contract')
+    stale_review = [False]
+    revision = ['a' * 64]
+
+    def current_binding(_project, _contract):
+        if stale_review[0]:
+            raise ValueError('owner decisions changed')
+        return {
+            'source': {'path': str(source), 'sha256': qualification.file_hash(source)},
+            'contract': {'path': str(contract), 'sha256': qualification.file_hash(contract)},
+            'visual_score_revision_id': revision[0],
+            'reviewed_stage_current': True,
+            'qualification_target': {
+                'duration_ms': 1_500_000, 'fps': 30, 'width': 1920, 'height': 1080,
+                'expected_frame_count': 45_000, 'duration_tolerance_ms': 40,
+                'audio_duration_tolerance_ms': 100, 'frame_count_tolerance': 1, 'fps_tolerance': 0.001,
+            },
+        }
+
+    def fake_qualification(command, _timeout):
+        staged = Path(command[command.index('--output') + 1])
+        result = Path(command[command.index('--result') + 1])
+        staged.write_bytes(b'qualified output')
+        result.write_text(json.dumps({
+            'delivery': {
+                'format_name': 'mov,mp4', 'duration_ms': 1_500_000, 'size_bytes': staged.stat().st_size,
+                'streams': [
+                    {'type': 'video', 'codec': 'h264', 'frame_count': 45_000, 'width': 1920, 'height': 1080, 'avg_frame_rate': '30/1'},
+                    {'type': 'audio', 'codec': 'aac', 'duration_ms': 1_500_000, 'sample_rate': 48_000, 'channels': 2},
+                ],
+            },
+            'decode': {'status': 'passed', 'exit_code': 0, 'stderr_tail': ''},
+        }))
+        return {
+            'wall_time_seconds': 1, 'peak_child_tree_rss_bytes': 1, 'rss_sample_count': 1,
+            'memory_pressure': {
+                'before_free_percent': None, 'after_free_percent': None, 'minimum_free_percent': None,
+                'before_level': None, 'after_level': None, 'peak_level': None,
+            },
+        }
+
+    monkeypatch.setattr(qualification, '_input_binding', current_binding)
+    monkeypatch.setattr(qualification, '_run_measured', fake_qualification)
+    monkeypatch.setattr(
+        qualification, '_require_running_quality_action',
+        lambda _project, _command, expected_id=None: expected_id or 'action',
+    )
+    qualification.run_worker(project, contract, output, timeout=60)
+    before_state = (project / 'work/studio/project.json').read_bytes()
+
+    current = call(project, 'podcast_qualification_status')
+    assert isinstance(current['report_attempt_id'], str) and current['report_attempt_id']
+    assert current == {
+        'schema_version': 1,
+        'current': True,
+        'reasons': [],
+        'report_attempt_id': current['report_attempt_id'],
+        'report_visual_score_revision_id': 'a' * 64,
+    }
+    assert (project / 'work/studio/project.json').read_bytes() == before_state
+
+    output.write_bytes(b'changed output')
+    assert call(project, 'podcast_qualification_status')['reasons'] == ['output_changed']
+    output.write_bytes(b'qualified output')
+    source.write_bytes(b'changed source')
+    assert 'source_changed' in call(project, 'podcast_qualification_status')['reasons']
+    source.write_bytes(b'source')
+    contract.write_bytes(b'changed contract')
+    assert 'contract_changed' in call(project, 'podcast_qualification_status')['reasons']
+    contract.write_bytes(b'contract')
+    revision[0] = 'b' * 64
+    assert 'visual_score_changed' in call(project, 'podcast_qualification_status')['reasons']
+    revision[0] = 'a' * 64
+    stale_review[0] = True
+    assert call(project, 'podcast_qualification_status')['reasons'] == ['reviewed_stage_stale']
+
 def test_brief_and_thread_survive_reopen(project):
     call(project, 'update_brief', brief={'audience': 'Learners', 'purpose': 'Explain'})
     call(project, 'set_thread', thread_id='thread-123')

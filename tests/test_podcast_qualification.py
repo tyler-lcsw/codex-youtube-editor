@@ -26,6 +26,7 @@ def fake_binding(project: Path, contract: Path) -> dict:
             "height": 1080,
             "expected_frame_count": 45_000,
             "duration_tolerance_ms": 40,
+            "audio_duration_tolerance_ms": 100,
             "frame_count_tolerance": 1,
             "fps_tolerance": 0.001,
         },
@@ -33,6 +34,7 @@ def fake_binding(project: Path, contract: Path) -> dict:
 
 
 def fake_executor(command, timeout):
+    assert command[command.index("--quality-action-id") + 1]
     output = Path(command[command.index("--output") + 1])
     result = Path(command[command.index("--result") + 1])
     output.write_bytes(b"qualified output")
@@ -45,7 +47,7 @@ def fake_executor(command, timeout):
                     "size_bytes": output.stat().st_size,
                     "streams": [
                         {"type": "video", "codec": "h264", "frame_count": 45_000, "width": 1920, "height": 1080, "avg_frame_rate": "30/1"},
-                        {"type": "audio", "codec": "aac", "sample_rate": 48_000, "channels": 2},
+                        {"type": "audio", "codec": "aac", "duration_ms": 1_500_000, "sample_rate": 48_000, "channels": 2},
                     ],
                 },
                 "decode": {"status": "passed", "exit_code": 0, "stderr_tail": ""},
@@ -61,6 +63,14 @@ def fake_executor(command, timeout):
             "before_level": 1, "after_level": 1, "peak_level": 1,
         },
     }
+
+
+def authorize_worker(monkeypatch, qualification, action_id="quality-action"):
+    monkeypatch.setattr(
+        qualification,
+        "_require_running_quality_action",
+        lambda _project, _command, expected_id=None: expected_id or action_id,
+    )
 
 
 def test_public_qualification_routes_render_through_production_quality(tmp_path, monkeypatch):
@@ -104,8 +114,9 @@ def test_worker_publishes_atomic_success_report_without_claiming_review(tmp_path
     old_report.write_text('{"old":true}')
     monkeypatch.setattr(qualification, "_input_binding", lambda p, c: fake_binding(p, c))
     monkeypatch.setattr(qualification, "_run_measured", fake_executor)
+    authorize_worker(monkeypatch, qualification, "action-1")
 
-    report = qualification.run_worker(project, contract, output, timeout=60, quality_action_id="action-1")
+    report = qualification.run_worker(project, contract, output, timeout=60)
     assert output.read_bytes() == b"qualified output"
     assert json.loads(old_report.read_text()) == report
     assert report["schema_version"] == 1 and report["status"] == "succeeded"
@@ -119,6 +130,7 @@ def test_worker_publishes_atomic_success_report_without_claiming_review(tmp_path
         "height": 1080,
         "expected_frame_count": 45_000,
         "duration_tolerance_ms": 40,
+        "audio_duration_tolerance_ms": 100,
         "frame_count_tolerance": 1,
         "fps_tolerance": 0.001,
     }
@@ -145,6 +157,11 @@ def test_worker_publishes_atomic_success_report_without_claiming_review(tmp_path
         lambda report: next(stream for stream in report["delivery"]["streams"] if stream["type"] == "video").update(width=1280),
         lambda report: next(stream for stream in report["delivery"]["streams"] if stream["type"] == "video").update(frame_count=44_990),
         lambda report: next(stream for stream in report["delivery"]["streams"] if stream["type"] == "video").update(avg_frame_rate="30000/1001"),
+        lambda report: next(stream for stream in report["delivery"]["streams"] if stream["type"] == "audio").update(duration_ms=1_499_000),
+        lambda report: next(stream for stream in report["delivery"]["streams"] if stream["type"] == "audio").update(duration_ms=1_501_000),
+        lambda report: report["delivery"]["streams"].append(
+            copy.deepcopy(next(stream for stream in report["delivery"]["streams"] if stream["type"] == "audio"))
+        ),
     ],
 )
 def test_success_report_rejects_noncanonical_target_or_delivery(tmp_path, monkeypatch, change):
@@ -155,7 +172,8 @@ def test_success_report_rejects_noncanonical_target_or_delivery(tmp_path, monkey
     output = project / "output/podcast-qualified.mp4"
     monkeypatch.setattr(qualification, "_input_binding", lambda p, c: fake_binding(p, c))
     monkeypatch.setattr(qualification, "_run_measured", fake_executor)
-    report = qualification.run_worker(project, contract, output, timeout=60, quality_action_id="action-target")
+    authorize_worker(monkeypatch, qualification)
+    report = qualification.run_worker(project, contract, output, timeout=60)
     changed = copy.deepcopy(report)
     change(changed)
 
@@ -212,6 +230,33 @@ def test_child_tree_rss_sampling_is_bounded_to_once_per_second(monkeypatch):
     assert all(later - earlier >= 1 for earlier, later in zip(rss_samples, rss_samples[1:]))
 
 
+def test_measured_timeout_claims_child_termination_only_after_reap(monkeypatch):
+    from tools import podcast_qualification as qualification
+
+    clock = [0.0]
+
+    class Process:
+        pid = 123
+        alive = True
+
+        def poll(self):
+            return None if self.alive else -15
+
+    process = Process()
+    monkeypatch.setattr(qualification.subprocess, "Popen", lambda *_args, **_kwargs: process)
+    monkeypatch.setattr(qualification.time, "monotonic", lambda: clock[0])
+    monkeypatch.setattr(qualification.time, "sleep", lambda seconds: clock.__setitem__(0, clock[0] + seconds))
+    monkeypatch.setattr(qualification, "_child_tree_rss_bytes", lambda _pid: 1024)
+    monkeypatch.setattr(qualification, "_memory_pressure_percent", lambda: None)
+    monkeypatch.setattr(qualification, "_memory_pressure_level", lambda: None)
+    monkeypatch.setattr(qualification, "terminate_group", lambda child: setattr(child, "alive", False))
+
+    with pytest.raises(subprocess.TimeoutExpired) as caught:
+        qualification._run_measured(["worker"], timeout=0.5)
+
+    assert caught.value._podcast_qualification_recovery == "child_process_terminated"
+
+
 @pytest.mark.parametrize(
     ("raised", "expected_status"),
     [(RuntimeError("decode failed"), "failed"), (KeyboardInterrupt(), "interrupted")],
@@ -238,8 +283,9 @@ def test_worker_failure_or_interruption_preserves_prior_report_and_output(
         raise raised
 
     monkeypatch.setattr(qualification, "_run_measured", fail_after_staging)
+    authorize_worker(monkeypatch, qualification, "action-2")
     with pytest.raises(BaseException) as caught:
-        qualification.run_worker(project, contract, output, timeout=60, quality_action_id="action-2")
+        qualification.run_worker(project, contract, output, timeout=60)
     assert isinstance(caught.value, type(raised))
     assert output.read_bytes() == previous_output
     assert report_path.read_bytes() == previous_report
@@ -248,8 +294,37 @@ def test_worker_failure_or_interruption_preserves_prior_report_and_output(
     attempt = json.loads(attempts[0].read_text())
     assert attempt["status"] == expected_status
     assert attempt["preservation"] == {"prior_output_preserved": True, "prior_report_preserved": True}
-    assert attempt["interruption"]["status"] == ("interrupted" if expected_status == "interrupted" else "not_interrupted")
+    assert attempt["interruption"] == {
+        "status": "interrupted" if expected_status == "interrupted" else "not_interrupted",
+        "recovery": "not_needed",
+    }
     qualification.validate_report(attempt)
+
+
+@pytest.mark.parametrize("interrupt_at", ["prelaunch", "publication"])
+def test_interrupt_without_a_live_child_reports_no_cleanup(tmp_path, monkeypatch, interrupt_at):
+    from tools import podcast_qualification as qualification
+
+    project = tmp_path / interrupt_at
+    contract = project / "work/podcast/stage-reviewed.json"
+    output = project / "output/podcast-qualified.mp4"
+    authorize_worker(monkeypatch, qualification)
+    if interrupt_at == "prelaunch":
+        monkeypatch.setattr(qualification, "_input_binding", lambda *_args: (_ for _ in ()).throw(KeyboardInterrupt()))
+    else:
+        monkeypatch.setattr(qualification, "_input_binding", lambda p, c: fake_binding(p, c))
+        monkeypatch.setattr(qualification, "_run_measured", fake_executor)
+        monkeypatch.setattr(
+            qualification,
+            "_publish_success",
+            lambda *_args: (_ for _ in ()).throw(KeyboardInterrupt()),
+        )
+
+    with pytest.raises(KeyboardInterrupt):
+        qualification.run_worker(project, contract, output, timeout=60)
+
+    attempt = json.loads(next((project / "work/podcast/qualification/attempts").glob("*.json")).read_text())
+    assert attempt["interruption"] == {"status": "interrupted", "recovery": "not_needed"}
 
 
 def test_worker_requires_a_running_quality_action(tmp_path, monkeypatch):
@@ -258,9 +333,63 @@ def test_worker_requires_a_running_quality_action(tmp_path, monkeypatch):
     project = tmp_path / "project"
     contract = project / "work/podcast/stage-reviewed.json"
     output = project / "output/podcast-qualified.mp4"
-    monkeypatch.setattr(qualification, "_running_quality_action_id", lambda _project: None)
     with pytest.raises(ValueError, match="production-quality"):
         qualification.run_worker(project, contract, output, timeout=1)
+
+
+def test_worker_rejects_arbitrary_action_override_and_mismatched_exact_command(tmp_path):
+    from tools import podcast_qualification as qualification
+
+    project = tmp_path / "project"
+    project.mkdir()
+    contract = project / "work/podcast/stage-reviewed.json"
+    output = project / "output/podcast-qualified.mp4"
+    with pytest.raises(TypeError, match="quality_action_id"):
+        qualification.run_worker(project, contract, output, timeout=1, quality_action_id="forged")
+
+    state_path = project / "work/quality/state.json"
+    state_path.parent.mkdir(parents=True)
+    state_path.write_text(json.dumps({"actions": [{"id": "action", "status": "running", "command": ["other"]}]}))
+    with pytest.raises(ValueError, match="exactly one"):
+        qualification.run_worker(project, contract, output, timeout=1)
+
+
+def test_execute_requires_exact_running_parent_quality_action(tmp_path, monkeypatch):
+    from tools import podcast_qualification as qualification
+
+    project = tmp_path / "project"
+    project.mkdir()
+    contract = project / "work/podcast/stage-reviewed.json"
+    output = project / "output/podcast-qualified.mp4"
+    result = project / "result.json"
+    state_path = project / "work/quality/state.json"
+    state_path.parent.mkdir(parents=True)
+    expected = qualification._worker_command(project.resolve(), contract.resolve(), output.resolve(), 60)
+    state_path.write_text(json.dumps({"actions": [{"id": "action", "status": "failed", "command": expected}]}))
+    monkeypatch.setattr(qualification.podcast_stage, "render", lambda *_args, **_kwargs: pytest.fail("render started"))
+
+    with pytest.raises(ValueError, match="exactly one"):
+        qualification._execute(
+            project, contract, project / "candidate.mp4", result,
+            quality_action_id="action", worker_output=output, worker_timeout=60,
+        )
+    state_path.write_text(json.dumps({"actions": [{"id": "action", "status": "running", "command": expected}]}))
+    with pytest.raises(ValueError, match="exactly one"):
+        qualification._execute(
+            project, contract, project / "candidate.mp4", result,
+            quality_action_id="wrong-action", worker_output=output, worker_timeout=60,
+        )
+
+    cli = subprocess.run(
+        [
+            sys.executable, "-m", "tools.podcast_qualification", "_execute", str(project),
+            "--contract", str(contract), "--output", str(project / "candidate.mp4"), "--result", str(result),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert cli.returncode == 2
+    assert "--quality-action-id" in cli.stderr
 
 
 def test_worker_revalidates_reviewed_binding_before_publication(tmp_path, monkeypatch):
@@ -284,8 +413,9 @@ def test_worker_revalidates_reviewed_binding_before_publication(tmp_path, monkey
 
     monkeypatch.setattr(qualification, "_input_binding", changing_binding)
     monkeypatch.setattr(qualification, "_run_measured", fake_executor)
+    authorize_worker(monkeypatch, qualification, "action-3")
     with pytest.raises(ValueError, match="changed during measurement"):
-        qualification.run_worker(project, contract, output, timeout=60, quality_action_id="action-3")
+        qualification.run_worker(project, contract, output, timeout=60)
     assert output.read_bytes() == b"previous output"
     assert report_path.read_bytes() == b'{"previous":true}'
 
@@ -307,8 +437,38 @@ def test_real_delivery_probe_counts_frames_and_fully_decodes(tmp_path):
     assert delivery["duration_ms"] == pytest.approx(1_000, abs=80)
     assert {stream["type"] for stream in delivery["streams"]} >= {"audio", "video"}
     video = next(stream for stream in delivery["streams"] if stream["type"] == "video")
+    audio = next(stream for stream in delivery["streams"] if stream["type"] == "audio")
     assert video["codec"] == "h264" and video["frame_count"] == 10
+    assert audio["duration_ms"] == pytest.approx(1_000, abs=80)
     assert decode["status"] == "passed" and decode["exit_code"] == 0
+
+
+def test_audio_stream_duration_falls_back_to_duration_ticks():
+    from tools import podcast_qualification as qualification
+
+    assert qualification._stream_duration_ms({"duration_ts": "48000", "time_base": "1/48000"}) == 1_000
+    with pytest.raises(ValueError, match="audio stream duration"):
+        qualification._stream_duration_ms({"duration": "N/A"})
+
+
+def test_delivery_probe_rejects_multiple_audio_streams_before_decode(tmp_path, monkeypatch):
+    from tools import podcast_qualification as qualification
+
+    info = {
+        "format": {"duration": "1.0", "format_name": "mov"},
+        "streams": [
+            {"codec_type": "video", "codec_name": "h264", "nb_read_frames": "30", "width": 1920, "height": 1080, "avg_frame_rate": "30/1"},
+            {"codec_type": "audio", "codec_name": "aac", "duration": "1.0", "sample_rate": "48000", "channels": 2},
+            {"codec_type": "audio", "codec_name": "aac", "duration": "1.0", "sample_rate": "48000", "channels": 2},
+        ],
+    }
+    monkeypatch.setattr(
+        qualification.subprocess,
+        "run",
+        lambda *_args, **_kwargs: subprocess.CompletedProcess([], 0, json.dumps(info), ""),
+    )
+    with pytest.raises(ValueError, match="exactly one audio"):
+        qualification.inspect_delivery(tmp_path / "candidate.mp4")
 
 
 def test_podcast_stage_can_skip_ordinary_render_receipt_for_qualification(tmp_path, monkeypatch):
@@ -350,3 +510,9 @@ def test_podcast_stage_can_skip_ordinary_render_receipt_for_qualification(tmp_pa
     )
     podcast_stage.render(project, contract_path, record_receipt=False)
     assert prior.read_text() == '{"prior":true}'
+
+
+def test_remotion_stage_snapshot_lives_inside_python_owned_output_tree():
+    script = (Path(__file__).parents[1] / "remotion/scripts/render-podcast-stage.mjs").read_text()
+    assert "mkdtempSync(path.join(path.dirname(output), '.podcast-stage-media-'))" in script
+    assert "os.tmpdir()" not in script

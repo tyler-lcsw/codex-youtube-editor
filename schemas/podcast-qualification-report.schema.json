@@ -69,7 +69,7 @@
       "required": ["status", "recovery"],
       "properties": {
         "status": {"enum": ["not_interrupted", "interrupted", "timeout"]},
-        "recovery": {"enum": ["not_exercised", "not_needed", "child_process_terminated"]}
+        "recovery": {"enum": ["not_exercised", "not_needed", "child_process_terminated", "child_process_termination_failed"]}
       }
     },
     "reviews": {
@@ -108,7 +108,7 @@
     "qualification_target": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["duration_ms", "fps", "width", "height", "expected_frame_count", "duration_tolerance_ms", "frame_count_tolerance", "fps_tolerance"],
+      "required": ["duration_ms", "fps", "width", "height", "expected_frame_count", "duration_tolerance_ms", "audio_duration_tolerance_ms", "frame_count_tolerance", "fps_tolerance"],
       "properties": {
         "duration_ms": {"type": "integer", "minimum": 1500000, "maximum": 2700000},
         "fps": {"const": 30},
@@ -116,6 +116,7 @@
         "height": {"const": 1080},
         "expected_frame_count": {"type": "integer", "minimum": 45000, "maximum": 81000},
         "duration_tolerance_ms": {"const": 40},
+        "audio_duration_tolerance_ms": {"const": 100},
         "frame_count_tolerance": {"const": 1},
         "fps_tolerance": {"const": 0.001}
       }
@@ -140,7 +141,7 @@
         "duration_ms": {"type": "integer", "minimum": 1},
         "size_bytes": {"type": "integer", "minimum": 1},
         "streams": {
-          "type": "array", "minItems": 2,
+          "type": "array", "minItems": 2, "maxItems": 2,
           "items": {"oneOf": [{"$ref": "#/$defs/video_stream"}, {"$ref": "#/$defs/audio_stream"}]}
         }
       }
@@ -157,9 +158,10 @@
     },
     "audio_stream": {
       "type": "object", "additionalProperties": false,
-      "required": ["type", "codec", "sample_rate", "channels"],
+      "required": ["type", "codec", "duration_ms", "sample_rate", "channels"],
       "properties": {
         "type": {"const": "audio"}, "codec": {"type": "string", "minLength": 1},
+        "duration_ms": {"type": "integer", "minimum": 1},
         "sample_rate": {"type": "integer", "minimum": 1}, "channels": {"type": "integer", "minimum": 1}
       }
     },
