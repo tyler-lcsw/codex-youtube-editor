@@ -220,6 +220,20 @@ def validate_visual_score(project: Path, data: dict, value: dict) -> dict:
         if configured_camera is None and event["camera_policy"] != "base_only":
             raise ValueError("Visual event cannot permit an unavailable camera")
         _validate_provenance(project, data, episode_map, event)
+    preview_chapters: set[str] = set()
+    for preview in value.get("representative_previews", []):
+        chapter_id = _require_text(preview["chapter_id"], "Representative preview chapter ID")
+        if chapter_id not in chapters:
+            raise ValueError("Representative preview must reference an existing episode-map chapter")
+        if chapter_id in preview_chapters:
+            raise ValueError("Representative previews must identify unique chapters")
+        preview_chapters.add(chapter_id)
+        relative = Path(preview["path"])
+        source = (project / relative).resolve()
+        if not source.is_relative_to(project.resolve()) or not source.is_file():
+            raise ValueError("Representative preview must be a project-local file")
+        if file_hash(source) != preview["sha256"]:
+            raise ValueError("Representative preview changed after selection")
     return value
 
 

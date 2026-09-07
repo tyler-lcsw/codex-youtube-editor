@@ -230,7 +230,18 @@ def test_invalid_visual_score_is_atomic_and_must_match_density_camera_and_proven
     project, asset, episode_map = podcast_project
     episode_map_sha = install_episode_map(project, episode_map)
     score = score_for(asset, episode_map_sha, episode_map["transcript"]["sha256"])
+    preview = project / "work/podcast/previews/opening.png"
+    preview.parent.mkdir(parents=True)
+    preview.write_bytes(b"representative preview")
+    score["representative_previews"] = [
+        {
+            "chapter_id": "opening",
+            "path": "work/podcast/previews/opening.png",
+            "sha256": hashlib.sha256(preview.read_bytes()).hexdigest(),
+        }
+    ]
     first = call(project, "create_visual_score_revision", score=score)
+    assert first["score"]["representative_previews"] == score["representative_previews"]
     pointer = project / "work/podcast/visual-score/current.json"
     previous_pointer = pointer.read_bytes()
     revisions_before = set((project / "work/podcast/visual-score/revisions").iterdir())
@@ -242,6 +253,11 @@ def test_invalid_visual_score_is_atomic_and_must_match_density_camera_and_proven
         lambda value: value["visual_events"][1].update(type="quote"),
         lambda value: value["visual_events"][-1].update(provenance=[{"kind": "none", "label": "No source"}]),
         lambda value: value.update(episode_map_sha256="f" * 64),
+        lambda value: value["representative_previews"].append(copy.deepcopy(value["representative_previews"][0])),
+        lambda value: value["representative_previews"][0].update(chapter_id="missing"),
+        lambda value: value["representative_previews"][0].update(path="../outside.png"),
+        lambda value: value["representative_previews"][0].update(path="work/podcast/previews/missing.png"),
+        lambda value: value["representative_previews"][0].update(sha256="0" * 64),
     ):
         invalid = copy.deepcopy(score)
         mutate(invalid)

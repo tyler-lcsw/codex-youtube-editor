@@ -43,6 +43,10 @@
           "camera_policy": {"enum": ["base_only", "camera_permitted"]}
         }
       }
+    },
+    "representative_previews": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/representative_preview"}
     }
   },
   "$defs": {
@@ -120,6 +124,16 @@
     "image_asset": {
       "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
       "properties": {"path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "representative_preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chapter_id", "path", "sha256"],
+      "properties": {
+        "chapter_id": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
     }
   }
 }
