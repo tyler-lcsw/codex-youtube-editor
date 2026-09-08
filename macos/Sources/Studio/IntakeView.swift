@@ -21,7 +21,7 @@ struct IntakeView:View {
     var cameraOptions:[PodcastMediaOption] {podcastMedia.filter(\.canBeCamera)}
     let labels=[("audience","Audience"),("purpose","What should the viewer understand?"),("target_length","Desired length"),("tone","Tone and pacing"),("required_content","Keep or emphasize"),("context","Context and editing instructions")]
     var body:some View {
-        ScrollView {
+        ScrollViewReader {proxy in ScrollView {
             VStack(alignment:.leading,spacing:22) {
                 if w.project.isEmpty {StudioEmptyState(symbol:"folder.badge.plus",title:"Create your first production",detail:"Choose New to make a project, or Open to continue an existing production.")}
                 Text("Start with your media and intent.").font(.title2.weight(.semibold))
@@ -88,9 +88,9 @@ struct IntakeView:View {
                                 Button("Reload saved podcast setup"){loadPodcast()}.accessibilityLabel("Reload saved podcast setup")
                             }
                         }
-                        Text("Setup only: waveform rendering and semantic visual proposals are not generated yet. Camera synchronization is not inferred or verified.").font(.caption).foregroundStyle(.secondary)
+                        Text("Use Codex & QA to generate and render the branded waveform and chapter visuals after setup. Generated proposals and renders still require explicit review; camera synchronization is not inferred or verified.").font(.caption).foregroundStyle(.secondary)
                     }.padding(12)
-                }
+                }.id("podcast-setup")
                 GroupBox("Resource links") {
                     VStack(alignment:.leading) {
                         TextField("Label",text:$resourceLabel).accessibilityLabel("Label").textFieldStyle(.roundedBorder)
@@ -105,10 +105,14 @@ struct IntakeView:View {
                     }.padding(12)
                 }
             }.padding(24)
-        }.onAppear {load();loadPodcast()}.onChange(of:w.project){_,_ in load();loadPodcast()}.onChange(of:w.dataRevision){_,_ in
+        }.onAppear {load();loadPodcast();revealPodcastSetup(proxy)}.onChange(of:w.project){_,_ in load();loadPodcast()}.onChange(of:w.dataRevision){_,_ in
             if !dirty {load()}
             loadPodcast(preservingDraft:podcastDirty)
-        }
+        }}
+    }
+    func revealPodcastSetup(_ proxy:ScrollViewProxy) {
+        guard w.navigation.route.deepLink == "podcast/setup" else{return}
+        DispatchQueue.main.async {proxy.scrollTo("podcast-setup",anchor:.top)}
     }
     func load() {dirty=false;baseline=prettyJSON(w.data["brief"] ?? [:]);fields=(w.data["brief"] as? [String:Any] ?? [:]).compactMapValues{$0 as? String}}
     func loadPodcast(preservingDraft:Bool=false) {

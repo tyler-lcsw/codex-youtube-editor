@@ -61,7 +61,7 @@ def assemble(executable,engine,output,sign=True):
         (contents/'Info.plist').write_bytes(plistlib.dumps({
             'CFBundleExecutable':'CodexStudio','CFBundleIdentifier':'local.tyler.codex-studio',
             'CFBundleName':'Codex Media Studio','CFBundleDisplayName':'Codex Media Studio',
-            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.1.0','CFBundleVersion':'1',
+            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.2.0','CFBundleVersion':'2',
             'LSMinimumSystemVersion':'14.0','NSHighResolutionCapable':True,
             'StudioEnginePath':str(engine),'StudioEngineRevision':engine_revision(engine),
         }))

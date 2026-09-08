@@ -33,6 +33,13 @@ Remaining limits are listed in `known-limits.md`. General job-cache integration 
 
 ### Audio-first visual podcast development — September 7, 2026
 
+The September 8 discoverability correction adds a dedicated **Podcast** sidebar
+destination with accessible routes to source setup and podcast visual review. Review
+area state is shared so the review route opens the podcast score directly. Misleading
+setup-only copy was replaced with the actual Codex & QA generation/render workflow and
+explicit-review boundary. The sidebar now shows version, numeric build and exact engine
+source revision so a stale installed bundle is distinguishable from the current build.
+
 The approved [audio-first visual podcast concept](ideas/Audio-First%20Visual%20Podcast%20Mode.md)
 and [multi-PR implementation plan](../plan/Audio-First%20Visual%20Podcast%20Mode%20%E2%80%94%20Implementation%20Plan.html)
 target one speaker and a 25–45 minute episode. Audio is the canonical source; an
@@ -112,8 +119,8 @@ Python cleanup path can remove it.
 A synthetic 45-minute descriptor contained 54,000 waveform samples and 81,000 frames;
 metadata selection took 414ms and a warm dedicated bundle 625ms in the development
 measurement, with about 586MB peak for the combined bundle/metadata check. These are
-setup metrics, not full-render memory measurements. Current automated evidence is 209
-Python tests plus 33 subtests, 41 native checks, a signed release build and a clean
+setup metrics, not full-render memory measurements. Current automated evidence is 215
+Python tests plus 33 subtests, 46 native checks, a signed release build and a clean
 Remotion typecheck. No 25–45 minute end-to-end render soak, normal-speed listening,
 authentic-source visual inspection or owner acceptance has been completed.
 

@@ -21,6 +21,11 @@ testPodcastQualificationRecoveryLabelsDoNotInventTermination()
 try testPodcastQualificationLoaderTreatsMissingReportHonestlyAndKeepsAttempts()
 try testPodcastQualificationStatusParsesRevisionBoundCurrentAndStaleResponses()
 try testPodcastQualificationPresentationNeverPromotesSavedEvidenceWithoutLiveCurrentStatus()
+testPodcastNavigationContractExposesVisibleSidebarDestination()
+testPodcastQuickStartActionsHaveAccessibleDeepLinks()
+testPodcastReviewRouteUsesSharedDeepLinkableState()
+testPodcastQuickStartCopyDescribesActualCodexAndExplicitReviewWorkflow()
+testStudioBuildIdentityDistinguishesInstalledBundles()
 try testDurableDiagnosticsAndCrashRecovery()
 let p = ProtocolTests()
 p.testSubscriptionGateRejectsAPIAndMissingAccount()
@@ -31,7 +36,7 @@ p.testUnknownApprovalCannotBecomeAnAcceptance()
 try ReviewTests().testLetterboxCoordinatesAndReverseDrag()
 testAnnotationDraftsAndSavedContextStayIndependent()
 Task { @MainActor in
-    do { try await testAccountCheckShowsSignedOutAndFailureResults(); try await testManualAccountCheckReportsProgressAndResult(); try await testArchivedConversationResumesWithoutLosingAuthentication(); try await testUnrelatedResumeErrorsDoNotRestoreConversations(); try await testAccountCheckCannotClearAnInFlightLoginStart(); try await testLoginStartTimeoutClosesUnownedCallback(); try await testLoginSuccessClearsLinkAndRefreshesAccount(); try await testCancelAndRetryIgnoreOldCompletion(); try await testLoginRefreshFailureIsVisible(); try await testLoginFailureIsVisible(); try await testRepeatedSignInDoesNotReplacePendingCallback(); try await testExistingSubscriptionSkipsBrowserLogin(); try await testTransportDisconnectResolvesPendingRequests(); try await testAccountSwitchToAPIPreventsTurnDispatch(); try await testUncertainDispatchKeepsTurnLockAndPersistsThreadFirst(); try await testFailedProjectOpenPreservesIdentityAndRejectsOverlap(); try await testObservedCompletionWinsOverDelayedDispatchTimeout(); print("41 native core checks passed"); exit(0) }
+    do { try await testAccountCheckShowsSignedOutAndFailureResults(); try await testManualAccountCheckReportsProgressAndResult(); try await testArchivedConversationResumesWithoutLosingAuthentication(); try await testUnrelatedResumeErrorsDoNotRestoreConversations(); try await testAccountCheckCannotClearAnInFlightLoginStart(); try await testLoginStartTimeoutClosesUnownedCallback(); try await testLoginSuccessClearsLinkAndRefreshesAccount(); try await testCancelAndRetryIgnoreOldCompletion(); try await testLoginRefreshFailureIsVisible(); try await testLoginFailureIsVisible(); try await testRepeatedSignInDoesNotReplacePendingCallback(); try await testExistingSubscriptionSkipsBrowserLogin(); try await testTransportDisconnectResolvesPendingRequests(); try await testAccountSwitchToAPIPreventsTurnDispatch(); try await testUncertainDispatchKeepsTurnLockAndPersistsThreadFirst(); try await testFailedProjectOpenPreservesIdentityAndRejectsOverlap(); try await testObservedCompletionWinsOverDelayedDispatchTimeout(); print("46 native core checks passed"); exit(0) }
     catch { print(error); exit(1) }
 }
 RunLoop.main.run()

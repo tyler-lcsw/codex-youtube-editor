@@ -23,19 +23,18 @@ import StudioCore
                     }
                     if !workspace.project.isEmpty {workspace.perform {try await workspace.refresh()}}
                     if ProcessInfo.processInfo.arguments.contains("--smoke-review") {
-                        try? await Task.sleep(for:.seconds(1));workspace.section="Review"
+                        try? await Task.sleep(for:.seconds(1));workspace.select(.review)
                         try? await Task.sleep(for:.seconds(4));Diagnostics.shared?.record("review_smoke_passed");try? FileHandle.standardOutput.write(contentsOf:Data("REVIEW_SMOKE_OK\n".utf8));NSApp.terminate(nil)
                     }
                 }
         }.defaultSize(width:1360,height:880)
-        .commands {CommandGroup(after:.help) {Button("How to Use") {workspace.section="How to Use"}.accessibilityLabel("How to Use");Button("Open Diagnostic Logs") {if let folder=Diagnostics.shared?.directory {NSWorkspace.shared.open(folder)}}.accessibilityLabel("Open Diagnostic Logs")}}
+        .commands {CommandGroup(after:.help) {Button("How to Use") {workspace.select(.help)}.accessibilityLabel("How to Use");Button("Open Diagnostic Logs") {if let folder=Diagnostics.shared?.directory {NSWorkspace.shared.open(folder)}}.accessibilityLabel("Open Diagnostic Logs")}}
     }
 }
 struct StudioWindow:View {
     @EnvironmentObject var w:Workspace
     @State private var helpSection: String?
     @State private var showingHelp = false
-    let sections=["Brief & sources","Understanding","Review","Resources","Codex & QA","How to Use"]
     var body:some View {
         NavigationSplitView {
             VStack(alignment:.leading,spacing:20) {
@@ -47,9 +46,11 @@ struct StudioWindow:View {
                 }
                 Text(w.title).font(.title2.bold())
                 Text("A clear path from footage to finished story.").foregroundStyle(.secondary)
-                List(sections,id:\.self,selection:$w.section) {name in Label(name,systemImage:StudioTheme.symbol(for:name)).padding(.vertical,7).tag(name)}.listStyle(.sidebar).scrollContentBackground(.hidden)
+                List(StudioNavigationContract.sidebarItems,id:\.destination,selection:Binding(get:{w.navigation.destination},set:{if let destination=$0 {w.select(destination)}})) {item in
+                    Label(item.title,systemImage:item.systemImage).padding(.vertical,7).tag(item.destination)
+                }.listStyle(.sidebar).scrollContentBackground(.hidden)
                 HStack {Button("New",action:w.newProject).accessibilityLabel("New");Button("Open",action:w.openProject).accessibilityLabel("Open")}
-                Text("Development edition · M4").font(.caption).foregroundStyle(.secondary)
+                Text("Development edition · M4\n\(StudioBuildIdentity.current.visibleLabel)").font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
             }.padding(18).background(StudioTheme.panel).navigationSplitViewColumnWidth(260)
         } detail: {
             VStack(spacing:0) {
@@ -63,12 +64,13 @@ struct StudioWindow:View {
                 }.padding(24)
                 Divider()
                 Group {
-                    switch w.section {
-                    case "How to Use":HelpView(engine:w.engine)
-                    case "Understanding":UnderstandingView()
-                    case "Review":ReviewView()
-                    case "Resources":ResourcesView()
-                    case "Codex & QA":CodexView(client:w.codex)
+                    switch w.navigation.destination {
+                    case .help:HelpView(engine:w.engine)
+                    case .podcast:PodcastQuickStartView()
+                    case .understanding:UnderstandingView()
+                    case .review:ReviewView()
+                    case .resources:ResourcesView()
+                    case .codex:CodexView(client:w.codex)
                     default:IntakeView()
                     }
                 }.frame(maxWidth:.infinity,maxHeight:.infinity)

@@ -41,13 +41,14 @@
       "summary": "The sidebar follows the production process.",
       "status": "Available",
       "steps": [
-        "Start with Brief & sources, then Understanding.",
-        "Use Review for playback and feedback, Resources for preferences, and Codex & QA to request work and inspect checks.",
+        "Start with Brief & sources, then Understanding. For a one-speaker audio-first episode, choose Podcast for a dedicated quick start.",
+        "Use Podcast to reach source setup and chapter review directly, Review for general playback and feedback, Resources for preferences, and Codex & QA to request work and inspect checks.",
         "Use How to Use whenever you need instructions."
       ],
       "notes": [
         "Most editing and generation features are requested in Codex & QA; Studio is not a full timeline editor with one button per skill.",
-        "Save drafts before switching tabs or projects. Help for this tab opens over the current screen so you can read without leaving it."
+        "Save drafts before switching tabs or projects. Help for this tab opens over the current screen so you can read without leaving it.",
+        "The sidebar footer shows the app version, numeric build and engine source revision so you can distinguish an older installed copy from the current build."
       ]
     },
     {
@@ -234,7 +235,7 @@
       "summary": "Choose one canonical audio source, an optional camera source and a visual-density preference.",
       "status": "Available",
       "steps": [
-        "Import an audio-bearing source, then find Solo podcast visuals in Brief & sources.",
+        "Choose Podcast in the sidebar, then choose Set up podcast sources. Import an audio-bearing source if the project does not have one yet.",
         "Choose Primary audio. Choose Optional camera or leave No camera selected.",
         "Choose Restrained, Balanced or Illustrative visual density, then choose Save podcast setup.",
         "If the saved-setup warning appears, choose Reload saved podcast setup before reapplying and saving your draft.",
@@ -403,7 +404,7 @@
       "summary": "Inspect transcript-bound proposals and record an explicit decision before they can enter a reviewed stage.",
       "status": "Available when Codex has prepared a visual score",
       "steps": [
-        "In Review, choose Podcast visual score instead of Media feedback.",
+        "Choose Podcast in the sidebar, then choose Review podcast visuals. This opens Review directly on Podcast visual score.",
         "Confirm that the score binding says Current, then inspect the whole-episode proposal timeline and choose a chapter.",
         "Read each proposal's purpose, treatment, transcript anchor, provenance and camera policy. Open a representative preview when one is available.",
         "Enter a required decision note, then choose Accept proposal, Keep base stage or Reject proposal.",
@@ -423,7 +424,7 @@
       "summary": "Inspect measured 25–45 minute technical evidence without confusing it with creative review.",
       "status": "Available after a production-quality-routed qualification run",
       "steps": [
-        "In Review, choose Podcast visual score and find Long-form qualification.",
+        "Choose Podcast in the sidebar, then choose Review podcast visuals and find Long-form qualification.",
         "Choose Reload qualification after Codex completes or interrupts a qualification attempt.",
         "Check the 1080p30 target, runtime, peak child-process memory, memory pressure, cache, frame count, duration, exactly one audio and one video stream, codecs and full-decode result.",
         "Confirm Studio calls the report current after its live check of the visual-score revision, owner decision, exact source, reviewed-stage contract, output hashes and successfully completed production-quality action; otherwise read it as historical evidence and inspect the stale reasons.",
