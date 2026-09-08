@@ -3,7 +3,13 @@ import plistlib
 import pytest
 
 
-def _app(path, payload, *, bundle_id="local.tyler.codex-studio"):
+def _app(
+    path,
+    payload,
+    *,
+    bundle_id="local.tyler.codex-studio",
+    bundle_executable="CodexStudio",
+):
     executable = path / "Contents/MacOS/CodexStudio"
     executable.parent.mkdir(parents=True)
     executable.write_bytes(payload)
@@ -11,7 +17,7 @@ def _app(path, payload, *, bundle_id="local.tyler.codex-studio"):
     (path / "Contents/Info.plist").write_bytes(
         plistlib.dumps(
             {
-                "CFBundleExecutable": "CodexStudio",
+                "CFBundleExecutable": bundle_executable,
                 "CFBundleIdentifier": bundle_id,
                 "CFBundleName": "Codex Media Studio",
             }
@@ -74,6 +80,27 @@ def test_install_rejects_a_different_application_identity(tmp_path):
     destination = tmp_path / "Applications/Codex Media Studio.app"
 
     with pytest.raises(ValueError, match="bundle identifier"):
+        install_studio_app(
+            source,
+            destination,
+            backup_root=tmp_path / "backups",
+            running_check=lambda _: False,
+        )
+
+    assert not destination.exists()
+
+
+def test_install_rejects_mismatched_bundle_executable_metadata(tmp_path):
+    from tools.install_studio_app import install_studio_app
+
+    source = _app(
+        tmp_path / "build/Codex Media Studio.app",
+        b"other",
+        bundle_executable="NotCodexStudio",
+    )
+    destination = tmp_path / "Applications/Codex Media Studio.app"
+
+    with pytest.raises(ValueError, match="bundle executable"):
         install_studio_app(
             source,
             destination,
@@ -178,6 +205,25 @@ def test_install_rejects_backup_storage_nested_inside_the_app(tmp_path):
         )
 
     assert (destination / "Contents/MacOS/CodexStudio").read_bytes() == b"old"
+
+
+def test_install_aborts_if_studio_launches_during_staging(tmp_path):
+    from tools.install_studio_app import install_studio_app
+
+    source = _app(tmp_path / "build/Codex Media Studio.app", b"new")
+    destination = _app(tmp_path / "Applications/Codex Media Studio.app", b"old")
+    checks = iter((False, False, True))
+
+    with pytest.raises(RuntimeError, match="Quit Codex Media Studio"):
+        install_studio_app(
+            source,
+            destination,
+            backup_root=tmp_path / "backups",
+            running_check=lambda _: next(checks),
+        )
+
+    assert (destination / "Contents/MacOS/CodexStudio").read_bytes() == b"old"
+    assert sorted(item.name for item in destination.iterdir()) == ["Contents"]
 
 
 def test_failed_post_install_signature_check_restores_previous_contents(tmp_path, monkeypatch):

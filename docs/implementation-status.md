@@ -347,5 +347,5 @@ archives the prior contents outside Applications with a non-launchable `.app-bac
 suffix. Work-tree builds are validation artifacts and are not the app users should pin.
 The visible native build number is 3; the footer continues to show the exact engine
 revision.
-Focused installer and bundle regression tests passed, followed by **226 Python tests,
+Focused installer and bundle regression tests passed, followed by **228 Python tests,
 1 publication test deselected, 33 subtests, and 47 native core checks**.

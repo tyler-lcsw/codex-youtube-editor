@@ -30,6 +30,8 @@ def _bundle_info(app):
     info = plistlib.loads(info_path.read_bytes())
     if info.get("CFBundleIdentifier") != BUNDLE_ID:
         raise ValueError(f"Unexpected bundle identifier in {app}")
+    if info.get("CFBundleExecutable") != "CodexStudio":
+        raise ValueError(f"Unexpected bundle executable in {app}")
     return info
 
 
@@ -146,6 +148,8 @@ def install_studio_app(
                 symlinks=True,
                 copy_function=shutil.copy2,
             )
+            if running_check(destination):
+                raise RuntimeError("Quit Codex Media Studio before installing the latest build")
             if current.exists():
                 current.rename(previous)
             incoming.rename(current)
