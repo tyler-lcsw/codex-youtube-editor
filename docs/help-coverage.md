@@ -6,7 +6,7 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 |---|---|---|
 | New; Create production folder; folder name/location; cancel | `create-production` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift |
 | Open; Open production folder; persisted project | `open-production` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift |
-| All sidebar tabs; production title/path; busy indicator | `find-your-way` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift |
+| All sidebar tabs including Podcast; production title/path; busy indicator; visible version/build/source revision | `find-your-way` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift; macos/Sources/StudioCore/StudioNavigation.swift; tools/build_studio_app.py |
 | Refresh; notices; save semantics; draft loss | `save-and-refresh` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift; all five native views |
 | Export handoff; clipboard | `export-handoff` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift |
 | Start a first edit | `first-edit` | docs/mac-studio.md; docs/providers.md; config/studio-workflow.json |
@@ -18,7 +18,7 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Context and editing instructions | `brief-context` | macos/Sources/Studio/IntakeView.swift |
 | Save brief; Reload saved brief; dirty/baseline warning | `brief-conflict` | macos/Sources/Studio/IntakeView.swift |
 | Import media or documents; file multi-select; drop target; asset list/roles | `import-sources` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/Workspace.swift |
-| Solo podcast visuals; Primary audio; Optional camera; No camera; Visual density; Restrained/Balanced/Illustrative; Save/Clear/Reload podcast setup; setup-only and synchronization limits | `podcast-setup` | macos/Sources/Studio/IntakeView.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
+| Podcast quick start; Set up podcast sources; Review podcast visuals; Solo podcast visuals; Primary audio; Optional camera; No camera; Visual density; Restrained/Balanced/Illustrative; Save/Clear/Reload podcast setup; generation/review and synchronization limits | `podcast-setup` | macos/Sources/Studio/PodcastQuickStartView.swift; macos/Sources/Studio/IntakeView.swift; macos/Sources/StudioCore/StudioNavigation.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
 | Label; https://…; Use as; Reference; Source; Background; Add link; saved Link | `add-resource-link` | macos/Sources/Studio/IntakeView.swift |
 | Intake stage; prerequisites/artifacts/status | `stage-intake` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
 | Source understanding stage; prerequisites/artifacts/status | `stage-source-understanding` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
@@ -96,4 +96,4 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 - No production, hosted generation, model download, publication test or upload was run for this documentation task.
 - Planned editorial/short-form research is explicitly labeled; authentic raw-footage and full audiovisual qualification remain production-specific work.
 
-Content inventory: 78 articles across 9 sections; 18 primary skill articles.
+Content inventory: 78 articles across 10 sections; 18 primary skill articles.

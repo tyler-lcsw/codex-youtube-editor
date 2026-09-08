@@ -16,7 +16,7 @@ import StudioCore
     @Published var dataRevision=0
     @Published var error: String?
     @Published var notice=""
-    @Published var section="Brief & sources" {willSet {Diagnostics.shared?.record("tab_selected",detail:newValue)}}
+    @Published var navigation=StudioNavigationState()
     let codex=CodexClient()
     private let selection=ProjectSelection()
     private var codexObserver:AnyCancellable?
@@ -35,10 +35,19 @@ import StudioCore
         python=argument("--python") ?? defaults.string(forKey:"python") ?? (root+"/.venv/bin/python")
         codexBinary=defaults.string(forKey:"codexBinary") ?? "/Applications/ChatGPT.app/Contents/Resources/codex"
         project=argument("--project") ?? defaults.string(forKey:"project") ?? ""
-        section=argument("--section") ?? "Brief & sources"
+        navigation.select(StudioDestination(title:argument("--section") ?? "Brief & sources"))
         codexObserver=codex.$running.removeDuplicates().dropFirst().sink { [weak self] running in
             if !running {Task { @MainActor [weak self] in self?.requestRefresh()}}
         }
+    }
+    var section:String {navigation.destination.rawValue}
+    func open(_ route:StudioRoute) {
+        Diagnostics.shared?.record("tab_selected",detail:route.deepLink)
+        navigation.open(route)
+    }
+    func select(_ destination:StudioDestination) {
+        Diagnostics.shared?.record("tab_selected",detail:destination.rawValue)
+        navigation.select(destination)
     }
     func persist() {let d=UserDefaults.standard;d.set(engine,forKey:"engine");d.set(python,forKey:"python");d.set(codexBinary,forKey:"codexBinary");d.set(project,forKey:"project")}
     func perform(_ body:@escaping () async throws -> Void) {

@@ -11,6 +11,20 @@ import tempfile
 ROOT=Path(__file__).resolve().parents[1]
 
 
+def engine_revision(engine):
+    try:
+        result=subprocess.run(
+            ['git','-C',str(engine),'rev-parse','--verify','HEAD'],
+            capture_output=True,text=True,check=False,
+        )
+    except OSError:
+        return 'unavailable'
+    revision=result.stdout.strip()
+    if result.returncode or len(revision) not in (40,64) or any(character not in '0123456789abcdefABCDEF' for character in revision):
+        return 'unavailable'
+    return revision.lower()
+
+
 def swift_command(action, *arguments):
     command=['swift',action,'--package-path',str(ROOT/'macos')]
     # Some CLT upgrades leave old private manifest interfaces next to newer public ones.
@@ -47,9 +61,9 @@ def assemble(executable,engine,output,sign=True):
         (contents/'Info.plist').write_bytes(plistlib.dumps({
             'CFBundleExecutable':'CodexStudio','CFBundleIdentifier':'local.tyler.codex-studio',
             'CFBundleName':'Codex Media Studio','CFBundleDisplayName':'Codex Media Studio',
-            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.1.0','CFBundleVersion':'1',
+            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.2.0','CFBundleVersion':'2',
             'LSMinimumSystemVersion':'14.0','NSHighResolutionCapable':True,
-            'StudioEnginePath':str(engine),
+            'StudioEnginePath':str(engine),'StudioEngineRevision':engine_revision(engine),
         }))
         if sign:subprocess.run(['codesign','--force','--sign','-',str(stage)],check=True)
         backup=output.with_suffix('.app.previous')

@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-SECTIONS = ('Getting started', 'Brief & sources', 'Understanding', 'Review',
+SECTIONS = ('Getting started', 'Brief & sources', 'Podcast', 'Understanding', 'Review',
             'Resources', 'Codex & QA', 'How to Use', 'Production skills', 'Troubleshooting')
 
 
