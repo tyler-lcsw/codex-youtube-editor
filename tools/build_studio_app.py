@@ -8,6 +8,11 @@ import shutil
 import subprocess
 import tempfile
 
+try:
+    from tools.install_studio_app import install_studio_app
+except ModuleNotFoundError:  # Direct `python tools/build_studio_app.py` invocation.
+    from install_studio_app import install_studio_app
+
 ROOT=Path(__file__).resolve().parents[1]
 
 
@@ -44,7 +49,7 @@ def swift_command(action, *arguments):
     return command+list(arguments)
 
 
-def assemble(executable,engine,output,sign=True):
+def assemble(executable,engine,output,sign=True,backup_root=None):
     executable,engine,output=map(lambda p:Path(p).resolve(),(executable,engine,output))
     if not executable.is_file() or not os.access(executable,os.X_OK):raise ValueError('Missing executable')
     if not (engine/'tools/studio.py').is_file():raise ValueError('Choose the production engine repository')
@@ -61,33 +66,38 @@ def assemble(executable,engine,output,sign=True):
         (contents/'Info.plist').write_bytes(plistlib.dumps({
             'CFBundleExecutable':'CodexStudio','CFBundleIdentifier':'local.tyler.codex-studio',
             'CFBundleName':'Codex Media Studio','CFBundleDisplayName':'Codex Media Studio',
-            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.2.0','CFBundleVersion':'2',
+            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.2.0','CFBundleVersion':'3',
             'LSMinimumSystemVersion':'14.0','NSHighResolutionCapable':True,
             'StudioEnginePath':str(engine),'StudioEngineRevision':engine_revision(engine),
         }))
         if sign:subprocess.run(['codesign','--force','--sign','-',str(stage)],check=True)
-        backup=output.with_suffix('.app.previous')
-        if backup.exists():shutil.rmtree(backup)
-        if output.exists():output.rename(backup)
-        try:stage.rename(output)
-        except BaseException:
-            if backup.exists():backup.rename(output)
-            raise
+        install_studio_app(
+            stage,
+            output,
+            backup_root=backup_root or output.parent/'.studio-backups',
+            verify_signature=sign,
+        )
         return output
     finally:shutil.rmtree(stage.parent,ignore_errors=True)
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--engine',type=Path,default=ROOT);p.add_argument('--output',type=Path,default=ROOT/'work/apps/Codex Media Studio.app')
+    p.add_argument('--engine',type=Path,default=ROOT);p.add_argument('--output',type=Path)
+    p.add_argument('--install',action='store_true',help='update the canonical app in ~/Applications without invalidating its Dock alias')
     p.add_argument('--checks',action='store_true');p.add_argument('--probe',action='store_true');p.add_argument('--account-only',action='store_true')
     a=p.parse_args()
+    special_modes=[a.install,a.checks,a.probe,a.account_only]
+    if sum(bool(mode) for mode in special_modes)>1 or (a.output and any(special_modes)):
+        p.error('--install, --output, --checks, --probe and --account-only are mutually exclusive')
     if a.checks or a.probe or a.account_only:
         product='StudioChecks' if a.checks else 'StudioProbe'
         extra=['--account-only'] if a.account_only else []
         subprocess.run(swift_command('run',product,*extra),check=True,cwd=ROOT);return
     subprocess.run(swift_command('build','-c','release','--product','CodexStudio'),check=True,cwd=ROOT)
     executable=ROOT/'macos/.build/release/CodexStudio'
-    print(assemble(executable,a.engine,a.output))
+    output=Path.home()/'Applications/Codex Media Studio.app' if a.install else (a.output or ROOT/'work/apps/Codex Media Studio.app')
+    backup_root=(Path.home()/'Library/Application Support/Codex Media Studio/Backups') if a.install else None
+    print(assemble(executable,a.engine,output,backup_root=backup_root))
 
 if __name__=='__main__':main()

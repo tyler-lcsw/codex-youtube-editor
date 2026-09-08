@@ -8,16 +8,26 @@ Open **How to Use** in the sidebar for step-by-step help, or choose **Help for t
 
 The same guide is available as [a standalone user manual](how-to-use.html). Its editable source is `docs/user-guide.json`. **Reload help** reads updates from the configured engine repository; the installed app includes a fallback copy. After editing the source, run `.venv/bin/python -m tools.build_user_guide` to refresh the HTML, and rebuild the app to refresh its bundled copy. Current production rules remain authoritative. The [coverage audit](help-coverage.md) maps the guide to controls and skills.
 
-## Build and open
+## Build, install and open the current version
 
 On M4 with the existing Python environment, FFmpeg and Swift command-line tools:
 
 ```sh
-.venv/bin/python tools/build_studio_app.py
-open 'work/apps/Codex Media Studio.app'
+.venv/bin/python tools/build_studio_app.py --install
+open "$HOME/Applications/Codex Media Studio.app"
 ```
 
-The bundle is ad-hoc signed for local development, not notarized for distribution. It contains the native executable and an engine path, not your footage, credentials, Python environment or model weights. Its sidebar footer shows the app version, numeric build and exact engine source revision so an older installed copy is identifiable. Choose another engine/Python/Codex path in Codex & QA if the checkout moves. The default Codex executable is the desktop application's bundled CLI. Source requires Swift 6.3 package tooling, with Swift 5 language mode and macOS 14+ APIs.
+Keep that exact app pinned in the Dock. It is the one canonical installed copy.
+`--install` preserves the outer app directory that the Dock bookmarks, replaces only
+its validated contents, and refuses to proceed while any Studio build is running.
+The prior installed contents are retained under
+`~/Library/Application Support/Codex Media Studio/Backups/` with a non-launchable
+`.app-backup` suffix. This prevents a Dock bookmark or Launch Services from reopening
+yesterday's build. The app footer identifies the running version, build and exact source
+revision. A build without `--install` is only a work-tree artifact for validation; do not
+pin or routinely open it.
+
+The bundle is ad-hoc signed for local use, not notarized for distribution. It contains the native executable and an engine path, not your footage, credentials, Python environment or model weights. Its sidebar footer shows the app version, numeric build and exact engine source revision so an older installed copy is identifiable. Choose another engine/Python/Codex path in Codex & QA if the checkout moves. The default Codex executable is the desktop application's bundled CLI. Source requires Swift 6.3 package tooling, with Swift 5 language mode and macOS 14+ APIs.
 
 The installed command-line tools on the initial M4 have mismatched private/public PackageDescription interfaces. The builder supplies a project-local VFS overlay of the matching public interfaces; it does not edit developer tools. This CLT installation also lacks XCTest. `--checks` runs executable native behavior checks using the same StudioCore implementation, with failures producing a nonzero exit.
 

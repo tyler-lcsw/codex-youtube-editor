@@ -335,3 +335,17 @@ It now shows progress and a timestamped confirmation, signed-out instruction or 
 beside the button. Duplicate checks are suppressed. A reproduced archived-project-conversation
 failure now restores that exact conversation and retries resume once, preserving authentication.
 Validation: 28 native checks; 151 Python tests plus 33 subtests (publication test excluded).
+
+## Canonical installed app and persistent Dock identity — September 8, 2026
+
+Studio now has one supported installed location:
+`~/Applications/Codex Media Studio.app`. The release builder's `--install` mode updates
+the contents inside that existing outer bundle instead of renaming the bundle itself.
+This preserves the file identity retained by a persistent Dock bookmark. Installation
+refuses while any Studio bundle is running, validates the application identity, and
+archives the prior contents outside Applications with a non-launchable `.app-backup`
+suffix. Work-tree builds are validation artifacts and are not the app users should pin.
+The visible native build number is 3; the footer continues to show the exact engine
+revision.
+Focused installer and bundle regression tests passed, followed by **226 Python tests,
+1 publication test deselected, 33 subtests, and 47 native core checks**.

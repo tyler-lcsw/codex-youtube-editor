@@ -12,7 +12,7 @@ def test_bundle_preserves_engine_reference_without_shipping_project_data(tmp_pat
     assert info['StudioEnginePath']==str(root)
     assert info['StudioEngineRevision']=='unavailable'
     assert info['CFBundleShortVersionString']=='0.2.0'
-    assert info['CFBundleVersion']=='2'
+    assert info['CFBundleVersion']=='3'
     assert (app/'Contents/MacOS/CodexStudio').read_bytes()==b'fixture binary'
     assert not (app/'source').exists()
 
