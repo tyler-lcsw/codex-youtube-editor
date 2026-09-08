@@ -1,5 +1,6 @@
 """Source-level UI contracts for podcast discoverability in the native Studio."""
 from pathlib import Path
+import json
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,3 +51,13 @@ def test_sidebar_displays_version_build_and_revision_identity():
     builder = (ROOT / "tools/build_studio_app.py").read_text()
     assert "StudioBuildIdentity.current.visibleLabel" in app
     assert "StudioEngineRevision" in builder
+
+
+def test_podcast_context_help_has_real_articles():
+    guide = json.loads((ROOT / "docs/user-guide.json").read_text())
+    podcast_articles = [article for article in guide["articles"] if article["section"] == "Podcast"]
+    assert {article["id"] for article in podcast_articles} == {
+        "podcast-setup",
+        "review-podcast-visual-score",
+        "review-podcast-qualification",
+    }

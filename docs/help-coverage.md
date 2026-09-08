@@ -96,4 +96,4 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 - No production, hosted generation, model download, publication test or upload was run for this documentation task.
 - Planned editorial/short-form research is explicitly labeled; authentic raw-footage and full audiovisual qualification remain production-specific work.
 
-Content inventory: 78 articles across 9 sections; 18 primary skill articles.
+Content inventory: 78 articles across 10 sections; 18 primary skill articles.

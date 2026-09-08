@@ -24,7 +24,7 @@ public struct HelpArticle: Codable, Identifiable, Equatable {
 }
 
 public struct HelpGuide: Codable, Equatable {
-    public static let sections = ["Getting started", "Brief & sources", "Understanding", "Review", "Resources", "Codex & QA", "How to Use", "Production skills", "Troubleshooting"]
+    public static let sections = ["Getting started", "Brief & sources", "Podcast", "Understanding", "Review", "Resources", "Codex & QA", "How to Use", "Production skills", "Troubleshooting"]
     public let schemaVersion: Int
     public let title: String
     public let articles: [HelpArticle]

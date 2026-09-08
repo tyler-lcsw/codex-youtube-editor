@@ -119,8 +119,8 @@ Python cleanup path can remove it.
 A synthetic 45-minute descriptor contained 54,000 waveform samples and 81,000 frames;
 metadata selection took 414ms and a warm dedicated bundle 625ms in the development
 measurement, with about 586MB peak for the combined bundle/metadata check. These are
-setup metrics, not full-render memory measurements. Current automated evidence is 215
-Python tests plus 33 subtests, 46 native checks, a signed release build and a clean
+setup metrics, not full-render memory measurements. Current automated evidence is 216
+Python tests plus 33 subtests, 47 native checks, a signed release build and a clean
 Remotion typecheck. No 25–45 minute end-to-end render soak, normal-speed listening,
 authentic-source visual inspection or owner acceptance has been completed.
 
@@ -284,7 +284,7 @@ Renamed visible branding, the window/application name, Codex client title and bu
 ## End-user help — September 6
 
 Codex Media Studio now includes a **How to Use** tab and **Help for this tab** sheet.
-The editable `docs/user-guide.json` contains 76 short articles across nine sections,
+The editable `docs/user-guide.json` contains 78 short articles across ten sections,
 covering all native tabs/options, all 18 production skills and the separate browser
 cut editor. Articles distinguish available, limited, retained and deferred functions.
 `docs/help-coverage.md` maps the instructions to implementation; `docs/how-to-use.html`

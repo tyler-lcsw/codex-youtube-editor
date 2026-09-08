@@ -230,7 +230,7 @@
     },
     {
       "id": "podcast-setup",
-      "section": "Brief & sources",
+      "section": "Podcast",
       "title": "Configure a solo audio-first podcast",
       "summary": "Choose one canonical audio source, an optional camera source and a visual-density preference.",
       "status": "Available",
@@ -399,7 +399,7 @@
     },
     {
       "id": "review-podcast-visual-score",
-      "section": "Review",
+      "section": "Podcast",
       "title": "Review podcast visuals by chapter",
       "summary": "Inspect transcript-bound proposals and record an explicit decision before they can enter a reviewed stage.",
       "status": "Available when Codex has prepared a visual score",
@@ -419,7 +419,7 @@
     },
     {
       "id": "review-podcast-qualification",
-      "section": "Review",
+      "section": "Podcast",
       "title": "Read long-form podcast qualification evidence",
       "summary": "Inspect measured 25–45 minute technical evidence without confusing it with creative review.",
       "status": "Available after a production-quality-routed qualification run",

@@ -36,3 +36,7 @@ func testStudioBuildIdentityDistinguishesInstalledBundles() {
     XCTAssertTrue(label.contains("20"))
     XCTAssertTrue(label.contains("dc42fca"))
 }
+
+func testPodcastDestinationHasContextualHelpSection() {
+    XCTAssertTrue(HelpGuide.sections.contains("Podcast"))
+}
