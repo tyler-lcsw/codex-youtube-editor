@@ -29,6 +29,26 @@ def test_completion_needs_each_phase_and_current_deliverables(setup):
     out.write_bytes(b'changed media');assert not qa.gate(p,'after',r)['passed']
     with pytest.raises(ValueError):qa.finalize(p,r)
 
+@pytest.mark.parametrize('change', ['wording', 'new_rule'])
+def test_policy_amendment_invalidates_all_reviews_and_completion(setup, change):
+    p,r,e=setup
+    records(p,r,e,'before','planned')
+    records(p,r,e,'during','pass')
+    qa.set_deliverables(p,[e],r)
+    records(p,r,e,'after','pass')
+    assert qa.finalize(p,r)['status']=='qa_complete'
+    original=r.read_text()
+    if change=='wording':
+        r.write_text(original.replace('DO preserve meaning.', 'DO preserve meaning and personality.'))
+    else:
+        r.write_text(original+'\n## R03\n\nDO choose visual hierarchy deliberately.\n')
+    for phase in qa.PHASES:
+        assert not qa.gate(p,phase,r)['passed']
+        checklist=qa.checklist(p,phase,r)
+        assert [entry['id'] for entry in checklist['rules']]==['R01','R02']+(['R03'] if change=='new_rule' else [])
+        assert all(entry['status']=='pending' for entry in checklist['rules'])
+    with pytest.raises(ValueError):qa.finalize(p,r)
+
 def test_changed_evidence_and_pending_review_block(setup):
     p,r,e=setup;records(p,r,e,'before','planned');e.write_text('changed review')
     assert not qa.gate(p,'before',r)['passed']

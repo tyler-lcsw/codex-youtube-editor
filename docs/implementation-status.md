@@ -142,6 +142,27 @@ current receipt. See `docs/production-quality-workflow.md` for operation and enf
 boundaries. Existing outputs have not been retroactively certified. Full playback and
 listening, and authentic supplied-footage qualification, remain distinct requirements.
 
+### Source-led commentary rule amendments — September 9, 2026
+
+Owner-approved lessons from the voidzilla reference are incorporated into the runtime
+policy: R07 protects meaningful personality and comic phrasing; R15 permits purposeful
+branding/atmosphere without effect quotas; R19 requires readable, unobstructed source
+presentation. New R32 covers attention-led host/source/shared layouts, R33 consistent
+project branding across video and packaging, and R34 source context and the distinction
+between evidence and interpretation. Layouts remain contextual options, not a compulsory
+creator template or a shared long-form/Shorts/TikTok preset.
+
+The [editorial draft](../plan/Editorial%20Style%20Rules%20%E2%80%94%20Draft.md) records
+the reference, observation limits, and which principles are now authoritative. This is
+policy, not implementation of new Studio layout controls or a claim of causal retention
+benefits. Runtime parsing and fresh checklists for all three phases recognize 34 rules;
+non-waivable final checks are unchanged. Both wording changes and added rules invalidate
+prior reviews/receipts; historical productions have not been re-certified.
+
+Validation: 13 focused quality-workflow tests; full Python suite **227 passed, 3 skipped,
+1 publication test deselected, 33 subtests passed**. No media edit, generation, publication,
+or fabricated audiovisual acceptance was performed for this policy amendment.
+
 ## Native Mac production studio — development app
 
 Approved native application plan: `../plan/Mac Production Studio — Implementation Plan.html`.

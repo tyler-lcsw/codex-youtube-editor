@@ -32,7 +32,7 @@ DO build a representative preview before committing to the full edit. Include di
 
 ## R07
 
-DO preserve the speaker’s meaning, qualifications, and personality. Tighten repetition without changing the substance or creating misleading associations between statements.
+DO preserve the speaker’s meaning, qualifications, and personality. Evaluate characteristic phrasing, rhetorical questions, self-corrections, and comic repetition before tightening them; retain those that carry meaning, voice, or timing. Remove redundancy without changing the substance or creating misleading associations between statements.
 
 ## R08
 
@@ -64,7 +64,7 @@ DO verify synchronization using the recording itself. Check visible speech and r
 
 ## R15
 
-DO use graphics and effects to clarify the content. Every cutaway, zoom, transition, caption, or sound cue should have an editorial purpose.
+DO give every cutaway, zoom, transition, caption, sound cue, and decorative treatment an editorial purpose: clarification, evidence, orientation, emphasis, emotional or comic timing, or coherent identity and atmosphere. A treatment need not explain a literal claim, but it must serve the brief without obstructing comprehension. Consider leaving a beat unchanged; do not impose fixed cut, caption, or effects quotas or infer effectiveness from a reference video's popularity.
 
 ## R16
 
@@ -80,7 +80,7 @@ DO NOT present simulated screens or generated imagery as recordings of real even
 
 ## R19
 
-DO maintain visual continuity and readability. Check typography, colors, subject identity, composition, contrast, crop boundaries, and text size at the intended viewing size.
+DO maintain visual continuity and readability. Check typography, colors, subject identity, composition, contrast, crop boundaries, and text size at the intended viewing size and for the actual on-screen duration. Enlarge or isolate the relevant source passage or chart when a full-page view is too dense. Keep host insets, captions, decorative frames, and platform UI from covering essential evidence; reposition or remove competing elements while preserving necessary context.
 
 ## R20
 
@@ -129,3 +129,15 @@ DO NOT consider the existing-video workflow qualified until it passes a represen
 ## R31
 
 DO NOT publish automatically when editing is complete. Publication requires approval of the actual deliverable and destination.
+
+## R32
+
+DO choose the visual hierarchy according to what the viewer needs to attend to at the current beat. Consider host-led commentary, source-dominant inspection, and shared source/reaction layouts where relevant; use a host inset only when the visible reaction or continuity adds value. Change emphasis at meaningful narrative, evidence, or reaction boundaries, not on a timer. These are layout options, not a requirement to use all three; reassess framing and attention for each delivery format rather than transferring long-form layouts unchanged to Shorts or TikTok.
+
+## R33
+
+DO apply the project's approved visual identity coherently across the video and its packaging where applicable. Reuse appropriate typography, color roles, framing, and host/source treatments while allowing story-specific content to vary. Branding should support recognition and orientation without sacrificing readability or demanding constant decoration. Extract principles from references; do not impose another creator's signature template as the project's house style.
+
+## R34
+
+DO distinguish what a displayed source states from the presenter's interpretation, inference, opinion, or joke. Preserve attribution, dates, qualifications, and surrounding context when needed to understand the claim. Cropping, highlighting, or juxtaposing a source must not imply stronger evidence or an endorsement that it does not provide; merely displaying a source is not independent verification of its claims.

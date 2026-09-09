@@ -4,6 +4,10 @@ Status: proposal for discussion. This document is not an amendment to
 `docs/production-rules.md` or `docs/production-quality-workflow.md`. If there is a
 conflict, those authoritative documents win.
 
+September 9, 2026: the owner approved the source-led commentary principles documented
+below. They are now reflected in production rules R07, R15, R19, and R32–R34. The remaining
+Studio proposal/profile mechanisms in this document are still drafts, not implemented features.
+
 ## What belongs where
 
 | Layer | Purpose | Examples | Authority |
@@ -22,7 +26,8 @@ counted.
 ### D01 — Begin with the editorial goal
 
 Every salient intervention should name the problem it is solving: clarity, evidence,
-continuity, emphasis, emotional timing, humor, compression, orientation, or another
+continuity, emphasis, emotional timing, humor, compression, orientation, coherent brand
+identity or atmosphere, or another
 explicit goal. “Increase engagement” is too vague by itself.
 
 ### D02 — Include the no-effect alternative
@@ -46,19 +51,26 @@ unless each layer is necessary and the combination remains intelligible.
 
 Silence, breaths, reaction holds, and unaltered framing are valid techniques. Remove a
 pause only after deciding it is redundant rather than thoughtful, emotional, comic, or
-needed for comprehension.
+needed for comprehension. Evaluate characteristic phrasing, comic repetition, rhetorical
+questions, and self-corrections for their contribution to the speaker's personality before
+polishing them away.
 
 ### D06 — Make supporting imagery evidentiary
 
 Prefer B-roll, screenshots, graphics, and source excerpts that prove, explain, locate, or
-contrast the spoken point. Decorative imagery must not imply an event, person, product, or
-causal relationship that the source does not support.
+contrast the spoken point. Displaying a source is not verification: distinguish its claims
+from the presenter's inference, opinion, or joke, and retain material attribution and
+qualifications. Decorative imagery can support identity or atmosphere but must not imply
+an event, person, product, or causal relationship that the source does not support.
 
 ### D07 — Protect comprehension and accessibility
 
 Speech intelligibility takes precedence over music and sound design. Text must be readable
 for its actual on-screen duration. Meaning cannot depend on color, stereo position, or an
 audio-only cue. Caption timing follows the rendered edit, not the pre-edit transcript.
+Enlarge the relevant source passage instead of expecting a nested webpage to remain
+legible. Check that host insets, captions, decorative frames, and platform UI do not cover
+essential material; preserve enough context to avoid a misleading crop.
 
 ### D08 — Treat density and frequency as contextual
 
@@ -112,7 +124,9 @@ is allowed only when it materially improves clarity.
 Version a small recognition system—type roles, anchor zones, creator/logo treatment,
 accent behavior, and compositional rhythm—while reserving most of the image for the
 specific video. Consistency is a tool for recognition, not a reason to make every subject
-look the same.
+look the same. Extend appropriate tokens into the video: host framing, source windows,
+text treatments, and transitions can share an identity without adding constant decoration.
+Readability and the current story take precedence over ornamental consistency.
 
 ### D15 — Declare search, browse, and subscriber intent
 
@@ -133,6 +147,31 @@ YouTube currently supports up to three variants for title-only, thumbnail-only, 
 title-thumbnail tests and selects by watch time. Record the test mode, hypotheses, platform
 contract version, result label, audience context, and uncertainty. “Performed same” and
 “inconclusive” are not winners, and CTR alone is not the native test objective.
+
+### D18 — Let the current beat determine visual hierarchy
+
+Choose host-led commentary, source-dominant inspection, or a shared source/reaction
+layout according to what deserves attention. A visible host inset earns its space through
+reaction or continuity; it is not mandatory. Switch at meaningful content boundaries,
+not fixed intervals, and reconsider the layout for each delivery format.
+
+## Approved reference lessons — September 9, 2026
+
+Reference: [voidzilla — hunter biden is launching a memecoin](https://www.youtube.com/watch?v=56SN_91gitM).
+The case review used the auto-transcript and sampled frames across the video, not
+continuous audiovisual playback. Observations include an immediate topic-led opening,
+host/source/shared layouts, an enlarged highlighted article passage around 4:05, a
+source-dominant distribution chart around 6:08, and recurring computer-window framing.
+Conversational phrasing and jokes were evident in the transcript; audio mix, vocal
+delivery, precise cut frequency, and causal retention benefits were not established.
+
+The owner approved adapting the general principles into R07, R15, R19, and R32–R34:
+preserve personality, assign attention deliberately, present sources readably and honestly,
+and recognize branding/atmosphere as legitimate editorial purposes. This is
+`case-observation` plus owner-approved policy, not measured effectiveness or platform
+consensus. It does not prescribe the creator's retro aesthetic, frequent effects, or a
+universal long-form/Shorts/TikTok style. Concrete reusable Studio layout controls remain
+implementation work, not a capability proven by these rules.
 
 ## Proposal record
 
