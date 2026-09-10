@@ -2,6 +2,18 @@
 
 [Production rules](production-rules.md) are the single authoritative source. Every production uses them, with editing supplied footage as the default. They are read at runtime, not copied into Python or individual skills. Stable IDs identify each rule; its full current wording controls the review. Edit that file to change policy. The `final-required` metadata names rules that cannot be waived at final QA.
 
+Each rule's bold lead names its primary responsibility. A cross-reference is not a
+substitute for the referenced review. The same evidence file may support several rules,
+but record the distinct finding for each; do not copy a generic "quality checked" reason.
+
+The September 10 consolidation leaves 32 active rules (96 dispositions across three
+phases). R16 is retired into R15; R30 is reserved for its historical meaning and moved to
+the separate [workflow qualification contract](workflow-qualification.md). Do not renumber
+surviving rules, reuse retired IDs, rewrite historical records, or submit retired IDs in
+fresh checklists. This is not automatic migration of approvals: regenerate and reassess
+all phases under the current policy hash. Production QA and reusable-workflow
+qualification remain separate decisions.
+
 ## Before production
 
 The responsible AI reads all current rules and generates a checklist before editing. It establishes the brief, reviews the source, and records a specific plan or justified non-applicability for **every** rule. Evidence can include the brief, source inventory, inspection report, and editorial plan. A planned review is not a completed review.

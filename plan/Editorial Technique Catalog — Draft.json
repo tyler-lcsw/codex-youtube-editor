@@ -414,7 +414,7 @@
       "combinations": ["purposeful-pause", "semantic-tighten"],
       "conflicts": ["effect-density-quota", "constant-pattern-interrupts"],
       "accessibility_intelligibility": "Essential captions, description, and readability remain required even in a restrained style.",
-      "evidence": {"level": "high", "basis": ["coherence and seductive-detail evidence", "working editors report fatigue and story loss from constant stimulation", "repository rules R15-R16"]},
+      "evidence": {"level": "high", "basis": ["coherence and seductive-detail evidence", "working editors report fatigue and story loss from constant stimulation", "repository rule R15 (incorporating former R16)"]},
       "success_evaluation": ["ask whether any missing intervention blocks the intended goal", "owner tone/trust judgment", "compare against effect-heavy alternative only when useful"] ,
       "capability": {"label": "proven_current", "notes": "The current pipeline can preserve source and use clean cuts; product work is needed to make no-effect an explicit proposal and accepted decision."}
     }
