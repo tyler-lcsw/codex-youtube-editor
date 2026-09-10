@@ -8,6 +8,12 @@ September 9, 2026: the owner approved the source-led commentary principles docum
 below. They are now reflected in production rules R07, R15, R19, and R32–R34. The remaining
 Studio proposal/profile mechanisms in this document are still drafts, not implemented features.
 
+September 10, 2026: production policy was consolidated without changing these approved
+principles. R15 now incorporates former R16; R07/R08 separate word selection from delivery
+timing, R19/R32/R33 separate readability from attention and branding, and R17 explicitly
+permits non-evidentiary decoration under R15. Format adaptation belongs to R27. Former
+R30 is now the separate `docs/workflow-qualification.md` contract, not a per-video check.
+
 ## What belongs where
 
 | Layer | Purpose | Examples | Authority |

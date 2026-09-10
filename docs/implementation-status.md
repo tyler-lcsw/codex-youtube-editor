@@ -134,6 +134,30 @@ The final film contains the exact 97-word intended transcript. Source/master aud
 
 ## Production quality policy
 
+### Rule consolidation — September 10, 2026
+
+The owner-approved duplication review is applied to the authoritative policy. There
+are now 32 active rules, each with a labeled primary responsibility. R16 is incorporated
+into R15; R30 is moved to the separate [workflow qualification contract](workflow-qualification.md).
+Retired IDs remain reserved and surviving rules are not renumbered. Prior 34-rule
+counts below describe the earlier policy, not the current checklist.
+
+Word selection and delivery timing, readability/attention/branding, intermediate
+inspection and final QA, and the timing lifecycle retain distinct responsibilities.
+R17 now separates evidentiary visuals from legitimate decoration; format adaptation
+belongs to R27, and preservation to R04. Cross-references do not waive individual
+findings. No safety requirement, publication boundary, or required audiovisual review
+was removed. Workflow qualification is still required before claiming the reusable
+workflow qualified; it is no longer repeated as a per-production disposition.
+
+Validation: 14 focused quality tests; full Python suite **228 passed, 3 skipped,
+1 publication test deselected, 33 subtests passed**. Policy parsing confirms 32 stable
+labeled IDs, 96 dispositions across three phases, unchanged non-waivable final rules,
+and valid catalog JSON. Retirement regression coverage preserves historical records,
+rejects retired IDs in new reviews, and invalidates existing reviews/completion.
+No historical production was re-certified and no new automated qualification registry
+is claimed. No media generation or publication was performed.
+
 `docs/production-rules.md` is the authoritative editable source for all production rules.
 `tools.production_quality` provides runtime checklists, evidence-bound before/during/after
 gates, action logging, delivery hashing, and completion receipts. Root instructions and

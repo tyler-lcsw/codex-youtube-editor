@@ -2,7 +2,7 @@
 
 ## Decision
 
-Make the first tutorial a short, authentic walkthrough of editing supplied footage. Use the user guide as its script authority. A separate capability tour can explain the broader skill library. Do not attempt one video that demonstrates every skill: local avatar/video diffusion and generative music remain deferred, publication testing is excluded, and production rule R16 says not to force every capability into every video.
+Make the first tutorial a short, authentic walkthrough of editing supplied footage. Use the user guide as its script authority. A separate capability tour can explain the broader skill library. Do not attempt one video that demonstrates every skill: local avatar/video diffusion and generative music remain deferred, publication testing is excluded, and production rule R15 says not to force every capability into every video.
 
 This is a recording outline, not a rendered or QA-approved production. No media was generated for the documentation release. The guide is usable immediately; a tutorial should follow verified UI behavior rather than delay delivery of the help system.
 
