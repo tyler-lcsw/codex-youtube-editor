@@ -3,13 +3,17 @@ import StudioCore
 
 private func helpFixture() -> [String:Any] {
     ["schema_version":1,"title":"Studio guide","articles":[
-        ["id":"review-basics","section":"Review","title":"Watch output","summary":"Inspect a revision","status":"Available","steps":["Play the video"],"notes":["Check audio"],"prompt":"Please inspect timing"],
+        ["id":"review-basics","section":"Feedback","title":"Watch output","summary":"Inspect a revision","status":"Available","steps":["Play the video"],"notes":["Check audio"],"prompt":"Please inspect timing"],
         ["id":"resource-basics","section":"Resources","title":"Choose resources","summary":"Select routes","status":"Limited","steps":["Choose a provider"],"notes":["Check readiness"]]
     ]]
 }
 private func helpData(_ value:[String:Any]) throws -> Data {try JSONSerialization.data(withJSONObject:value)}
 func testHelpValidation() throws {
     let fixture=helpFixture()
+    XCTAssertTrue(HelpGuide.sections.contains("Editing Styles"))
+    XCTAssertFalse(HelpGuide.sections.contains("Editing styles"))
+    var legacyStyle=fixture;var legacyArticles=legacyStyle["articles"] as! [[String:Any]];legacyArticles[0]["section"]="Editing styles";legacyStyle["articles"]=legacyArticles
+    XCTAssertEqual(try HelpGuide.decode(helpData(legacyStyle)).articles[0].section,"Editing Styles")
     XCTAssertEqual(try HelpGuide.decode(helpData(fixture)).articles.count,2)
     for key in ["id","section","title","summary","status"] {
         var bad=fixture;var articles=bad["articles"] as! [[String:Any]];articles[0][key]="  ";bad["articles"]=articles
@@ -39,8 +43,8 @@ func testHelpValidation() throws {
 }
 func testHelpSearchAndSection() throws {
     let guide=try HelpGuide.decode(helpData(helpFixture()))
-    for query in ["WATCH","revision","available","video","audio","timing","review-basics","Review"] {
-        XCTAssertEqual(guide.filtered(section:"Review",query:query).map(\.id),["review-basics"])
+    for query in ["WATCH","revision","available","video","audio","timing","review-basics","Feedback"] {
+        XCTAssertEqual(guide.filtered(section:"Feedback",query:query).map(\.id),["review-basics"])
     }
     XCTAssertEqual(guide.filtered(section:"Resources",query:"audio").count,0)
     XCTAssertEqual(guide.filtered(section:nil,query:"  ").count,2)

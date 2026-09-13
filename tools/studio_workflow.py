@@ -1,10 +1,12 @@
 """Runtime workflow evidence is bound to current inputs, policy and artifacts."""
+from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
 import re
 from . import production_quality as quality
 from . import editing_styles
+from . import studio_workflows
 from .jobs import file_hash
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -99,48 +101,100 @@ def _podcast_artifact_binding(project):
     return result
 
 
-def binding(project, data):
+def binding(project, data, workflow_instance=None):
+    if workflow_instance is not None:
+        scoped = studio_workflows.effective_inputs(data, workflow_instance)
+        asset_ids = set(scoped['asset_ids'])
+        revision_ids = set(scoped['revision_ids'])
+        selected_assets = [item for item in data['assets'] if item['id'] in asset_ids]
+        selected_revisions = [item for item in data['revisions'] if item['id'] in revision_ids]
+        selected_annotations = studio_workflows._relevant_annotations(data, studio_workflows._inputs(data, scoped))
+    else:
+        selected_assets = data['assets']
+        selected_revisions = data['revisions']
+        selected_annotations = data['annotations']
     files = []
-    for asset in data['assets'] + data['revisions']:
+    for asset in selected_assets + selected_revisions:
         p = Path(asset['path'])
         files.append({'id':asset['id'], 'registered':asset['sha256'], 'current':file_hash(p) if p.is_file() else None})
-    inputs = dict(brief=data['brief'], assets=files, resources=data['resources'], routes=data['routes'], annotations=data['annotations'], workflow=file_hash(WORKFLOW), rules=file_hash(quality.RULES))
+    inputs = dict(brief=data['brief'], assets=files, resources=data['resources'], routes=data['routes'], annotations=selected_annotations, workflow=file_hash(WORKFLOW), rules=file_hash(quality.RULES))
+    if workflow_instance is not None:
+        inputs['workflow_template_id'] = workflow_instance['template_id']
+        inputs['workflow_template_catalog'] = file_hash(studio_workflows.TEMPLATES)
     style_binding = editing_styles.active_binding(project)
     if style_binding is not None:
         inputs['editing_style'] = style_binding
     # A null additive migration is equivalent to the legacy general-production
     # state. Once configured, podcast source semantics are review-bound inputs.
     podcast_revision = data.get('podcast_settings_revision', 0)
-    if data.get('podcast') is not None or podcast_revision:
+    podcast_workflow = workflow_instance is None or workflow_instance.get('template_id') == 'solo_podcast' or workflow_instance.get('input_mode') == 'all_project'
+    if podcast_workflow and (data.get('podcast') is not None or podcast_revision):
         inputs['podcast'] = data['podcast']
         inputs['podcast_settings_revision'] = podcast_revision
         inputs['podcast_artifacts'] = _podcast_artifact_binding(project)
     return digest(inputs)
 
 
-def workflow(project, data):
+def workflow(project, data, workflow_id=None):
     result = definitions()
-    current = binding(project, data)
+    guide = studio_workflows.status(project, data)
+    selected = studio_workflows.by_id(data, workflow_id)
+    reviews = selected['stage_reviews']
+    current = binding(project, data, selected)
     statuses = {}
+    template = next(item for item in guide['templates'] if item['id'] == selected['template_id'])
+    presentation = {item['stage_id']:item for item in template['guide_stages']}
     for stage in result['stages']:
-        review = data['stage_reviews'].get(stage['id'])
+        if selected['id'] != studio_workflows.LEGACY_ID:
+            stage['artifacts'] = [
+                path if path == 'work/quality/completion.json'
+                else str(Path('work/workflows') / selected['id'] / Path(path).relative_to('work'))
+                for path in stage.get('artifacts', [])
+            ]
+        review_present = stage['id'] in reviews
+        review = reviews.get(stage['id'])
         prerequisites = all(statuses[p] == 'complete' for p in stage['requires'])
         status = 'pending' if prerequisites else 'blocked'
-        if review:
-            prerequisite_hashes = {p:digest(data['stage_reviews'].get(p)) for p in stage['requires']}
-            status = 'complete' if prerequisites and review.get('prerequisites') == prerequisite_hashes and review['binding'] == current and quality.current(review['evidence']) else 'stale'
+        stale_reasons = []
+        if review_present:
+            prerequisite_hashes = {p:digest(reviews.get(p)) for p in stage['requires']}
+            if not isinstance(review, dict):
+                stale_reasons.append({'code':'invalid_review', 'message':'The saved stage review is not readable.'})
+            else:
+                if not prerequisites:
+                    stale_reasons.append({'code':'prerequisite_incomplete', 'message':'A prerequisite stage is not currently complete.'})
+                if review.get('prerequisites') != prerequisite_hashes:
+                    stale_reasons.append({'code':'prerequisite_evidence_changed', 'message':'Prerequisite evidence changed after this review.'})
+                if review.get('binding') != current:
+                    stale_reasons.append({'code':'workflow_binding_changed', 'message':'Workflow inputs, policy, style, or template guidance changed.'})
+                try:
+                    evidence_current = quality.current(review.get('evidence'))
+                except (KeyError, TypeError, ValueError, OSError):
+                    evidence_current = False
+                if not evidence_current:
+                    stale_reasons.append({'code':'evidence_changed', 'message':'Stage evidence is missing, changed, or invalid.'})
+            status = 'stale' if stale_reasons else 'complete'
         if stage['id'] == 'final_review' and status == 'complete':
-            try:
-                quality.require_complete(project)
-            except (ValueError, OSError, KeyError):
+            if selected['id'] != data['active_workflow_id']:
                 status = 'stale'
-        stage.update(status=status, review=review)
+                stale_reasons.append({'code':'workflow_not_active', 'message':'Select this workflow before validating its final production-quality receipt.'})
+            else:
+                try:
+                    quality.require_complete(project)
+                except (ValueError, OSError, KeyError):
+                    status = 'stale'
+                    stale_reasons.append({'code':'production_quality_incomplete', 'message':'The current production-quality completion receipt is unavailable.'})
+        stage.update(status=status, review=review, stale_reason=stale_reasons[0] if stale_reasons else None, stale_reasons=stale_reasons)
+        if stage['id'] in presentation:
+            stage.update({key:value for key,value in presentation[stage['id']].items() if key != 'stage_id'})
         statuses[stage['id']] = status
-    return dict(result, path=str(WORKFLOW), sha256=file_hash(WORKFLOW))
+    selected_status = next(item for item in guide['workflow_instances'] if item['id'] == selected['id'])
+    return dict(result, path=str(WORKFLOW), sha256=file_hash(WORKFLOW), templates=guide['templates'], instances=guide['instances'], workflow_instances=guide['workflow_instances'], active_workflow_id=selected['id'], active_workflow=selected_status, project_active_workflow_id=guide['active_workflow_id'], workflow_id=selected['id'])
 
 
 def record_stage(project, data, params):
-    stages = workflow(project, data)['stages']
+    selected = studio_workflows.by_id(data, params.get('workflow_id'))
+    stages = workflow(project, data, selected['id'])['stages']
     stage = next((s for s in stages if s['id'] == params.get('stage')), None)
     if stage is None: raise ValueError('Unknown workflow stage')
     if any(next(s for s in stages if s['id'] == p)['status'] != 'complete' for p in stage['requires']):
@@ -154,8 +208,18 @@ def record_stage(project, data, params):
     resolved = list(dict.fromkeys(resolved))
     if any(not p.is_relative_to(project) for p in resolved): raise ValueError('Evidence must be project-local')
     if stage['id'] == 'final_review':
+        if selected['id'] != data['active_workflow_id']:
+            raise ValueError('Select this workflow as the active workflow before recording final review')
         quality.require_complete(project)
-    data['stage_reviews'][stage['id']] = dict(binding=binding(project, data), prerequisites={p:digest(data['stage_reviews'][p]) for p in stage['requires']}, evidence=quality.snapshot(resolved), reason=reason)
+    reviews = selected['stage_reviews']
+    selected['input_binding'] = studio_workflows.input_binding(
+        project, data, studio_workflows.effective_inputs(data, selected), selected['template_id']
+    )
+    reviews[stage['id']] = dict(binding=binding(project, data, selected), prerequisites={p:digest(reviews[p]) for p in stage['requires']}, evidence=quality.snapshot(resolved), reason=reason)
+    # Preserve the legacy project field for existing callers while instance-local
+    # reviews are the authority used by workflow().
+    if selected['id'] == data['active_workflow_id']:
+        data['stage_reviews'] = deepcopy(reviews)
 
 
 def quality_status(project):
@@ -195,7 +259,11 @@ def completion_binding(project):
     """
     from .studio_project import read
     data = read(Path(project).resolve())
-    reviews = {stage:review for stage,review in data['stage_reviews'].items() if stage != 'final_review'}
-    if any(not quality.current(review['evidence']) for review in reviews.values()):
-        raise ValueError('Studio prerequisite review evidence is stale')
-    return {'inputs':binding(project, data), 'pre_final_reviews':digest(reviews)}
+    selected = studio_workflows.active(data)
+    reviews = {stage:review for stage,review in selected['stage_reviews'].items() if stage != 'final_review'}
+    try:
+        current = all(isinstance(review, dict) and quality.current(review.get('evidence')) for review in reviews.values())
+    except (KeyError, TypeError, ValueError, OSError):
+        current = False
+    if not current: raise ValueError('Studio prerequisite review evidence is stale')
+    return {'inputs':binding(project, data, selected), 'pre_final_reviews':digest(reviews)}

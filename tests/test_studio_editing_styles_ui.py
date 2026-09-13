@@ -9,7 +9,7 @@ def test_editing_styles_are_a_visible_native_destination():
     app = (ROOT / "macos/Sources/Studio/StudioApp.swift").read_text()
     view = (ROOT / "macos/Sources/Studio/EditingStylesView.swift").read_text()
 
-    assert 'case editingStyles="Editing styles"' in navigation
+    assert 'case editingStyles="Editing Styles"' in navigation
     assert 'systemImage:"checklist"' in navigation
     assert "case .editingStyles:EditingStylesView()" in app
     assert 'Picker("Editing style"' in view

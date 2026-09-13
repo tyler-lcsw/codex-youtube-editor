@@ -1,10 +1,9 @@
 import Foundation
 import StudioCore
 
-func testPodcastNavigationContractExposesVisibleSidebarDestination() {
-    let item=StudioNavigationContract.sidebarItems.first {$0.destination == .podcast}
-    XCTAssertEqual(item?.title,"Podcast")
-    XCTAssertFalse(item?.systemImage.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty ?? true)
+func testPodcastNavigationContractKeepsPodcastContextWithoutPermanentDestination() {
+    XCTAssertFalse(StudioNavigationContract.sidebarItems.map(\.title).contains("Podcast"))
+    XCTAssertTrue(StudioNavigationContract.sidebarItems.contains {$0.destination == .sources})
 }
 
 func testPodcastQuickStartActionsHaveAccessibleDeepLinks() {
@@ -16,7 +15,7 @@ func testPodcastQuickStartActionsHaveAccessibleDeepLinks() {
 func testPodcastReviewRouteUsesSharedDeepLinkableState() {
     var state=StudioNavigationState()
     XCTAssertTrue(state.open(deepLink:"review/podcast"))
-    XCTAssertEqual(state.destination,.review)
+    XCTAssertEqual(state.destination,.feedback)
     XCTAssertEqual(state.reviewArea,.podcast)
     XCTAssertEqual(state.route.deepLink,"review/podcast")
 }
@@ -38,5 +37,6 @@ func testStudioBuildIdentityDistinguishesInstalledBundles() {
 }
 
 func testPodcastDestinationHasContextualHelpSection() {
-    XCTAssertTrue(HelpGuide.sections.contains("Podcast"))
+    XCTAssertTrue(HelpGuide.sections.contains("Workflow Guide"))
+    XCTAssertFalse(HelpGuide.sections.contains("Podcast"))
 }

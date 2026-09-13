@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "templates": [
+    {"id":"long_form_youtube","label":"Long-form YouTube","description":"Plan, edit, review, and package a complete long-form YouTube production.","guide_stages":[
+      {"stage_id":"intake","label":"Define the production","detail":"Confirm the audience, purpose, format, sources, and delivery goal.","destination":"Brief","prompt":"Review this workflow's brief and bound sources, then identify any missing intake decisions."},
+      {"stage_id":"source_understanding","label":"Understand the source","detail":"Map the argument, demonstrations, beats, conclusion, and timing uncertainty.","destination":"Sources","prompt":"Analyze this workflow's bound sources and establish the required source-understanding artifacts."},
+      {"stage_id":"editorial_strategy","label":"Plan the edit","detail":"Choose cuts and audiovisual treatments for explicit editorial reasons.","destination":"Workflow Guide","prompt":"Draft the editorial strategy for this workflow and a representative preview plan."},
+      {"stage_id":"edit","label":"Build and review revisions","detail":"Execute the reviewed plan, preserve versions, and address bound feedback.","destination":"Revisions","prompt":"Continue this workflow's reviewed edit and report the resulting revision and evidence."},
+      {"stage_id":"final_review","label":"Complete final QA","detail":"Review the actual delivery with audio and keep publication approval separate.","destination":"Codex & QA","prompt":"Assess final QA for this workflow without claiming any review that has not occurred."}
+    ]},
+    {"id":"solo_podcast","label":"Solo podcast","description":"Produce a one-speaker audio-first podcast with optional camera video and supporting visuals.","guide_stages":[
+      {"stage_id":"intake","label":"Set the episode brief","detail":"Choose the canonical audio, optional camera, audience, identity, and visual density.","destination":"Brief","prompt":"Review the solo podcast brief and verify one canonical audio source plus any optional camera selection."},
+      {"stage_id":"source_understanding","label":"Map the episode","detail":"Identify chapters, key moments, claims, and transcript uncertainty from the bound episode.","destination":"Sources","prompt":"Create source understanding and an episode map for this solo podcast workflow."},
+      {"stage_id":"editorial_strategy","label":"Plan the visual score","detail":"Plan waveform branding and purposeful chapter visuals without a fixed effects quota.","destination":"Workflow Guide","prompt":"Prepare a transcript-bound visual strategy for this solo podcast workflow."},
+      {"stage_id":"edit","label":"Render and review the episode","detail":"Build the selected waveform, camera, and accepted visual treatments.","destination":"Revisions","prompt":"Render or revise the reviewed solo podcast stage and preserve its provenance."},
+      {"stage_id":"final_review","label":"Qualify the long-form episode","detail":"Check the complete 25–45 minute delivery, audio, visuals, and review evidence.","destination":"Codex & QA","prompt":"Assess podcast qualification and list any listening, visual, or owner review still pending."}
+    ]},
+    {"id":"short_form","label":"Short-form video","description":"Create a deliberate vertical adaptation bound to a reviewed source or revision.","guide_stages":[
+      {"stage_id":"intake","label":"Define the short","detail":"Choose the source, audience, platform contract, and intended takeaway.","destination":"Brief","prompt":"Review the short-form brief and bound source without inheriting unrelated platform assumptions."},
+      {"stage_id":"source_understanding","label":"Find the complete beat","detail":"Identify a self-contained claim, demonstration, or story with trustworthy timing.","destination":"Sources","prompt":"Map the source segment proposed for this short-form workflow and preserve necessary context."},
+      {"stage_id":"editorial_strategy","label":"Plan the vertical adaptation","detail":"Recompose framing, captions, attention, and pacing for the selected format.","destination":"Workflow Guide","prompt":"Plan a deliberate vertical adaptation rather than an automatic center crop."},
+      {"stage_id":"edit","label":"Build the short revision","detail":"Create and inspect the bound short-form output and its transitions.","destination":"Revisions","prompt":"Build or revise this short-form output and preserve its relationship to the reviewed source."},
+      {"stage_id":"final_review","label":"Review the short in context","detail":"Check the full vertical output, safe areas, captions, sound, and packaging truthfulness.","destination":"Codex & QA","prompt":"Perform available short-form QA and identify every review still pending."}
+    ]},
+    {"id":"clean_audio","label":"Clean audio","description":"Improve intelligibility while preserving the source voice and validating cleanup fidelity.","guide_stages":[
+      {"stage_id":"intake","label":"Choose the audio problem","detail":"Bind the source and describe the noise, intelligibility issue, and intended output.","destination":"Sources","prompt":"Inspect the bound audio source and define the cleanup goal without assuming a provider."},
+      {"stage_id":"source_understanding","label":"Establish the audio baseline","detail":"Document channels, sample rate, loudness, noise, speech, and difficult passages.","destination":"Sources","prompt":"Analyze the bound audio and record its technical and perceptual baseline."},
+      {"stage_id":"editorial_strategy","label":"Plan conservative cleanup","detail":"Choose bounded processing and representative passages for comparison.","destination":"Workflow Guide","prompt":"Plan conservative cleanup with an original-versus-cleaned fidelity comparison."},
+      {"stage_id":"edit","label":"Create the cleaned revision","detail":"Process the audio, preserve the original, and inspect artifacts and damaged speech.","destination":"Revisions","prompt":"Create or revise the cleaned audio and report measured and listening evidence."},
+      {"stage_id":"final_review","label":"Verify cleanup fidelity","detail":"Listen to the complete result and verify intelligibility, loudness, peaks, and duration.","destination":"Codex & QA","prompt":"Assess cleanup fidelity and identify any full listening review still required."}
+    ]},
+    {"id":"tighten_silence","label":"Tighten silence","description":"Shorten selected pauses while retaining meaningful delivery timing.","guide_stages":[
+      {"stage_id":"intake","label":"Define the pacing goal","detail":"Bind the source and describe where pacing feels slow without requiring blanket removal.","destination":"Brief","prompt":"Review the pacing goal and bound source for this silence-tightening workflow."},
+      {"stage_id":"source_understanding","label":"Identify meaningful pauses","detail":"Distinguish dead air from pauses supporting comprehension, emotion, humor, or action.","destination":"Sources","prompt":"Analyze pauses in the bound source and preserve meaningful delivery timing."},
+      {"stage_id":"editorial_strategy","label":"Plan pause changes","detail":"Record exact candidate ranges, retained context, padding, and timing consequences.","destination":"Workflow Guide","prompt":"Prepare a reversible pause-tightening plan with exact source ranges."},
+      {"stage_id":"edit","label":"Create the tightened revision","detail":"Apply reviewed changes and recalculate transcript, graphic, caption, and sound timing.","destination":"Revisions","prompt":"Create or revise the tightened output and verify its rendered time mapping."},
+      {"stage_id":"final_review","label":"Review pacing and continuity","detail":"Listen through every changed boundary and the complete delivery at normal speed.","destination":"Codex & QA","prompt":"Assess pacing, speech continuity, synchronization, and remaining listening review."}
+    ]},
+    {"id":"thumbnail","label":"Thumbnail","description":"Develop truthful thumbnail options for a selected source or finished revision.","guide_stages":[
+      {"stage_id":"intake","label":"Define the packaging promise","detail":"Bind the relevant source or revision and clarify audience, title context, and identity.","destination":"Brief","prompt":"Review this thumbnail workflow's bound media and define an accurate packaging promise."},
+      {"stage_id":"source_understanding","label":"Find truthful visual evidence","detail":"Identify the actual outcome, subject, emotion, and usable source imagery.","destination":"Sources","prompt":"Inspect the bound media for truthful thumbnail concepts and source limitations."},
+      {"stage_id":"editorial_strategy","label":"Plan distinct concepts","detail":"Choose readable hierarchy, crop, expression, text restraint, and brand treatment.","destination":"Workflow Guide","prompt":"Plan a small set of distinct, truthful thumbnail concepts for this workflow."},
+      {"stage_id":"edit","label":"Create thumbnail revisions","detail":"Produce inspectable variants with provenance and preserve prior successful versions.","destination":"Revisions","prompt":"Create or revise the approved thumbnail concepts and record their provenance."},
+      {"stage_id":"final_review","label":"Review at viewing size","detail":"Check readability, crop, identity, factual promise, and exact finished-video alignment.","destination":"Feedback","prompt":"Assess the actual thumbnail variants at intended viewing size without authorizing publication."}
+    ]}
+  ]
+}

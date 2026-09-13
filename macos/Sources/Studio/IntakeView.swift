@@ -1,7 +1,10 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import StudioCore
+enum IntakeArea {case all,brief,sources}
 struct IntakeView:View {
+    let area:IntakeArea
+    init(area:IntakeArea = .all) {self.area=area}
     @EnvironmentObject var w:Workspace
     @State private var fields=[String:String]()
     @State private var baseline=""
@@ -19,13 +22,19 @@ struct IntakeView:View {
     var podcastConfigured:Bool {w.data["podcast"] is [String:Any]}
     var audioOptions:[PodcastMediaOption] {podcastMedia.filter(\.canBePrimaryAudio)}
     var cameraOptions:[PodcastMediaOption] {podcastMedia.filter(\.canBeCamera)}
+    var hasSoloPodcastWorkflow:Bool {
+        if w.data["podcast"] is [String:Any] {return true}
+        let workflows=w.data["workflow_instances"] as? [[String:Any]] ?? []
+        return workflows.contains {$0["template_id"] as? String == WorkflowTemplateIdentifiers.soloPodcast}
+    }
     let labels=[("audience","Audience"),("purpose","What should the viewer understand?"),("target_length","Desired length"),("tone","Tone and pacing"),("required_content","Keep or emphasize"),("context","Context and editing instructions")]
     var body:some View {
         ScrollViewReader {proxy in ScrollView {
             VStack(alignment:.leading,spacing:22) {
                 if w.project.isEmpty {StudioEmptyState(symbol:"folder.badge.plus",title:"Create your first production",detail:"Choose New to make a project, or Open to continue an existing production.")}
-                Text("Start with your media and intent.").font(.title2.weight(.semibold))
-                Text("The source stays intact. Your brief and references guide the edit; the AI’s interpretation is reviewed before substantive cuts.").foregroundStyle(.secondary)
+                if area != .sources {
+                    Text("Set the editorial intent.").font(.title2.weight(.semibold))
+                    Text("The brief defines what the audience should understand before substantive editing begins.").foregroundStyle(.secondary)
                 GroupBox("Editing brief") {
                     VStack(alignment:.leading,spacing:14) {
                         ForEach(labels,id:\.0) {key,label in
@@ -36,7 +45,10 @@ struct IntakeView:View {
                         Button("Save brief") {let brief=fields;w.perform {try await w.request("update_brief",["brief":brief]);dirty=false;try await w.refresh();load();w.notice="Brief saved; dependent reviews reassessed."}}.accessibilityLabel("Save brief").disabled(w.project.isEmpty || (dirty && briefChanged))
                         if dirty && briefChanged {Text("The saved brief changed. Reload it before saving your draft.").foregroundStyle(StudioTheme.accent);Button("Reload saved brief"){load()}.accessibilityLabel("Reload saved brief")}
                     }.padding(12)
-                }
+                }}
+                if area != .brief {
+                Text("Import and configure source material.").font(.title2.weight(.semibold))
+                Text(hasSoloPodcastWorkflow ? "Originals stay intact. This project includes a solo audio-first workflow; camera video is optional enrichment." : "Originals stay intact. Add media and documents used by this project’s active workflows.").foregroundStyle(.secondary)
                 GroupBox("Media and documents") {
                     VStack(alignment:.leading,spacing:12) {
                         Label("Drop files here, or choose files to import",systemImage:"square.and.arrow.down").frame(maxWidth:.infinity,minHeight:70).background(StudioTheme.coral.opacity(0.08)).clipShape(RoundedRectangle(cornerRadius:10))
@@ -58,7 +70,7 @@ struct IntakeView:View {
                         }
                     }.padding(12)
                 }
-                GroupBox("Solo podcast visuals") {
+                if hasSoloPodcastWorkflow {GroupBox("Solo podcast visuals") {
                     VStack(alignment:.leading,spacing:12) {
                         Text("Choose the canonical audio for a one-speaker episode. Camera footage is optional and remains a separate, unverified association.").foregroundStyle(.secondary)
                         if let podcastError {
@@ -90,7 +102,7 @@ struct IntakeView:View {
                         }
                         Text("Use Codex & QA to generate and render the branded waveform and chapter visuals after setup. Generated proposals and renders still require explicit review; camera synchronization is not inferred or verified.").font(.caption).foregroundStyle(.secondary)
                     }.padding(12)
-                }.id("podcast-setup")
+                }.id("podcast-setup")}
                 GroupBox("Resource links") {
                     VStack(alignment:.leading) {
                         TextField("Label",text:$resourceLabel).accessibilityLabel("Label").textFieldStyle(.roundedBorder)
@@ -104,12 +116,14 @@ struct IntakeView:View {
                         }
                     }.padding(12)
                 }
+                }
             }.padding(24)
-        }.onAppear {load();loadPodcast();revealPodcastSetup(proxy)}.onChange(of:w.project){_,_ in load();loadPodcast()}.onChange(of:w.dataRevision){_,_ in
+        }.onAppear {load();loadPodcast();revealPodcastSetup(proxy)}.onChange(of:w.project){_,_ in resetResourceDraft();load();loadPodcast()}.onChange(of:w.dataRevision){_,_ in
             if !dirty {load()}
             loadPodcast(preservingDraft:podcastDirty)
         }}
     }
+    func resetResourceDraft() {resourceURL="";resourceLabel="";resourceRole="reference"}
     func revealPodcastSetup(_ proxy:ScrollViewProxy) {
         guard w.navigation.route.deepLink == "podcast/setup" else{return}
         DispatchQueue.main.async {proxy.scrollTo("podcast-setup",anchor:.top)}
@@ -139,4 +153,12 @@ struct IntakeView:View {
     func clearPodcast() {
         w.perform {try await w.request("clear_podcast_settings");podcastDirty=false;loadPodcast();w.notice="Podcast setup cleared; dependent reviews reassessed."}
     }
+}
+
+struct BriefView:View {
+    var body:some View {IntakeView(area:.brief)}
+}
+
+struct SourcesView:View {
+    var body:some View {IntakeView(area:.sources)}
 }

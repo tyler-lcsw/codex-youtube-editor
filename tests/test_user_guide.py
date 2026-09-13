@@ -16,7 +16,7 @@ def guide():
          'summary': 'Open your project.', 'status': 'Available',
          'steps': ['Choose a project.', 'Read the result.'], 'notes': ['Keep originals.'],
          'prompt': 'Please review my sources.'},
-        {'id': 'review-output', 'section': 'Review', 'title': 'Review output',
+        {'id': 'review-output', 'section': 'Feedback', 'title': 'Review output',
          'summary': 'Inspect the result.', 'status': 'Requires a project',
          'steps': ['Play the output.'], 'notes': []}]}
 

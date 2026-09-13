@@ -27,10 +27,10 @@ struct ReviewView:View {
     var feedback:[[String:Any]] {w.annotations.filter{$0["asset_id"] as? String == selected}}
     var body:some View {
         VStack(spacing:0) {
-            Picker("Review area",selection:$w.navigation.reviewArea) {
+            if w.hasSoloPodcastContext {Picker("Review area",selection:$w.navigation.reviewArea) {
                 Text("Media feedback").tag(StudioReviewArea.media)
                 Text("Podcast visual score").tag(StudioReviewArea.podcast)
-            }.pickerStyle(.segmented).frame(maxWidth:420).padding(.vertical,10).accessibilityLabel("Review area")
+            }.pickerStyle(.segmented).frame(maxWidth:420).padding(.vertical,10).accessibilityLabel("Review area")}
             if w.navigation.reviewArea == .podcast {
                 PodcastVisualScoreReviewView()
             } else {
@@ -38,12 +38,12 @@ struct ReviewView:View {
             VStack(alignment:.leading,spacing:12) {
                 HStack {
                     Picker("Viewing",selection:$selected) {Text("Choose a source or revision").tag("");ForEach(media.indices,id:\.self){i in Text(media[i]["label"] as? String ?? "Media").tag(media[i]["id"] as? String ?? "")}}
-                    Button("Add revision") {w.importFiles(revision:true)}.accessibilityLabel("Add revision").disabled(w.project.isEmpty)
+                    Button("Add revision") {w.importFiles(revision:true,attachToActiveWorkflow:true)}.accessibilityLabel("Add revision").disabled(w.project.isEmpty || w.busy || w.activeWorkflow == nil)
                 }
                 GeometryReader {geometry in
                     ZStack {
                         if asset == nil {
-                            StudioEmptyState(symbol:"play.rectangle",title:"Choose media to review",detail:"Import a source in Brief & sources, or choose an existing source or revision above.")
+                            StudioEmptyState(symbol:"play.rectangle",title:"Choose media to review",detail:"Import a source in Sources, or choose an existing source or revision above.")
                                 .frame(maxWidth:.infinity,maxHeight:.infinity).background(StudioTheme.panel)
                         } else {
                             NativeReviewPlayer(player:player)
@@ -80,7 +80,7 @@ struct ReviewView:View {
             }.padding(20).frame(minWidth:560)
             ScrollView {VStack(alignment:.leading,spacing:16) {
                 Text("Feedback on this version").font(.title3.bold())
-                Text("\(w.annotations.filter{$0["status"] as? String != "accepted"}.count) unresolved across this production. Select the original reviewed version to see its notes.").font(.caption).foregroundStyle(.secondary)
+                Text("\(w.unresolvedFeedbackCount) unresolved across this production. Select the original reviewed version to see its notes.").font(.caption).foregroundStyle(.secondary)
                 if feedback.isEmpty {StudioEmptyState(symbol:"text.bubble",title:"No feedback on this version",detail:"Pause the selected media to add a frame, region, moment, or time-range note.")}
                 ForEach(feedback.indices,id:\.self) {i in let note=feedback[i];let noteID=note["id"] as? String ?? ""
                     GroupBox {
@@ -104,12 +104,21 @@ struct ReviewView:View {
             }.padding(18)}.frame(minWidth:300,idealWidth:340,maxWidth:450)
                 }
             }
-        }.onChange(of:w.navigation.reviewArea){_,area in w.navigation.selectReviewArea(area);if area == .podcast {player.pause()}}
-        .onChange(of:selected){_,_ in loadMedia()}.onChange(of:w.project){_,_ in selected="";drafts=AnnotationDrafts();reviewContext=nil;player.replaceCurrentItem(with:nil)}
+        }.onAppear {reconcileReviewContext()}.onChange(of:w.navigation.reviewArea){_,area in w.navigation.selectReviewArea(area);if area == .podcast {player.pause()}}
+        .onChange(of:w.reviewSelectionID){_,_ in applyRequestedRevision()}.onChange(of:w.dataRevision){_,_ in reconcileReviewContext()}
+        .onChange(of:selected){_,_ in loadMedia()}.onChange(of:w.project){_,_ in resetReviewDraft();reconcileReviewContext()}
         .onDisappear {player.pause()}
     }
+    func reconcileReviewContext() {if !w.hasSoloPodcastContext,w.navigation.reviewArea == .podcast {w.navigation.selectReviewArea(.media)};applyRequestedRevision()}
+    func applyRequestedRevision() {let requested=w.reviewSelectionID;guard !requested.isEmpty,media.contains(where:{$0["id"] as? String == requested}) else{return};selected=requested;w.reviewSelectionID=""}
+    func resetAnnotationDraft() {
+        videoSize=CGSize(width:1920,height:1080);markerMS=0;endSeconds="";comment="";rect=nil;draw=false;capturePath="";markerReady=false;selectedHasVideo=false;reviewContext=nil;integrityError=nil;validatedID="";transcriptWords=[];selectedWords=[]
+    }
+    func resetReviewDraft() {
+        player.pause();player.replaceCurrentItem(with:nil);selected="";drafts=AnnotationDrafts();resetAnnotationDraft()
+    }
     func loadMedia() {
-        player.pause();player.replaceCurrentItem(with:nil);capturePath="";markerReady=false;selectedHasVideo=false;rect=nil;draw=false;selectedWords=[];transcriptWords=[];reviewContext=nil;integrityError=nil;validatedID=""
+        player.pause();player.replaceCurrentItem(with:nil);resetAnnotationDraft()
         guard let a=asset,let id=a["id"] as? String else {return}
         let project=w.project,bridge=w.bridge
         Task {

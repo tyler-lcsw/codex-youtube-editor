@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import StudioCore
 
 // Precision Cut identity. Coral text uses a darker accessible shade on ivory.
 enum StudioTheme {
@@ -20,14 +21,30 @@ enum StudioTheme {
     }
     static func symbol(for section:String)->String {
         switch section {
-        case "Podcast":return "waveform"
-        case "Editing styles":return "checklist"
+        case "Overview":return "square.grid.2x2"
+        case "Brief":return "doc.text"
+        case "Sources":return "tray.and.arrow.down"
+        case "Revisions":return "film.stack"
+        case "Feedback":return "text.bubble"
+        case "Workflow Guide":return "point.topleft.down.to.point.bottomright.curvepath"
+        case "Editing Styles":return "checklist"
         case "How to Use":return "questionmark.circle"
-        case "Understanding":return "text.magnifyingglass"
-        case "Review":return "play.rectangle"
         case "Resources":return "slider.horizontal.3"
         case "Codex & QA":return "checkmark.shield"
         default:return "tray.and.arrow.down"
+        }
+    }
+    static func helpSection(for navigation:StudioNavigationState)->String {
+        switch navigation.destination {
+        case .brief:return "Brief"
+        case .sources:return "Sources"
+        case .revisions,.feedback:return "Feedback"
+        case .editingStyles:return "Editing Styles"
+        case .resources:return "Resources"
+        case .codex:return "Codex & QA"
+        case .help:return "How to Use"
+        case .workflowGuide:return "Workflow Guide"
+        default:return "Getting started"
         }
     }
 }

@@ -4,7 +4,6 @@ import StudioCore
 struct CodexView:View {
     @EnvironmentObject var w:Workspace
     @ObservedObject var client:CodexClient
-    @State private var prompt=""
     @AppStorage("studioCodexModel") private var model="gpt-6-astra"
     @State private var answers=[String:String]()
     var body:some View {
@@ -42,9 +41,9 @@ struct CodexView:View {
             GroupBox("Production task") {
                 VStack(alignment:.leading,spacing:12) {
                     Picker("Codex model",selection:$model) {Text("GPT-6 Astra").tag("gpt-6-astra");Text("GPT-5.6 Sol").tag("gpt-5.6-sol")}.disabled(client.running)
-                    TextField("Describe the next edit or ask Codex to analyze the footage…",text:$prompt,axis:.vertical).accessibilityLabel("Describe the next edit or ask Codex to analyze the footage…").lineLimit(3...8).textFieldStyle(.roundedBorder)
+                    TextField("Describe the next edit or ask Codex to analyze the footage…",text:$w.codexPrompt,axis:.vertical).accessibilityLabel("Describe the next edit or ask Codex to analyze the footage…").lineLimit(3...8).textFieldStyle(.roundedBorder)
                     HStack {
-                        Button("Send to Codex",systemImage:"arrow.up.circle.fill") {send()}.accessibilityLabel("Send to Codex").buttonStyle(.borderedProminent).tint(StudioTheme.button).disabled(!client.subscription || client.running || w.project.isEmpty || w.busy || prompt.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)
+                        Button("Send to Codex",systemImage:"arrow.up.circle.fill") {send()}.accessibilityLabel("Send to Codex").buttonStyle(.borderedProminent).tint(StudioTheme.button).disabled(!client.subscription || client.running || w.project.isEmpty || w.busy || !w.codexPromptIsCurrent)
                         Button("Stop task") {Task {do {try await client.interrupt()}catch {w.error=error.localizedDescription}}}.accessibilityLabel("Stop task").disabled(!client.running)
                         if client.running {ProgressView().controlSize(.small);Text("Working…").foregroundStyle(.secondary)}
                     }
@@ -90,12 +89,14 @@ struct CodexView:View {
     func connect() {Task {do {if !client.connected {try await client.connect(binary:w.codexBinary)};try await client.checkSignIn()}catch{w.error=error.localizedDescription}}}
     func respond(_ q:CodexQuestion,_ allow:Bool) {do {try client.answer(q,allow:allow)}catch{w.error=error.localizedDescription}}
     func send() {
-        let instruction=prompt,project=w.project,engine=w.engine,selectedModel=model
+        guard w.codexPromptIsCurrent,let workflowID=w.activeWorkflowID else {w.error="Refresh the active workflow before sending this prompt.";return}
+        let instruction=w.codexPrompt,project=w.project,engine=w.engine,selectedModel=model
         w.perform {
+            guard w.codexPromptIsCurrent,w.project == project,w.activeWorkflowID == workflowID else {throw NSError(domain:"CodexStudio",code:1,userInfo:[NSLocalizedDescriptionKey:"The project or active workflow changed. Review the prompt before sending."])}
             let handoff=try await w.handoff(copy:false)
             let handoffPath=handoff["path"] as? String ?? ""
             _ = try await client.send(text:"Read the current production handoff at \(handoffPath). User request:\n\(instruction)",engine:engine,project:project,model:selectedModel,existingThread:w.data["thread_id"] as? String,onThreadReady:{id in try await w.request("set_thread",["thread_id":id])})
-            prompt=""
+            w.clearCodexPrompt()
         }
     }
 }
