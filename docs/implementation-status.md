@@ -459,6 +459,10 @@ owner feedback, complete QA or authorize publication.
 Documentation and standalone Help are generated from the same authoritative JSON. The
 integrated correction passes **293 Python tests, 1 publication test deselected, 33
 subtests, and 64 native core checks**, plus a clean release build, generated-guide check,
-skill audit and whitespace validation. Interactive acceptance and canonical app
-installation remain separate release checks. No authentic media qualification, hosted
-generation or publication is claimed by the information-architecture change.
+skill audit and whitespace validation. The canonical `~/Applications/Codex Media
+Studio.app` installation passed at **version 0.5.0, build 6**: its ad-hoc signature, exact
+merged engine revision, single installed-bundle path and launched process were verified.
+The computer-use inventory confirmed the app is running, but its native accessibility
+pipe did not attach, so interactive visual acceptance remains pending. No authentic media
+qualification, hosted generation or publication is claimed by the information-
+architecture change.
