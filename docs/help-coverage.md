@@ -1,27 +1,27 @@
 # Help coverage audit
 
-The authoritative help is `docs/user-guide.json`. This audit maps visible controls, dynamic options and all 18 skills to articles. It is a source audit, not an interactive acceptance or media qualification claim.
+The authoritative help is `docs/user-guide.json`. This audit maps visible controls, dynamic options and all 18 skills to articles. It is a source audit, not an interactive acceptance or media qualification claim. The workflow-first sources, generated guide and automated native integration have been validated together; interactive acceptance remains a separate gate.
 
 | Control, option or capability | Article ID | Evidence source |
 |---|---|---|
 | New; Create production folder; folder name/location; cancel | `create-production` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift |
 | Open; Open production folder; persisted project | `open-production` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift |
-| Grouped Project, Work, Project Setup and System destinations; Overview, Brief, Sources, Revisions, Feedback and Workflow Guide; production title/path; busy indicator; visible version/build/source revision | `find-your-way` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift; macos/Sources/StudioCore/StudioNavigation.swift; tools/build_studio_app.py |
+| Permanent Project Home, Project Settings and Help destinations; dynamic Current Work; New Work; production title/path; busy indicator; visible version/build/source revision; legacy destination redirects | `find-your-way` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift; macos/Sources/StudioCore/StudioNavigation.swift; tools/build_studio_app.py |
 | Refresh; notices; save semantics; draft loss | `save-and-refresh` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift; all native views |
 | Export handoff; clipboard | `export-handoff` | macos/Sources/Studio/StudioApp.swift; macos/Sources/Studio/Workspace.swift |
 | Start a first edit | `first-edit` | docs/mac-studio.md; docs/providers.md; config/studio-workflow.json |
-| Audience | `brief-audience` | macos/Sources/Studio/IntakeView.swift |
-| What should the viewer understand? | `brief-purpose` | macos/Sources/Studio/IntakeView.swift |
-| Desired length | `brief-length` | macos/Sources/Studio/IntakeView.swift |
-| Tone and pacing | `brief-tone` | macos/Sources/Studio/IntakeView.swift |
-| Keep or emphasize | `brief-required` | macos/Sources/Studio/IntakeView.swift |
-| Context and editing instructions | `brief-context` | macos/Sources/Studio/IntakeView.swift |
-| Save brief; Reload saved brief; dirty/baseline warning | `brief-conflict` | macos/Sources/Studio/IntakeView.swift |
-| Import media or documents; file multi-select; drop target; asset list/roles | `import-sources` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/Workspace.swift |
-| Conditional Solo podcast setup in Sources; Primary audio; Optional camera; No camera; Visual density; Restrained/Balanced/Illustrative; Save/Clear/Reload setup; generation/feedback and synchronization limits | `podcast-setup` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
-| Editing styles; Editing style picker; New from master; Style name; per-rule checkbox and text editor; Save style; Reload saved style; conflict and master-change notices | `editing-styles` | macos/Sources/Studio/EditingStylesView.swift; macos/Sources/StudioCore/EditingStyle.swift; tools/editing_styles.py |
-| Label; https://…; Use as; Reference; Source; Background; Add link; saved Link | `add-resource-link` | macos/Sources/Studio/IntakeView.swift |
-| Add Workflow; six backend templates; multiple named workflows; active workflow; Edit workflow inputs; source/revision scoping; migrated Main production | `manage-workflows` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/Studio/Workspace.swift; macos/Sources/StudioCore/WorkflowGuide.swift; tools/studio_workflows.py; config/studio-workflows.json |
+| Contextual Define stage; Audience | `brief-audience` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Contextual Define stage; What should the viewer understand? | `brief-purpose` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Contextual Define stage; Desired length | `brief-length` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Contextual Define stage; Tone and pacing | `brief-tone` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Contextual Define stage; Keep or emphasize | `brief-required` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Contextual Define stage; Context and editing instructions | `brief-context` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Contextual Define stage; Save brief; Reload saved brief; dirty/baseline warning | `brief-conflict` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Contextual Prepare stage; Import media or documents; file multi-select; drop target; asset list/roles | `import-sources` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/Workspace.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Solo-podcast-only Prepare context; Primary audio; Optional camera; No camera; Visual density; Restrained/Balanced/Illustrative; Save/Clear/Reload setup; generation/review and synchronization limits | `podcast-setup` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
+| Project Settings; Editing style picker; New from master; Style name; per-rule checkbox and text editor; Save style; Reload saved style; conflict and master-change notices | `editing-styles` | macos/Sources/Studio/EditingStylesView.swift; macos/Sources/StudioCore/EditingStyle.swift; tools/editing_styles.py |
+| Contextual Prepare stage; Label; https://…; Use as; Reference; Source; Background; Add link; saved Link | `add-resource-link` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| New Work; four deliverable templates; two supporting-action templates; dynamic Current Work; multiple named workflows; optional organizational parent; explicit source/revision inputs; migrated Main production | `manage-workflows` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/Studio/Workspace.swift; macos/Sources/StudioCore/WorkflowGuide.swift; tools/studio.py; tools/studio_workflows.py; config/studio-workflows.json; config/studio-workflow-presentation.json |
 | Intake step; evidence-based Complete, Ready, Not started, Blocked and Needs review status; no percentage | `stage-intake` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/StudioCore/WorkflowGuide.swift; tools/studio_workflow.py; config/studio-workflow.json |
 | Source understanding step; prerequisites/artifacts/status | `stage-source-understanding` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/StudioCore/WorkflowGuide.swift; tools/studio_workflow.py; config/studio-workflow.json |
 | Editorial strategy step; prerequisites/artifacts/status | `stage-editorial-strategy` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/StudioCore/WorkflowGuide.swift; tools/studio_workflow.py; config/studio-workflow.json |
@@ -29,11 +29,11 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Final review step; prerequisites/artifacts/status | `stage-final-review` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/StudioCore/WorkflowGuide.swift; tools/studio_workflow.py; config/studio-workflow.json |
 | Stage picker; selected workflow; What was established, and where is it documented?; Select evidence files; paths; Record evidence; scoped stale reasons | `record-stage-evidence` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/StudioCore/WorkflowGuide.swift; tools/studio_workflow.py; config/studio-workflow.json |
 | Open authoritative stage policy and contextual template catalog; six templates do not prove progress or alter QA | `read-workflow` | macos/Sources/Studio/WorkflowGuideView.swift; config/studio-workflow.json; config/studio-workflows.json |
-| Open destination; Prepare editable Codex prompt; switch to Codex without sending; explicit Send to Codex remains required | `manage-workflows` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/Studio/CodexView.swift |
-| Feedback viewing; Choose a source or revision; player playback/seek; unresolved count | `review-media` | macos/Sources/Studio/ReviewView.swift |
-| Feedback area; Podcast visual score; current/stale binding; Reload score; episode density timeline and text ranges; chapter picker; proposal details/provenance/camera/transcript; representative preview; Accept proposal; Keep base stage; Reject proposal; revision-bound confirmation | `review-podcast-visual-score` | macos/Sources/Studio/ReviewView.swift; macos/Sources/Studio/PodcastVisualScoreReviewView.swift; macos/Sources/StudioCore/PodcastVisualScore.swift |
+| Contextual stage controls; Prepare editable Codex prompt; reveal Codex inspector without sending; explicit Send to Codex remains required | `manage-workflows` | macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/Studio/CodexView.swift |
+| Contextual Review stage; Choose a source or revision; player playback/seek; unresolved count | `review-media` | macos/Sources/Studio/ReviewView.swift; macos/Sources/Studio/WorkflowGuideView.swift |
+| Solo-podcast Review stage; Podcast visual score; current/stale binding; Reload score; episode density timeline and text ranges; chapter picker; proposal details/provenance/camera/transcript; representative preview; Accept proposal; Keep base stage; Reject proposal; revision-bound confirmation | `review-podcast-visual-score` | macos/Sources/Studio/ReviewView.swift; macos/Sources/Studio/PodcastVisualScoreReviewView.swift; macos/Sources/StudioCore/PodcastVisualScore.swift |
 | Long-form qualification; Reload qualification; live current/historical status, quality-action provenance and stale reasons; target/bindings/runtime/memory/pressure/cache/exact A/V streams/decode; required-review statuses; safety record; Attempt history; truthful failure/interruption recovery and preservation | `review-podcast-qualification` | macos/Sources/Studio/PodcastQualificationView.swift; macos/Sources/StudioCore/PodcastQualification.swift; tools/podcast_qualification.py |
-| Add revision; Add rendered revision; atomic active-workflow attachment; visible workflow ownership; Review this revision exact selection | `add-revision` | macos/Sources/Studio/ReviewView.swift; macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/Studio/Workspace.swift; tools/studio.py; tools/studio_workflows.py |
+| Contextual Create/Review stages; Add rendered revision; atomic active-workflow attachment; visible workflow ownership; Review this revision exact selection | `add-revision` | macos/Sources/Studio/ReviewView.swift; macos/Sources/Studio/WorkflowGuideView.swift; macos/Sources/Studio/Workspace.swift; tools/studio.py; tools/studio_workflows.py |
 | Pause & capture frame; captured time/notice; Optional range end (seconds); What should change here, and why?; Save annotation | `annotate-frame` | macos/Sources/Studio/ReviewView.swift |
 | Audio-only source; Pause & mark time; audio marker notice; frame-free time/range/transcript annotation | `annotate-audio` | macos/Sources/Studio/ReviewView.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
 | Draw region toggle; drag overlay; Clear region | `annotate-region` | macos/Sources/Studio/ReviewView.swift |
@@ -41,23 +41,23 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Feedback on this version; note time button; status; marked frame; range/transcript labels; History | `inspect-feedback` | macos/Sources/Studio/ReviewView.swift |
 | Resolve or reopen; Replacement revision; Choose revision; Resolution notes; Addressed; Ready for review; Accept correction | `resolve-feedback` | macos/Sources/Studio/ReviewView.swift |
 | Reopen; transition-disabled states | `reopen-feedback` | macos/Sources/Studio/ReviewView.swift |
-| Provider preference dynamic pickers; project route persistence; M4 resource limit | `choose-resources` | macos/Sources/Studio/ResourcesView.swift; config/studio-workflow.json; docs/providers.md |
+| Project Settings; provider preference dynamic pickers; project route persistence; M4 resource limit | `choose-resources` | macos/Sources/Studio/ResourcesView.swift; config/studio-workflow.json; docs/providers.md |
 | Editorial; codex-astra, codex-sol, local-pair | `route-editorial` | macos/Sources/Studio/ResourcesView.swift; config/studio-workflow.json; docs/providers.md |
 | Transcription; local-qwen | `route-transcription` | macos/Sources/Studio/ResourcesView.swift; config/studio-workflow.json; docs/providers.md |
 | Cleanup; local-deepfilternet | `route-cleanup` | macos/Sources/Studio/ResourcesView.swift; config/studio-workflow.json; docs/providers.md |
 | Images; local-klein, native-codex | `route-images` | macos/Sources/Studio/ResourcesView.swift; config/studio-workflow.json; docs/providers.md |
 | Rendering; local-ffmpeg, local-remotion | `route-rendering` | macos/Sources/Studio/ResourcesView.swift; config/studio-workflow.json; docs/providers.md |
-| ChatGPT subscription; account label; Check sign-in; Checking…; Sign in with ChatGPT | `sign-in` | macos/Sources/Studio/CodexView.swift |
+| Persistent Codex inspector; ChatGPT subscription; account label; Check sign-in; Checking…; Sign in with ChatGPT | `sign-in` | macos/Sources/Studio/CodexView.swift; macos/Sources/Studio/Workspace.swift |
 | Reopen current sign-in; Cancel sign-in; localhost recovery | `recover-sign-in` | macos/Sources/Studio/CodexView.swift |
 | Codex model; GPT-6 Astra; GPT-5.6 Sol | `choose-codex-model` | macos/Sources/Studio/CodexView.swift; docs/benchmarks/first-release.md |
 | Production task prompt; Send to Codex; Working…; task ID; messages/error | `send-task` | macos/Sources/Studio/CodexView.swift |
 | Stop task | `stop-task` | macos/Sources/Studio/CodexView.swift; docs/known-limits.md |
 | Codex needs your response; dynamic question fields; Send answers; Approve this action; Decline | `answer-codex` | macos/Sources/Studio/CodexView.swift |
-| Final production QA; Before; During; After; passed; pending / findings | `qa-findings` | macos/Sources/Studio/CodexView.swift; docs/production-quality-workflow.md |
-| Open authoritative rules | `production-rules` | macos/Sources/Studio/CodexView.swift |
-| Local application paths; Engine repository; Python executable; Codex executable; Save paths | `local-paths` | macos/Sources/Studio/CodexView.swift |
-| How to Use tab/menu; Section; All sections; Search help; Clear search; result count; No matching help | `use-help` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
-| Help for this tab; context sheet; Done | `context-help` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
+| Persistent QA inspector; Before; During; After; passed; pending / findings | `qa-findings` | macos/Sources/Studio/StudioSupportingViews.swift; docs/production-quality-workflow.md |
+| Open authoritative rules | `production-rules` | macos/Sources/Studio/StudioSupportingViews.swift |
+| Project Settings; Application; local application paths; Engine repository; Python executable; Codex executable; Save application paths | `local-paths` | macos/Sources/Studio/StudioApp.swift |
+| Help sidebar/menu; Section; All sections; Search help; Clear search; result count; No matching help | `use-help` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
+| Help for this step; contextual sheet; Done | `context-help` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
 | Copy example | `copy-help-example` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
 | Reload help; source label; fallback reason; missing-guide state | `reload-help` | macos/Sources/Studio/HelpView.swift; macos/Sources/Studio/StudioApp.swift |
 | $edit-video | `skill-edit-video` | .agents/skills/edit-video/SKILL.md |
@@ -90,7 +90,8 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 
 ## Qualification and maintenance
 
-- Native instructions were checked against the grouped navigation, contextual Workflow Guide, StudioApp and Workspace. Help controls were also checked against the implemented HelpView: Search help, Clear search, Section/All sections, result count, Copy example, Reload help, source/fallback messages and empty/error states.
+- Source mapping has been updated for the workflow-first shell: Project Home, dynamic Current Work, New Work, Project Settings, contextual stages and the Codex/QA inspector. Automated native integration is validated; interactive acceptance remains pending and this audit does not claim that gate passed.
+- Legacy deep-link coverage retains Overview, Brief, Sources, Revisions, Feedback, Workflow Guide, Editing Styles, Resources, Codex & QA and How to Use as compatibility routes into the consolidated shell, not as restored peer destinations.
 - All 18 `.agents/skills/*/SKILL.md` files were read. Historical hosted commands and fixed delivery assumptions are subordinate to current provider, memory and production policies; the guide does not instruct their execution.
 - Provider and production claims were checked against docs/providers.md, docs/known-limits.md, docs/implementation-status.md, docs/benchmarks/first-release.md and docs/mac-studio.md.
 - Separate browser editor controls were checked in tools/editor/index.html. Its comma/period shortcut uses a hard-coded 59.94 rate; the guide calls out this limitation.
@@ -99,4 +100,4 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 - No production, hosted generation, model download, publication test or upload was run for this documentation task.
 - Planned editorial/short-form research is explicitly labeled; authentic raw-footage and full audiovisual qualification remain production-specific work.
 
-Content inventory: 82 articles across 11 sections; 18 primary skill articles.
+Content inventory: 82 articles across 7 sections; 18 primary skill articles. Counts describe documentation coverage, not interactive creative acceptance or media qualification.

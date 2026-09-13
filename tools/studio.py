@@ -38,6 +38,8 @@ def dispatch(request):
             studio_workflows.select(project, data, params)
         elif method == 'update_workflow_inputs':
             studio_workflows.update_inputs(project, data, params)
+        elif method == 'set_workflow_parent':
+            studio_workflows.set_parent(project, data, params)
         elif method == 'update_brief':
             if not isinstance(params.get('brief'), dict): raise ValueError('Brief must be an object')
             data['brief'].update(params['brief'])
@@ -70,7 +72,12 @@ def dispatch(request):
             capture = projects.capture_frame(project, data, params)
             atomic_json(projects.state_path(project), data)
             return capture
-        elif method == 'add_annotation': data['annotations'].append(projects.add_annotation(project, data, params))
+        elif method == 'add_annotation':
+            workflow_id = params.get('workflow_id')
+            if workflow_id is not None: studio_workflows.by_id(data, workflow_id)
+            annotation = projects.add_annotation(project, data, params)
+            data['annotations'].append(annotation)
+            if workflow_id is not None: studio_workflows.attach_annotation(project, data, workflow_id, annotation)
         elif method == 'update_annotation': projects.update_annotation(data, params)
         elif method == 'set_route':
             task, provider = params.get('task'), params.get('provider')
@@ -87,6 +94,8 @@ def dispatch(request):
             workflow_data = json.dumps({
                 'workflow_id': workflow['workflow_id'],
                 'template_id': workflow['active_workflow']['template_id'],
+                'kind': workflow['active_workflow']['kind'],
+                'parent_workflow_id': workflow['active_workflow'].get('parent_workflow_id'),
                 'stages': [
                     {key: stage[key] for key in ('id', 'label', 'status', 'artifacts', 'destination', 'prompt') if key in stage}
                     for stage in workflow['stages']

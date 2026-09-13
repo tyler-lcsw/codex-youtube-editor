@@ -11,9 +11,12 @@ from .jobs import file_hash
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATES = ROOT / "config/studio-workflows.json"
+PRESENTATION = ROOT / "config/studio-workflow-presentation.json"
 STAGE_WORKFLOW = ROOT / "config/studio-workflow.json"
 LEGACY_ID = "legacy-main-production"
 INPUT_KEYS = {"asset_ids", "revision_ids", "annotation_ids"}
+DELIVERABLE = "deliverable"
+SUPPORTING_ACTION = "supporting_action"
 
 
 def _digest(value):
@@ -58,6 +61,21 @@ def templates(path=None):
             if "prompt" in guide and (not isinstance(guide["prompt"], str) or not guide["prompt"].strip()):
                 raise ValueError("Workflow guide prompt must be nonempty text")
     return data
+
+
+def template_kind(template_id):
+    metadata = json.loads(PRESENTATION.read_text())
+    kinds = metadata.get("template_kinds") if isinstance(metadata, dict) else None
+    if metadata.get("schema_version") != 1 or not isinstance(kinds, dict):
+        raise ValueError("Invalid workflow presentation metadata")
+    if any(kind not in {DELIVERABLE, SUPPORTING_ACTION} for kind in kinds.values()):
+        raise ValueError("Invalid workflow template kind")
+    return kinds.get(template_id, DELIVERABLE)
+
+
+def presented_template(definition):
+    """Add navigation metadata without changing the evidence-bound catalog bytes."""
+    return {**deepcopy(definition), "kind": template_kind(definition["id"])}
 
 
 def _text(value, label, maximum=100):
@@ -154,7 +172,10 @@ def input_binding(project, data, inputs, template_id):
     }
 
 
-def _instance(project, data, identifier, template_id, name, inputs, *, input_mode="selected", stage_reviews=None):
+def _instance(
+    project, data, identifier, template_id, name, inputs, *,
+    input_mode="selected", stage_reviews=None, parent_workflow_id=None,
+):
     normalized = _inputs(data, inputs)
     return {
         "id": identifier,
@@ -164,6 +185,7 @@ def _instance(project, data, identifier, template_id, name, inputs, *, input_mod
         "input_binding": input_binding(project, data, normalized, template_id),
         "input_mode": input_mode,
         "stage_reviews": deepcopy(stage_reviews or {}),
+        "parent_workflow_id": parent_workflow_id,
     }
 
 
@@ -220,6 +242,7 @@ def validate(project, data):
     if not isinstance(instances, list) or not instances:
         raise ValueError("At least one workflow instance is required")
     ids = set()
+    indexed = {}
     for item in instances:
         if not isinstance(item, dict):
             raise ValueError("Workflow instances must be objects")
@@ -227,6 +250,7 @@ def validate(project, data):
         if not isinstance(identifier, str) or re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", identifier) is None or identifier in ids:
             raise ValueError("Invalid or duplicate workflow instance ID")
         ids.add(identifier)
+        indexed[identifier] = item
         if item.get("template_id") not in definitions:
             raise ValueError("Unknown workflow template")
         _text(item.get("name"), "Workflow name")
@@ -252,6 +276,19 @@ def validate(project, data):
         if "template_catalog_sha256" in binding and (not isinstance(binding["template_catalog_sha256"], str) or re.fullmatch(r"[0-9a-f]{64}", binding["template_catalog_sha256"]) is None):
             raise ValueError("Invalid workflow template catalog binding")
         item["inputs"] = normalized
+    for item in instances:
+        parent_id = item.get("parent_workflow_id")
+        if parent_id is None:
+            continue
+        if not isinstance(parent_id, str) or not parent_id:
+            raise ValueError("Workflow parent must be a workflow ID or null")
+        if template_kind(item["template_id"]) != SUPPORTING_ACTION:
+            raise ValueError("Only supporting actions may have a parent workflow")
+        parent = indexed.get(parent_id)
+        if parent is None:
+            raise ValueError("The parent workflow does not exist")
+        if template_kind(parent["template_id"]) != DELIVERABLE:
+            raise ValueError("Supporting actions must belong to a deliverable workflow")
     if data.get("active_workflow_id") not in ids:
         raise ValueError("Active workflow does not exist")
 
@@ -263,7 +300,10 @@ def create(project, data, params):
         raise ValueError("Unknown workflow template")
     name = _text(params.get("name", definition["label"]), "Workflow name")
     identifier = uuid.uuid4().hex
-    instance = _instance(project, data, identifier, template_id, name, request_inputs(params))
+    instance = _instance(
+        project, data, identifier, template_id, name, request_inputs(params),
+        parent_workflow_id=params.get("parent_workflow_id"),
+    )
     data["workflow_instances"].append(instance)
     data["active_workflow_id"] = identifier
     data["stage_reviews"] = {}
@@ -290,6 +330,26 @@ def update_inputs(project, data, params):
     validate(project, data)
 
 
+def set_parent(project, data, params):
+    """Change only an action's organizational parent, never its evidence inputs."""
+    identifier = params.get("workflow_id")
+    instance = next((item for item in data["workflow_instances"] if item["id"] == identifier), None)
+    if instance is None:
+        raise ValueError("Unknown workflow instance")
+    if "parent_workflow_id" not in params:
+        raise ValueError("Workflow parent must be provided as a workflow ID or null")
+    previous = instance.get("parent_workflow_id")
+    instance["parent_workflow_id"] = params["parent_workflow_id"]
+    try:
+        validate(project, data)
+    except Exception:
+        if previous is None:
+            instance.pop("parent_workflow_id", None)
+        else:
+            instance["parent_workflow_id"] = previous
+        raise
+
+
 def attach_revision(project, data, workflow_id, revision):
     """Attach a newly registered revision to exactly one workflow instance."""
     instance = by_id(data, workflow_id)
@@ -301,6 +361,19 @@ def attach_revision(project, data, workflow_id, revision):
     instance["input_binding"] = input_binding(
         project, data, effective_inputs(data, instance), instance["template_id"]
     )
+    validate(project, data)
+
+
+def attach_annotation(project, data, workflow_id, annotation):
+    """Keep explicit annotation subsets closed when Review creates a note."""
+    instance = by_id(data, workflow_id)
+    annotation_id = annotation.get("id") if isinstance(annotation, dict) else None
+    if annotation_id not in {item.get("id") for item in data["annotations"]}:
+        raise ValueError("Workflow annotation must already be registered")
+    selected = instance["inputs"].get("annotation_ids")
+    if selected is not None and annotation_id not in selected:
+        selected.append(annotation_id)
+    # Do not refresh the stored binding: the new review note must stale prior evidence.
     validate(project, data)
 
 
@@ -345,6 +418,9 @@ def status(project, data):
                 reasons.append({"code": "template_catalog_changed", "message": "The workflow template catalog changed."})
         result.append({
             **item,
+            "kind": template_kind(item["template_id"]),
+            "parent_workflow_id": item.get("parent_workflow_id"),
+            "effective_inputs": effective_inputs(data, item),
             "status": "stale" if reasons else "current",
             "stale_reason": reasons[0] if reasons else None,
             "stale_reasons": reasons,
@@ -353,7 +429,7 @@ def status(project, data):
     active = next(item for item in result if item["id"] == data["active_workflow_id"])
     return {
         "schema_version": 1,
-        "templates": templates()["templates"],
+        "templates": [presented_template(item) for item in templates()["templates"]],
         "active_workflow_id": data["active_workflow_id"],
         "instances": result,
         "workflow_instances": result,

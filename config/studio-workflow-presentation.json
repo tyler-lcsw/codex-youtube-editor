@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "template_kinds": {
+    "clean_audio": "supporting_action",
+    "tighten_silence": "supporting_action"
+  }
+}

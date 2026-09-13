@@ -19,21 +19,9 @@ def test_podcast_is_contextual_instead_of_a_permanent_sidebar_destination():
     intake = source("IntakeView.swift")
     assert "StudioNavigationContract.sections" in app
     assert ".init(destination:.podcast" not in navigation
+    assert 'title:"Sources"' not in navigation.split("public static let sections", 1)[-1]
     assert "hasSoloPodcastWorkflow" in intake
     assert "if hasSoloPodcastWorkflow" in intake
-
-
-def test_podcast_quick_start_exposes_accessible_setup_and_review_routes():
-    quick_start = source("PodcastQuickStartView.swift")
-    intake = source("IntakeView.swift")
-    assert "PodcastQuickStartAction.allCases" in quick_start
-    assert ".accessibilityLabel(action.accessibilityLabel)" in quick_start
-    assert "w.open(action.route)" in quick_start
-    assert '.id("podcast-setup")' in intake
-    assert 'proxy.scrollTo("podcast-setup"' in intake
-    navigation = (STUDIO_CORE / "StudioNavigation.swift").read_text()
-    assert 'case "podcast/setup"' in navigation and 'destination:.sources' in navigation
-    assert 'case "review/podcast"' in navigation and 'destination:.feedback' in navigation
 
 
 def test_review_area_is_workspace_owned_instead_of_local_picker_state():
@@ -42,15 +30,6 @@ def test_review_area_is_workspace_owned_instead_of_local_picker_state():
     assert "@Published var navigation=StudioNavigationState()" in workspace
     assert "@State private var reviewArea" not in review
     assert "selection:$w.navigation.reviewArea" in review
-
-
-def test_podcast_copy_routes_generation_to_codex_and_keeps_review_explicit():
-    intake = source("IntakeView.swift")
-    quick_start = source("PodcastQuickStartView.swift") + (STUDIO_CORE / "StudioNavigation.swift").read_text()
-    assert "waveform rendering and semantic visual proposals are not generated yet" not in intake
-    assert "Codex & QA" in quick_start
-    assert "render" in quick_start.lower()
-    assert "explicit review" in quick_start.lower()
 
 
 def test_sidebar_displays_version_build_and_revision_identity():
@@ -63,7 +42,7 @@ def test_sidebar_displays_version_build_and_revision_identity():
 def test_podcast_context_help_has_real_articles():
     guide = json.loads((ROOT / "docs/user-guide.json").read_text())
     by_id = {article["id"]: article for article in guide["articles"]}
-    assert by_id["podcast-setup"]["section"] == "Sources"
-    assert by_id["review-podcast-visual-score"]["section"] == "Feedback"
-    assert by_id["review-podcast-qualification"]["section"] == "Feedback"
+    assert by_id["podcast-setup"]["section"] == "Current Work"
+    assert by_id["review-podcast-visual-score"]["section"] == "Current Work"
+    assert by_id["review-podcast-qualification"]["section"] == "Current Work"
     assert "Solo podcast" in by_id["manage-workflows"]["steps"][1]

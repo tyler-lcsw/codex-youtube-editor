@@ -22,9 +22,20 @@ struct ReviewView:View {
     @State private var validatedID=""
     @State private var transcriptWords=[[String:Any]]()
     @State private var selectedWords=Set<String>()
-    var media:[[String:Any]] {(w.assets+w.revisions).filter{($0["role"] as? String) != "document"}}
+    var workflowMediaIDs:Set<String> {
+        guard let workflow=w.activeWorkflow else{return []}
+        return Set(workflow.inputs.assetIDs+workflow.inputs.revisionIDs)
+    }
+    var media:[[String:Any]] {(w.assets+w.revisions).filter{item in
+        (item["role"] as? String) != "document" && workflowMediaIDs.contains(item["id"] as? String ?? "")
+    }}
     var asset:[String:Any]? {media.first{$0["id"] as? String == selected}}
-    var feedback:[[String:Any]] {w.annotations.filter{$0["asset_id"] as? String == selected}}
+    var feedback:[[String:Any]] {
+        let selectedIDs=w.activeWorkflow?.inputs.annotationIDs.map(Set.init)
+        return w.annotations.filter {annotation in
+            annotation["asset_id"] as? String == selected && (selectedIDs?.contains(annotation["id"] as? String ?? "") ?? true)
+        }
+    }
     var body:some View {
         VStack(spacing:0) {
             if w.hasSoloPodcastContext {Picker("Review area",selection:$w.navigation.reviewArea) {
@@ -43,7 +54,7 @@ struct ReviewView:View {
                 GeometryReader {geometry in
                     ZStack {
                         if asset == nil {
-                            StudioEmptyState(symbol:"play.rectangle",title:"Choose media to review",detail:"Import a source in Sources, or choose an existing source or revision above.")
+                            StudioEmptyState(symbol:"play.rectangle",title:"Choose media to review",detail:"Import a source in the Prepare step, bind it to this work, or choose an existing bound source or revision above.")
                                 .frame(maxWidth:.infinity,maxHeight:.infinity).background(StudioTheme.panel)
                         } else {
                             NativeReviewPlayer(player:player)
@@ -109,7 +120,7 @@ struct ReviewView:View {
         .onChange(of:selected){_,_ in loadMedia()}.onChange(of:w.project){_,_ in resetReviewDraft();reconcileReviewContext()}
         .onDisappear {player.pause()}
     }
-    func reconcileReviewContext() {if !w.hasSoloPodcastContext,w.navigation.reviewArea == .podcast {w.navigation.selectReviewArea(.media)};applyRequestedRevision()}
+    func reconcileReviewContext() {if !w.hasSoloPodcastContext,w.navigation.reviewArea == .podcast {w.navigation.selectReviewArea(.media)};if !selected.isEmpty,!media.contains(where:{$0["id"] as? String == selected}) {resetReviewDraft()};applyRequestedRevision()}
     func applyRequestedRevision() {let requested=w.reviewSelectionID;guard !requested.isEmpty,media.contains(where:{$0["id"] as? String == requested}) else{return};selected=requested;w.reviewSelectionID=""}
     func resetAnnotationDraft() {
         videoSize=CGSize(width:1920,height:1080);markerMS=0;endSeconds="";comment="";rect=nil;draw=false;capturePath="";markerReady=false;selectedHasVideo=false;reviewContext=nil;integrityError=nil;validatedID="";transcriptWords=[];selectedWords=[]
@@ -157,7 +168,8 @@ struct ReviewView:View {
     }
     func saveAnnotation() {
         guard let id=asset?["id"] as? String else {return}
-        var params:[String:Any]=["asset_id":id,"time_ms":markerMS,"text":comment,"transcript_ids":Array(selectedWords).sorted()]
+        guard let workflowID=w.activeWorkflowID else {w.error="Select current work before saving review feedback.";return}
+        var params:[String:Any]=["asset_id":id,"time_ms":markerMS,"text":comment,"transcript_ids":Array(selectedWords).sorted(),"workflow_id":workflowID]
         if !capturePath.isEmpty {params["frame_path"]=capturePath}
         if !endSeconds.isEmpty {guard let end=Double(endSeconds),end.isFinite else {w.error="Enter a valid end time in seconds.";return};params["end_ms"]=Int((end*1000).rounded())}
         if let rect {params["rect"]=["x":rect.minX,"y":rect.minY,"width":rect.width,"height":rect.height]}

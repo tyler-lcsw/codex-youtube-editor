@@ -30,12 +30,6 @@ struct CodexView:View {
                         Text("If localhost reports an error, use Check sign-in first. If still signed out, cancel here and start a new attempt; do not reload an old callback page.").font(.caption).foregroundStyle(.secondary)
                     }
                     Text("Subscription access only. No API key or API billing fallback.").font(.caption).foregroundStyle(.secondary)
-                    DisclosureGroup("Local application paths") {
-                        TextField("Engine repository",text:$w.engine).accessibilityLabel("Engine repository").textFieldStyle(.roundedBorder)
-                        TextField("Python executable",text:$w.python).accessibilityLabel("Python executable").textFieldStyle(.roundedBorder)
-                        TextField("Codex executable",text:$w.codexBinary).accessibilityLabel("Codex executable").textFieldStyle(.roundedBorder)
-                        Button("Save paths") {w.persist()}.accessibilityLabel("Save paths")
-                    }.disabled(client.running || w.busy || client.connecting || client.signingIn)
                 }.padding(12)
             }
             GroupBox("Production task") {
@@ -70,18 +64,6 @@ struct CodexView:View {
                         }
                     }.padding(12)
                 }
-            }
-            GroupBox("Final production QA") {
-                VStack(alignment:.leading,spacing:12) {
-                    Text("Technical validation, visual inspection, listening, and your acceptance remain separate. No automatic approval from a successful render.").foregroundStyle(.secondary)
-                    ForEach(["before","during","after"],id:\.self) {phase in
-                        let gate=(w.quality["gates"] as? [String:Any])?[phase] as? [String:Any] ?? [:]
-                        DisclosureGroup("\(phase.capitalized): \(gate["passed"] as? Bool == true ? "passed" : "pending / findings")") {
-                            Text(prettyJSON(gate["failures"] ?? [])).font(.system(.caption,design:.monospaced)).textSelection(.enabled)
-                        }
-                    }
-                    Button("Open authoritative rules") {NSWorkspace.shared.open(URL(fileURLWithPath:w.engine+"/docs/production-rules.md"))}.accessibilityLabel("Open authoritative rules")
-                }.padding(12)
             }
         }.padding(24)}
         .task {if !client.connected && !client.connecting {connect()}}

@@ -23,9 +23,7 @@ struct IntakeView:View {
     var audioOptions:[PodcastMediaOption] {podcastMedia.filter(\.canBePrimaryAudio)}
     var cameraOptions:[PodcastMediaOption] {podcastMedia.filter(\.canBeCamera)}
     var hasSoloPodcastWorkflow:Bool {
-        if w.data["podcast"] is [String:Any] {return true}
-        let workflows=w.data["workflow_instances"] as? [[String:Any]] ?? []
-        return workflows.contains {$0["template_id"] as? String == WorkflowTemplateIdentifiers.soloPodcast}
+        w.hasSoloPodcastContext
     }
     let labels=[("audience","Audience"),("purpose","What should the viewer understand?"),("target_length","Desired length"),("tone","Tone and pacing"),("required_content","Keep or emphasize"),("context","Context and editing instructions")]
     var body:some View {
@@ -100,7 +98,7 @@ struct IntakeView:View {
                                 Button("Reload saved podcast setup"){loadPodcast()}.accessibilityLabel("Reload saved podcast setup")
                             }
                         }
-                        Text("Use Codex & QA to generate and render the branded waveform and chapter visuals after setup. Generated proposals and renders still require explicit review; camera synchronization is not inferred or verified.").font(.caption).foregroundStyle(.secondary)
+                        Text("Use the Codex inspector to generate and render the branded waveform and chapter visuals after setup. Generated proposals and renders still require explicit review; camera synchronization is not inferred or verified.").font(.caption).foregroundStyle(.secondary)
                     }.padding(12)
                 }.id("podcast-setup")}
                 GroupBox("Resource links") {

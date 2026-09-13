@@ -12,6 +12,7 @@ enum StudioTheme {
     static let text = adaptive(light:0x303234,dark:0xF5EBDD)
     static let accent = adaptive(light:0xA93420,dark:0xFF947C)
     static let button = Color(red:169/255,green:52/255,blue:32/255)
+    static let success = adaptive(light:0x2E6B3E,dark:0x70C986)
     static let border = adaptive(light:0xD6C9B9,dark:0x626160)
     static func adaptive(light:Int,dark:Int)->Color {
         Color(nsColor:NSColor(name:nil,dynamicProvider:{appearance in
@@ -20,31 +21,30 @@ enum StudioTheme {
         }))
     }
     static func symbol(for section:String)->String {
-        switch section {
-        case "Overview":return "square.grid.2x2"
-        case "Brief":return "doc.text"
-        case "Sources":return "tray.and.arrow.down"
-        case "Revisions":return "film.stack"
-        case "Feedback":return "text.bubble"
-        case "Workflow Guide":return "point.topleft.down.to.point.bottomright.curvepath"
-        case "Editing Styles":return "checklist"
-        case "How to Use":return "questionmark.circle"
-        case "Resources":return "slider.horizontal.3"
-        case "Codex & QA":return "checkmark.shield"
-        default:return "tray.and.arrow.down"
+        switch StudioDestination(title:section) {
+        case .projectHome:return "square.grid.2x2"
+        case .currentWork:return "point.topleft.down.to.point.bottomright.curvepath"
+        case .projectSettings:return "slider.horizontal.3"
+        case .help:return "questionmark.circle"
         }
     }
-    static func helpSection(for navigation:StudioNavigationState)->String {
+    static func symbol(forTemplate templateID:String)->String {
+        switch templateID {
+        case "long_form_youtube":return "play.rectangle"
+        case "solo_podcast":return "waveform"
+        case "short_form":return "rectangle.portrait"
+        case "clean_audio":return "waveform.badge.checkmark"
+        case "tighten_silence":return "timeline.selection"
+        case "thumbnail":return "photo"
+        default:return "point.topleft.down.to.point.bottomright.curvepath"
+        }
+    }
+    static func helpSection(for navigation:StudioNavigationState,stageID:String?=nil)->String {
         switch navigation.destination {
-        case .brief:return "Brief"
-        case .sources:return "Sources"
-        case .revisions,.feedback:return "Feedback"
-        case .editingStyles:return "Editing Styles"
-        case .resources:return "Resources"
-        case .codex:return "Codex & QA"
-        case .help:return "How to Use"
-        case .workflowGuide:return "Workflow Guide"
-        default:return "Getting started"
+        case .projectHome:return "Project Home"
+        case .projectSettings:return "Project Settings"
+        case .help:return "Help"
+        case .currentWork:return "Current Work"
         }
     }
 }

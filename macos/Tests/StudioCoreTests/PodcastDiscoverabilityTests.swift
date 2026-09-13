@@ -2,31 +2,18 @@ import Foundation
 import StudioCore
 
 func testPodcastNavigationContractKeepsPodcastContextWithoutPermanentDestination() {
-    XCTAssertFalse(StudioNavigationContract.sidebarItems.map(\.title).contains("Podcast"))
-    XCTAssertTrue(StudioNavigationContract.sidebarItems.contains {$0.destination == .sources})
-}
-
-func testPodcastQuickStartActionsHaveAccessibleDeepLinks() {
-    let actions=PodcastQuickStartAction.allCases
-    XCTAssertEqual(actions.map(\.route.deepLink),["podcast/setup","review/podcast"])
-    XCTAssertTrue(actions.allSatisfy {!$0.accessibilityLabel.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty})
+    let titles=StudioNavigationContract.sidebarItems.map(\.title)
+    XCTAssertFalse(titles.contains("Podcast"))
+    XCTAssertFalse(titles.contains("Sources"))
+    XCTAssertTrue(titles.contains("Project Home"))
 }
 
 func testPodcastReviewRouteUsesSharedDeepLinkableState() {
     var state=StudioNavigationState()
     XCTAssertTrue(state.open(deepLink:"review/podcast"))
-    XCTAssertEqual(state.destination,.feedback)
+    XCTAssertEqual(state.destination.rawValue,"Current Work")
     XCTAssertEqual(state.reviewArea,.podcast)
     XCTAssertEqual(state.route.deepLink,"review/podcast")
-}
-
-func testPodcastQuickStartCopyDescribesActualCodexAndExplicitReviewWorkflow() {
-    let copy=PodcastQuickStartContent.workflowExplanation
-    XCTAssertTrue(copy.contains("Codex & QA"))
-    XCTAssertTrue(copy.localizedCaseInsensitiveContains("generate"))
-    XCTAssertTrue(copy.localizedCaseInsensitiveContains("render"))
-    XCTAssertTrue(copy.localizedCaseInsensitiveContains("explicit review"))
-    XCTAssertFalse(copy.contains("not generated yet"))
 }
 
 func testStudioBuildIdentityDistinguishesInstalledBundles() {
@@ -37,6 +24,6 @@ func testStudioBuildIdentityDistinguishesInstalledBundles() {
 }
 
 func testPodcastDestinationHasContextualHelpSection() {
-    XCTAssertTrue(HelpGuide.sections.contains("Workflow Guide"))
+    XCTAssertTrue(HelpGuide.sections.contains("Current Work"))
     XCTAssertFalse(HelpGuide.sections.contains("Podcast"))
 }
