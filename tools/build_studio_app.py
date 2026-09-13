@@ -49,7 +49,7 @@ def swift_command(action, *arguments):
     return command+list(arguments)
 
 
-def assemble(executable,engine,output,sign=True,backup_root=None):
+def assemble(executable,engine,output,sign=True,backup_root=None,running_check=None):
     executable,engine,output=map(lambda p:Path(p).resolve(),(executable,engine,output))
     if not executable.is_file() or not os.access(executable,os.X_OK):raise ValueError('Missing executable')
     if not (engine/'tools/studio.py').is_file():raise ValueError('Choose the production engine repository')
@@ -66,7 +66,7 @@ def assemble(executable,engine,output,sign=True,backup_root=None):
         (contents/'Info.plist').write_bytes(plistlib.dumps({
             'CFBundleExecutable':'CodexStudio','CFBundleIdentifier':'local.tyler.codex-studio',
             'CFBundleName':'Codex Media Studio','CFBundleDisplayName':'Codex Media Studio',
-            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.4.0','CFBundleVersion':'5',
+            'CFBundleIconFile':'AppIcon.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':'0.5.0','CFBundleVersion':'6',
             'LSMinimumSystemVersion':'14.0','NSHighResolutionCapable':True,
             'StudioEnginePath':str(engine),'StudioEngineRevision':engine_revision(engine),
         }))
@@ -76,6 +76,7 @@ def assemble(executable,engine,output,sign=True,backup_root=None):
             output,
             backup_root=backup_root or output.parent/'.studio-backups',
             verify_signature=sign,
+            **({} if running_check is None else {'running_check': running_check}),
         )
         return output
     finally:shutil.rmtree(stage.parent,ignore_errors=True)

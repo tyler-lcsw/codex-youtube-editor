@@ -263,10 +263,10 @@ def test_bundle_rebuild_preserves_outer_directory_for_persistent_dock_aliases(tm
     (engine / "tools/studio.py").write_text("fixture")
     output = tmp_path / "Codex Media Studio.app"
 
-    assemble(executable, engine, output, sign=False)
+    assemble(executable, engine, output, sign=False, running_check=lambda _destination: False)
     original_inode = output.stat().st_ino
     executable.write_bytes(b"second")
-    assemble(executable, engine, output, sign=False)
+    assemble(executable, engine, output, sign=False, running_check=lambda _destination: False)
 
     assert output.stat().st_ino == original_inode
     assert (output / "Contents/MacOS/CodexStudio").read_bytes() == b"second"

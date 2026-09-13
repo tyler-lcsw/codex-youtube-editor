@@ -225,21 +225,28 @@ def test_workflow_mutations_never_complete_qa_or_authorize_publication(project):
     assert instance(response, workflow_id).get("complete") is not True
 
 
-def test_sidebar_is_grouped_and_workflows_are_contextual_not_permanent_tabs():
+def test_sidebar_is_workflow_first_instead_of_a_capability_directory():
     navigation = source(STUDIO_CORE, "StudioNavigation.swift")
     app = source(STUDIO, "StudioApp.swift")
 
     permanent_sidebar = navigation.split("public static let sections", 1)[-1]
     assert "public static let sections" in navigation
     assert "StudioNavigationSection" in navigation
-    for stable_destination in ("overview", "brief", "sources", "revisions", "feedback", "workflowGuide"):
-        assert f"case {stable_destination}" in navigation
-    assert "case podcast=" not in navigation
-    assert "case understanding=" not in navigation
-    assert ".init(destination:.podcast" not in permanent_sidebar
-    assert ".init(destination:.understanding" not in permanent_sidebar
+    assert 'title:"Project Home"' in permanent_sidebar
+    assert 'title:"Project Settings"' in permanent_sidebar
+    assert 'title:"Help"' in permanent_sidebar
+    for obsolete_peer in (
+        "Brief", "Sources", "Revisions", "Feedback", "Workflow Guide",
+        "Editing Styles", "Resources", "Codex & QA",
+    ):
+        assert f'title:"{obsolete_peer}"' not in permanent_sidebar
     assert "StudioNavigationContract.sections" in app
-    assert "Add Workflow" in app
+    assert "Current Work" in app
+    assert 'Section("Help")' in app
+    assert 'filter{$0.destination == .help}' in app
+    assert "workflow_instances" in app or "guide.workflows" in app
+    assert "ForEach" in app
+    assert "New Work" in app
 
 
 def test_add_workflow_renders_bridge_templates_instead_of_fake_or_hard_coded_cards():
@@ -261,9 +268,34 @@ def test_contextual_codex_action_prefills_prompt_without_sending_it():
     assert "prefill" in guide.lower() and "codex" in guide.lower()
     assert "codexPrompt" in workspace
     assert "$w.codexPrompt" in codex
-    assert "select(.codex)" in guide or "destination:.codex" in guide
+    assert "select(.codex)" not in guide
+    assert "destination:.codex" not in guide
+    assert "CodexView" in source(STUDIO, "StudioApp.swift")
     assert "client.send" not in guide
     assert ".send(" not in guide
+
+
+def test_workflow_stages_embed_the_relevant_work_instead_of_feature_routes():
+    guide = source(STUDIO, "WorkflowGuideView.swift")
+    review = source(STUDIO, "ReviewView.swift")
+
+    assert 'case "intake":BriefView()' in guide
+    assert 'case "source_understanding":WorkflowUnderstandingStage' in guide
+    assert "SourcesView()" in guide
+    assert 'case "edit":RevisionsView()' in guide
+    assert 'case "final_review":ReviewView()' in guide
+    assert "w.select(step.destination)" not in guide
+    assert "workflowMediaIDs" in review
+    assert "workflowMediaIDs.contains" in review
+    assert "activeWorkflow?.inputs.annotationIDs" in review
+    assert '"workflow_id":workflowID' in review
+    assert "requestEditWorkflowInputs=true" in source(STUDIO, "StudioSupportingViews.swift")
+    assert "onChange(of:w.requestEditWorkflowInputs)" in guide
+    assert "Save as fixed inputs" in guide
+    assert "!changed" in guide
+    assert 'GroupBox("Final production QA")' not in source(STUDIO, "CodexView.swift")
+    assert 'Text("Production QA")' in source(STUDIO, "StudioSupportingViews.swift")
+    assert "supporting action under" in source(STUDIO, "StudioApp.swift")
 
 
 def test_revision_import_is_atomically_bound_and_shows_workflow_ownership():
@@ -279,10 +311,18 @@ def test_revision_import_is_atomically_bound_and_shows_workflow_ownership():
 def test_legacy_podcast_deep_links_land_on_contextual_workflow_capabilities():
     navigation = source(STUDIO_CORE, "StudioNavigation.swift")
     app = source(STUDIO, "StudioApp.swift")
+    workspace = source(STUDIO, "Workspace.swift")
 
     assert 'case "podcast/setup"' in navigation
     assert 'case "review/podcast"' in navigation
-    assert 'destination:.sources' in navigation
-    assert 'destination:.feedback' in navigation
-    assert "case .sources" in app and "case .feedback" in app
-    assert ".init(destination:.podcast" not in navigation.split("public static let sections", 1)[-1]
+    assert 'destination:.currentWork' in navigation
+    assert "case .currentWork" in app
+    permanent_sidebar = navigation.split("public static let sections", 1)[-1]
+    assert 'title:"Sources"' not in permanent_sidebar
+    assert 'title:"Feedback"' not in permanent_sidebar
+    assert 'case "Brief","Brief & sources":selectedWorkflowStageID="intake"' in workspace
+    assert 'case "Sources","Podcast","Understanding","podcast/setup","workflow/source_understanding":selectedWorkflowStageID="source_understanding"' in workspace
+    assert 'case "Revisions":selectedWorkflowStageID="edit"' in workspace
+    assert 'case "Review","Feedback":selectedWorkflowStageID="final_review"' in workspace
+    assert 'case "Codex & QA":inspectorSection = .codex;inspectorPresented = true' in workspace
+    assert 'case "Resources":projectSettingsSection = .resources' in workspace

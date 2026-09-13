@@ -4,6 +4,12 @@ import AppKit
 import UniformTypeIdentifiers
 import StudioCore
 
+enum StudioInspectorSection:String,CaseIterable {
+    case context="Context"
+    case codex="Codex"
+    case quality="QA"
+}
+
 @MainActor final class Workspace: ObservableObject {
     @Published var engine: String
     @Published var python: String
@@ -18,6 +24,10 @@ import StudioCore
     @Published var notice=""
     @Published var navigation=StudioNavigationState()
     @Published var hasUnsavedStyleDraft=false
+    @Published var selectedWorkflowStageID=""
+    @Published var inspectorSection=StudioInspectorSection.context
+    @Published var inspectorPresented=true
+    @Published var projectSettingsSection=StudioProjectSettingsSection.editing
     @Published var codexPrompt="" {
         didSet {if !codexPrompt.isEmpty {codexDraftProject=project;codexDraftWorkflowID=activeWorkflowID}}
     }
@@ -25,6 +35,7 @@ import StudioCore
     @Published private(set) var codexDraftWorkflowID:String?
     @Published var reviewSelectionID=""
     @Published var requestAddWorkflow=false
+    @Published var requestEditWorkflowInputs=false
     let codex=CodexClient()
     private let selection=ProjectSelection()
     private var codexObserver:AnyCancellable?
@@ -54,39 +65,86 @@ import StudioCore
         python=argument("--python") ?? defaults.string(forKey:"python") ?? (root+"/.venv/bin/python")
         codexBinary=defaults.string(forKey:"codexBinary") ?? "/Applications/ChatGPT.app/Contents/Resources/codex"
         project=argument("--project") ?? defaults.string(forKey:"project") ?? ""
-        navigation.select(StudioDestination(title:argument("--section") ?? "Overview"))
+        let initialSection=argument("--section")
         codexObserver=codex.$running.removeDuplicates().dropFirst().sink { [weak self] running in
             if !running {Task { @MainActor [weak self] in self?.requestRefresh()}}
         }
+        if let initialSection,navigation.open(deepLink:initialSection) {applyDeepLinkStage(initialSection)}
+        else {navigation.select(StudioDestination(title:initialSection ?? "Project Home"))}
     }
     var section:String {navigation.destination.rawValue}
     func open(_ route:StudioRoute) {
-        guard !hasUnsavedStyleDraft || route.destination == .editingStyles else {error="Save or reload the editing style before leaving this screen.";return}
+        guard !hasUnsavedStyleDraft || route.destination == .projectSettings else {error="Save or reload the editing style before leaving Project Settings.";return}
         Diagnostics.shared?.record("tab_selected",detail:route.deepLink)
         navigation.open(route)
+        applyDeepLinkStage(route.deepLink)
     }
     func select(_ destination:StudioDestination) {
-        guard !hasUnsavedStyleDraft || destination == .editingStyles else {error="Save or reload the editing style before leaving this screen.";return}
+        guard !hasUnsavedStyleDraft || destination == .projectSettings else {error="Save or reload the editing style before leaving Project Settings.";return}
         Diagnostics.shared?.record("tab_selected",detail:destination.rawValue)
         navigation.select(destination)
     }
     func showAddWorkflow() {
-        select(.workflowGuide)
-        guard navigation.destination == .workflowGuide else{return}
+        select(.currentWork)
+        guard navigation.destination == .currentWork else{return}
         requestAddWorkflow=true
+    }
+    func openWorkflow(_ workflowID:String,stageID:String?=nil) {
+        guard !hasUnsavedStyleDraft else {error="Save or reload the editing style before leaving Project Settings.";return}
+        guard !busy else{return}
+        if activeWorkflowID == workflowID {
+            navigation.select(.currentWork)
+            selectedWorkflowStageID=stageID ?? preferredStageID()
+            return
+        }
+        perform {
+            try await self.request("select_workflow",["workflow_id":workflowID])
+            self.navigation.select(.currentWork)
+            self.selectedWorkflowStageID=stageID ?? self.preferredStageID()
+            self.notice="Current work changed to \(self.activeWorkflow?.name ?? "the selected workflow")."
+        }
+    }
+    func selectWorkflowStage(_ stageID:String) {
+        guard activeWorkflow?.steps.contains(where:{$0.id == stageID}) == true else{return}
+        selectedWorkflowStageID=stageID
+        navigation.select(.currentWork)
+        Diagnostics.shared?.record("workflow_stage_selected",detail:stageID)
+    }
+    func showCodex(_ prompt:String) {
+        updateCodexPrompt(prompt)
+        inspectorSection = .codex
+        inspectorPresented = true
     }
     func updateCodexPrompt(_ text:String) {
         codexPrompt=text
     }
     func clearCodexPrompt() {codexPrompt="";codexDraftProject="";codexDraftWorkflowID=nil}
-    func clearProjectDrafts() {clearCodexPrompt();reviewSelectionID="";navigation.selectReviewArea(.media)}
+    func clearProjectDrafts() {clearCodexPrompt();reviewSelectionID="";selectedWorkflowStageID="";inspectorSection = .context;navigation.selectReviewArea(.media)}
     func reconcileContext() {
         if !codexPrompt.isEmpty,!CodexDraft(text:codexPrompt,projectID:codexDraftProject,workflowID:codexDraftWorkflowID).isValid(projectID:project,workflowID:activeWorkflowID) {clearCodexPrompt()}
         if !hasSoloPodcastContext,navigation.reviewArea == .podcast {navigation.selectReviewArea(.media)}
         if !reviewSelectionID.isEmpty,!revisions.contains(where:{$0["id"] as? String == reviewSelectionID}) {reviewSelectionID=""}
+        if navigation.destination == .currentWork {
+            let valid=activeWorkflow?.steps.contains(where:{$0.id == selectedWorkflowStageID}) == true
+            if !valid {selectedWorkflowStageID=preferredStageID()}
+        }
+    }
+    func preferredStageID()->String {((try? WorkflowGuideSnapshot.parse(workflow))?.nextStep ?? activeWorkflow?.steps.first)?.id ?? ""}
+    func applyDeepLinkStage(_ deepLink:String) {
+        switch deepLink {
+        case "Brief","Brief & sources":selectedWorkflowStageID="intake";navigation.selectReviewArea(.media)
+        case "Sources","Podcast","Understanding","podcast/setup","workflow/source_understanding":selectedWorkflowStageID="source_understanding";navigation.selectReviewArea(.media)
+        case "Revisions":selectedWorkflowStageID="edit";navigation.selectReviewArea(.media)
+        case "Review","Feedback":selectedWorkflowStageID="final_review";navigation.selectReviewArea(.media)
+        case "review/podcast":selectedWorkflowStageID="final_review";navigation.selectReviewArea(.podcast)
+        case "Codex & QA":inspectorSection = .codex;inspectorPresented = true
+        case "Editing Styles","Editing styles":projectSettingsSection = .editing
+        case "Resources":projectSettingsSection = .resources
+        default:if navigation.destination == .currentWork && selectedWorkflowStageID.isEmpty {selectedWorkflowStageID=preferredStageID()}
+        }
     }
     func openFeedback(reviewing revisionID:String) {
-        reviewSelectionID=revisionID;navigation.selectReviewArea(.media);select(.feedback)
+        reviewSelectionID=revisionID;navigation.selectReviewArea(.media);selectedWorkflowStageID="final_review";select(.currentWork)
     }
     func persist() {let d=UserDefaults.standard;d.set(engine,forKey:"engine");d.set(python,forKey:"python");d.set(codexBinary,forKey:"codexBinary");d.set(project,forKey:"project")}
     func perform(_ body:@escaping () async throws -> Void) {

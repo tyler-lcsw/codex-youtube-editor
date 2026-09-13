@@ -3,17 +3,17 @@ import StudioCore
 
 private func helpFixture() -> [String:Any] {
     ["schema_version":1,"title":"Studio guide","articles":[
-        ["id":"review-basics","section":"Feedback","title":"Watch output","summary":"Inspect a revision","status":"Available","steps":["Play the video"],"notes":["Check audio"],"prompt":"Please inspect timing"],
-        ["id":"resource-basics","section":"Resources","title":"Choose resources","summary":"Select routes","status":"Limited","steps":["Choose a provider"],"notes":["Check readiness"]]
+        ["id":"review-basics","section":"Current Work","title":"Watch output","summary":"Inspect a revision","status":"Available","steps":["Play the video"],"notes":["Check audio"],"prompt":"Please inspect timing"],
+        ["id":"resource-basics","section":"Project Settings","title":"Choose resources","summary":"Select routes","status":"Limited","steps":["Choose a provider"],"notes":["Check readiness"]]
     ]]
 }
 private func helpData(_ value:[String:Any]) throws -> Data {try JSONSerialization.data(withJSONObject:value)}
 func testHelpValidation() throws {
     let fixture=helpFixture()
-    XCTAssertTrue(HelpGuide.sections.contains("Editing Styles"))
-    XCTAssertFalse(HelpGuide.sections.contains("Editing styles"))
+    XCTAssertTrue(HelpGuide.sections.contains("Project Settings"))
+    XCTAssertFalse(HelpGuide.sections.contains("Editing Styles"))
     var legacyStyle=fixture;var legacyArticles=legacyStyle["articles"] as! [[String:Any]];legacyArticles[0]["section"]="Editing styles";legacyStyle["articles"]=legacyArticles
-    XCTAssertEqual(try HelpGuide.decode(helpData(legacyStyle)).articles[0].section,"Editing Styles")
+    XCTAssertEqual(try HelpGuide.decode(helpData(legacyStyle)).articles[0].section,"Project Settings")
     XCTAssertEqual(try HelpGuide.decode(helpData(fixture)).articles.count,2)
     for key in ["id","section","title","summary","status"] {
         var bad=fixture;var articles=bad["articles"] as! [[String:Any]];articles[0][key]="  ";bad["articles"]=articles
@@ -43,10 +43,10 @@ func testHelpValidation() throws {
 }
 func testHelpSearchAndSection() throws {
     let guide=try HelpGuide.decode(helpData(helpFixture()))
-    for query in ["WATCH","revision","available","video","audio","timing","review-basics","Feedback"] {
-        XCTAssertEqual(guide.filtered(section:"Feedback",query:query).map(\.id),["review-basics"])
+    for query in ["WATCH","revision","available","video","audio","timing","review-basics","Current Work"] {
+        XCTAssertEqual(guide.filtered(section:"Current Work",query:query).map(\.id),["review-basics"])
     }
-    XCTAssertEqual(guide.filtered(section:"Resources",query:"audio").count,0)
+    XCTAssertEqual(guide.filtered(section:"Project Settings",query:"audio").count,0)
     XCTAssertEqual(guide.filtered(section:nil,query:"  ").count,2)
     XCTAssertEqual(guide.filtered(section:nil,query:"readiness").map(\.id),["resource-basics"])
 }

@@ -6,8 +6,8 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-SECTIONS = ('Getting started', 'Brief', 'Sources', 'Workflow Guide', 'Editing Styles', 'Feedback',
-            'Resources', 'Codex & QA', 'How to Use', 'Production skills', 'Troubleshooting')
+SECTIONS = ('Project Home', 'Current Work', 'Project Settings', 'Codex inspector',
+            'Help', 'Production skills', 'Troubleshooting')
 
 
 def _validate(data):

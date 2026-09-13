@@ -1,6 +1,16 @@
 import Foundation
 
 public enum WorkflowInputKind:String,Equatable {case text,choice,source,revision}
+public enum WorkflowInputMode:String,Equatable {case selected;case allProject="all_project"}
+
+public enum WorkflowTemplateKind:String,Equatable {
+    case deliverable
+    case supportingAction="supporting_action"
+
+    public static func inferred(for templateID:String)->Self {
+        ["clean_audio","tighten_silence"].contains(templateID) ? .supportingAction : .deliverable
+    }
+}
 
 public struct WorkflowInputDefinition:Equatable,Identifiable {
     public let id:String
@@ -18,8 +28,9 @@ public struct WorkflowTemplate:Equatable,Identifiable {
     public let name:String
     public let summary:String
     public let inputs:[WorkflowInputDefinition]
-    public init(id:String,name:String,summary:String,inputs:[WorkflowInputDefinition]) {
-        self.id=id;self.name=name;self.summary=summary;self.inputs=inputs
+    public let kind:WorkflowTemplateKind
+    public init(id:String,name:String,summary:String,inputs:[WorkflowInputDefinition],kind:WorkflowTemplateKind?=nil) {
+        self.id=id;self.name=name;self.summary=summary;self.inputs=inputs;self.kind=kind ?? .inferred(for:id)
     }
     public func createPayload(name:String,values:[String:String]) throws -> [String:Any] {
         let cleanName=name.trimmingCharacters(in:.whitespacesAndNewlines)
@@ -31,8 +42,10 @@ public struct WorkflowTemplate:Equatable,Identifiable {
         }
         return ["template_id":id,"name":cleanName,"inputs":values]
     }
-    public func createPayload(name:String,assetIDs:[String],revisionIDs:[String])->[String:Any] {
-        ["template_id":id,"name":name.trimmingCharacters(in:.whitespacesAndNewlines),"inputs":["asset_ids":assetIDs,"revision_ids":revisionIDs,"annotation_ids":NSNull()]]
+    public func createPayload(name:String,assetIDs:[String],revisionIDs:[String],parentWorkflowID:String?=nil)->[String:Any] {
+        var payload:[String:Any]=["template_id":id,"name":name.trimmingCharacters(in:.whitespacesAndNewlines),"inputs":["asset_ids":assetIDs,"revision_ids":revisionIDs,"annotation_ids":NSNull()]]
+        if let parentWorkflowID {payload["parent_workflow_id"]=parentWorkflowID}
+        return payload
     }
 }
 
@@ -80,10 +93,16 @@ public struct WorkflowInstance:Equatable,Identifiable {
     public let id:String
     public let templateID:String
     public let name:String
+    public let kind:WorkflowTemplateKind
+    public let parentWorkflowID:String?
+    public let inputMode:WorkflowInputMode
     public let inputs:WorkflowInputs
     public let steps:[WorkflowStep]
     public let staleReasons:[WorkflowStaleReason]
     public var isSoloPodcast:Bool {templateID == WorkflowTemplateIdentifiers.soloPodcast}
+    public init(id:String,templateID:String,name:String,kind:WorkflowTemplateKind?=nil,parentWorkflowID:String?=nil,inputMode:WorkflowInputMode = .selected,inputs:WorkflowInputs,steps:[WorkflowStep],staleReasons:[WorkflowStaleReason]) {
+        self.id=id;self.templateID=templateID;self.name=name;self.kind=kind ?? .inferred(for:templateID);self.parentWorkflowID=parentWorkflowID;self.inputMode=inputMode;self.inputs=inputs;self.steps=steps;self.staleReasons=staleReasons
+    }
 }
 
 public enum WorkflowTemplateIdentifiers {
@@ -111,6 +130,13 @@ public struct WorkflowGuideSnapshot:Equatable {
         return workflows.first {$0.id == activeWorkflowID}
     }
     public var isActiveSoloPodcast:Bool {activeWorkflow?.isSoloPodcast == true}
+    public var deliverables:[WorkflowInstance] {workflows.filter {kind(for:$0) == .deliverable}}
+    public var supportingActions:[WorkflowInstance] {workflows.filter {kind(for:$0) == .supportingAction}}
+    public var standaloneActions:[WorkflowInstance] {supportingActions.filter {$0.parentWorkflowID == nil}}
+    public func template(for workflow:WorkflowInstance)->WorkflowTemplate? {templates.first {$0.id == workflow.templateID}}
+    public func kind(for workflow:WorkflowInstance)->WorkflowTemplateKind {template(for:workflow)?.kind ?? workflow.kind}
+    public func actions(parentedTo workflowID:String)->[WorkflowInstance] {supportingActions.filter {$0.parentWorkflowID == workflowID}}
+    public func supportingActions(parentedTo workflowID:String)->[WorkflowInstance] {actions(parentedTo:workflowID)}
     public var nextStep:WorkflowStep? {
         let steps=activeWorkflow?.steps ?? []
         return steps.first { [.needsAttention,.current,.ready].contains($0.status) }
@@ -121,6 +147,10 @@ public struct WorkflowGuideSnapshot:Equatable {
 
     public static func inputPayload(workflowID:String,inputs:WorkflowInputs)->[String:Any] {
         ["workflow_id":workflowID,"inputs":inputs.payload]
+    }
+
+    public static func parentPayload(workflowID:String,parentWorkflowID:String?)->[String:Any] {
+        ["workflow_id":workflowID,"parent_workflow_id":parentWorkflowID ?? NSNull()]
     }
 
     public static func parse(_ raw:[String:Any]) throws -> Self {
@@ -134,7 +164,7 @@ public struct WorkflowGuideSnapshot:Equatable {
             let stages=try parseSteps(raw["stages"])
             if !stages.isEmpty,let index=instances.firstIndex(where:{$0.id == activeID}) ?? (instances.isEmpty ? nil : instances.startIndex),instances[index].steps.isEmpty {
                 let item=instances[index]
-                instances[index]=WorkflowInstance(id:item.id,templateID:item.templateID,name:item.name,inputs:item.inputs,steps:stages,staleReasons:item.staleReasons)
+                instances[index]=WorkflowInstance(id:item.id,templateID:item.templateID,name:item.name,kind:item.kind,parentWorkflowID:item.parentWorkflowID,inputMode:item.inputMode,inputs:item.inputs,steps:stages,staleReasons:item.staleReasons)
             }
             return Self(templates:templates,workflows:instances,activeWorkflowID:activeID,isLegacyFallback:false)
         }
@@ -157,7 +187,12 @@ public struct WorkflowGuideSnapshot:Equatable {
                 let kind=WorkflowInputKind(rawValue:rawKind) ?? ((input["options"] as? [String])?.isEmpty == false ? .choice : .text)
                 return WorkflowInputDefinition(id:inputID,label:label,required:input["required"] as? Bool == true,kind:kind,options:input["options"] as? [String] ?? [])
             }
-            return WorkflowTemplate(id:id,name:name,summary:summary,inputs:inputs)
+            let kind:WorkflowTemplateKind
+            if let rawKind=record["kind"] as? String {
+                guard let parsed=WorkflowTemplateKind(rawValue:rawKind) else {throw WorkflowGuideError("Invalid workflow template kind.")}
+                kind=parsed
+            } else {kind = .inferred(for:id)}
+            return WorkflowTemplate(id:id,name:name,summary:summary,inputs:inputs,kind:kind)
         }
     }
 
@@ -171,13 +206,23 @@ public struct WorkflowGuideSnapshot:Equatable {
         let id=try text(record["id"],"workflow ID")
         let template=(record["template_id"] as? String) ?? (record["template"] as? String) ?? "custom"
         let name=try text(record["name"] ?? record["label"] ?? "Workflow","workflow name")
-        let rawInputs=record["inputs"] as? [String:Any] ?? [:]
+        let kind:WorkflowTemplateKind
+        if let rawKind=record["kind"] as? String {
+            guard let parsed=WorkflowTemplateKind(rawValue:rawKind) else {throw WorkflowGuideError("Invalid workflow kind.")}
+            kind=parsed
+        } else {kind = .inferred(for:template)}
+        let parentWorkflowID:String?
+        if record["parent_workflow_id"] == nil || record["parent_workflow_id"] is NSNull {parentWorkflowID=nil}
+        else {parentWorkflowID=try text(record["parent_workflow_id"],"parent workflow ID")}
+        let rawInputMode=record["input_mode"] as? String ?? WorkflowInputMode.selected.rawValue
+        guard let inputMode=WorkflowInputMode(rawValue:rawInputMode) else {throw WorkflowGuideError("Invalid workflow input mode.")}
+        let rawInputs=(record["effective_inputs"] as? [String:Any]) ?? (record["inputs"] as? [String:Any]) ?? [:]
         let inputs=WorkflowInputs(
             assetIDs:rawInputs["asset_ids"] as? [String] ?? [],
             revisionIDs:(rawInputs["revision_ids"] as? [String]) ?? (rawInputs["output_revision_ids"] as? [String]) ?? [],
             annotationIDs:rawInputs["annotation_ids"] is NSNull ? nil : rawInputs["annotation_ids"] as? [String]
         )
-        return WorkflowInstance(id:id,templateID:template,name:name,inputs:inputs,steps:try parseSteps(record["steps"] ?? record["stages"]),staleReasons:parseStaleReasons(record["stale_reasons"] ?? record["stale_reason"]))
+        return WorkflowInstance(id:id,templateID:template,name:name,kind:kind,parentWorkflowID:parentWorkflowID,inputMode:inputMode,inputs:inputs,steps:try parseSteps(record["steps"] ?? record["stages"]),staleReasons:parseStaleReasons(record["stale_reasons"] ?? record["stale_reason"]))
     }
 
     private static func parseSteps(_ value:Any?) throws->[WorkflowStep] {

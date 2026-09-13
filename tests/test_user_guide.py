@@ -12,11 +12,11 @@ from tools.build_user_guide import render_guide
 
 def guide():
     return {'schema_version': 1, 'title': 'Studio help', 'articles': [
-        {'id': 'first-steps', 'section': 'Getting started', 'title': 'Start here',
+        {'id': 'first-steps', 'section': 'Project Home', 'title': 'Start here',
          'summary': 'Open your project.', 'status': 'Available',
          'steps': ['Choose a project.', 'Read the result.'], 'notes': ['Keep originals.'],
          'prompt': 'Please review my sources.'},
-        {'id': 'review-output', 'section': 'Feedback', 'title': 'Review output',
+        {'id': 'review-output', 'section': 'Current Work', 'title': 'Review output',
          'summary': 'Inspect the result.', 'status': 'Requires a project',
          'steps': ['Play the output.'], 'notes': []}]}
 
@@ -126,7 +126,10 @@ class AuthoritativeGuideTests(unittest.TestCase):
             executable = directory / 'stub'
             executable.write_text('#!/bin/sh\nexit 0\n')
             executable.chmod(0o755)
-            bundle = assemble(executable, ROOT, directory / 'Studio.app', sign=False)
+            bundle = assemble(
+                executable, ROOT, directory / 'Studio.app', sign=False,
+                running_check=lambda _destination: False,
+            )
             self.assertEqual(
                 (bundle / 'Contents/Resources/user-guide.json').read_bytes(),
                 (ROOT / 'docs/user-guide.json').read_bytes())

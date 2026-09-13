@@ -9,7 +9,7 @@ private func studioSource(_ name:String) throws -> String {
 func testWorkflowEvidenceDraftIsBoundToWorkflowIdentity() throws {
     let guide=try studioSource("WorkflowGuideView.swift")
     let evidence=try studioSource("UnderstandingView.swift")
-    XCTAssertTrue(guide.contains("WorkflowEvidenceRecorder(workflowID:workflow.id).id(workflow.id)"))
+    XCTAssertTrue(guide.contains("WorkflowEvidenceRecorder(workflowID:workflow.id,selectedStageID:step.id)"))
     XCTAssertTrue(evidence.contains(".onChange(of:workflowID)"))
     XCTAssertTrue(evidence.contains("resetDraft()"))
 }
@@ -21,7 +21,7 @@ func testReviewAndResourceDraftsResetWhenProjectChanges() throws {
     XCTAssertTrue(review.contains("onChange(of:w.project){_,_ in resetReviewDraft()"))
     XCTAssertTrue(intake.contains("func resetResourceDraft()"))
     XCTAssertTrue(intake.contains("onChange(of:w.project){_,_ in resetResourceDraft()"))
-    XCTAssertTrue(review.contains("Import a source in Sources"))
+    XCTAssertTrue(review.contains("Import a source in the Prepare step"))
     XCTAssertFalse(review.contains("Import a source in Brief & sources"))
 }
 
@@ -60,12 +60,15 @@ func testAddWorkflowRequestOnlyArmsAfterSuccessfulNavigation() throws {
     let workspace=try studioSource("Workspace.swift")
     let app=try studioSource("StudioApp.swift")
     XCTAssertTrue(workspace.contains("func showAddWorkflow()"))
-    XCTAssertTrue(workspace.contains("guard navigation.destination == .workflowGuide else{return}"))
+    XCTAssertTrue(workspace.contains("guard navigation.destination == .currentWork else{return}"))
     XCTAssertTrue(app.contains("w.showAddWorkflow()"))
 }
 
-func testWorkflowGuideSuppressesSameDestinationAction() throws {
+func testWorkflowWorkspaceEmbedsStagesAndKeepsCodexManual() throws {
     let guide=try studioSource("WorkflowGuideView.swift")
-    XCTAssertTrue(guide.contains("if step.destination != .workflowGuide"))
-    XCTAssertTrue(guide.contains("Prepare editable Codex prompt"))
+    XCTAssertFalse(guide.contains("w.select(step.destination)"))
+    XCTAssertTrue(guide.contains("case \"intake\":BriefView()"))
+    XCTAssertTrue(guide.contains("case \"source_understanding\":WorkflowUnderstandingStage"))
+    XCTAssertTrue(guide.contains("Work on this step with Codex"))
+    XCTAssertTrue(guide.contains("Prepares an editable prompt in the Codex inspector. It does not send the prompt."))
 }

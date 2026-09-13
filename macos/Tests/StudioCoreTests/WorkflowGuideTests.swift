@@ -1,17 +1,44 @@
 import Foundation
 import StudioCore
 
-func testGroupedStudioNavigationReplacesPermanentPodcastAndUnderstandingTabs() {
-    XCTAssertEqual(StudioNavigationContract.sections.map(\.title),["Project","Work","Project Setup","System"])
-    XCTAssertEqual(StudioNavigationContract.sections.flatMap(\.items).map(\.destination),[
-        .overview,.brief,.sources,.revisions,.feedback,.workflowGuide,.editingStyles,.resources,.codex,.help
-    ])
-    XCTAssertFalse(StudioDestination.allCases.map(\.rawValue).contains("Podcast"))
-    XCTAssertFalse(StudioDestination.allCases.map(\.rawValue).contains("Understanding"))
+func testWorkflowFirstNavigationRemovesCapabilityPagesAsPeers() {
+    let titles=StudioNavigationContract.sections.flatMap(\.items).map(\.title)
+    XCTAssertEqual(titles,["Project Home","Project Settings","Help"])
+    for obsoletePeer in ["Brief","Sources","Revisions","Feedback","Workflow Guide","Editing Styles","Resources","Codex & QA"] {
+        XCTAssertFalse(titles.contains(obsoletePeer))
+    }
+}
+
+func testProjectSettingsSectionTransitionPreservesUnsavedStyleDrafts() {
+    XCTAssertTrue(StudioProjectSettingsSection.permitsTransition(hasUnsavedStyleDraft:false,to:.resources))
+    XCTAssertTrue(StudioProjectSettingsSection.permitsTransition(hasUnsavedStyleDraft:true,to:.editing))
+    XCTAssertFalse(StudioProjectSettingsSection.permitsTransition(hasUnsavedStyleDraft:true,to:.resources))
+    XCTAssertFalse(StudioProjectSettingsSection.permitsTransition(hasUnsavedStyleDraft:true,to:.application))
+}
+
+func testLegacyNavigationStillLandsInTheConsolidatedShell() {
+    let legacyTitles:[String:String]=[
+        "Overview":"Project Home",
+        "Brief":"Current Work",
+        "Sources":"Current Work",
+        "Revisions":"Current Work",
+        "Feedback":"Current Work",
+        "Workflow Guide":"Current Work",
+        "Editing Styles":"Project Settings",
+        "Resources":"Project Settings",
+        "Codex & QA":"Current Work",
+        "How to Use":"Help",
+    ]
+    for (legacy,current) in legacyTitles {
+        XCTAssertEqual(StudioDestination(title:legacy).rawValue,current)
+    }
+
     var state=StudioNavigationState()
-    XCTAssertTrue(state.open(deepLink:"podcast/setup"));XCTAssertEqual(state.destination,.sources)
-    XCTAssertTrue(state.open(deepLink:"review/podcast"));XCTAssertEqual(state.destination,.feedback);XCTAssertEqual(state.reviewArea,.podcast)
-    XCTAssertTrue(state.open(deepLink:"workflow/source_understanding"));XCTAssertEqual(state.destination,.workflowGuide)
+    for deepLink in ["podcast/setup","review/podcast","workflow/source_understanding"] {
+        XCTAssertTrue(state.open(deepLink:deepLink))
+        XCTAssertEqual(state.destination.rawValue,"Current Work")
+        XCTAssertEqual(state.route.deepLink,deepLink)
+    }
 }
 
 func testWorkflowGuideParsesExplicitContextWithoutInventingProgress() throws {
@@ -64,7 +91,7 @@ func testWorkflowGuideBuildsHonestLegacyFallbackFromCurrentStageStates() throws 
     XCTAssertTrue(guide.isLegacyFallback)
     XCTAssertEqual(guide.activeWorkflow?.steps.map(\.status),[.completed,.needsAttention,.blocked])
     XCTAssertEqual(guide.nextStep?.id,"source_understanding")
-    XCTAssertEqual(guide.nextStep?.destination,.workflowGuide)
+    XCTAssertEqual(guide.nextStep?.destination.rawValue,"Current Work")
 }
 
 func testWorkflowCreateAndInputPayloadsAreExplicit() throws {
@@ -75,6 +102,46 @@ func testWorkflowCreateAndInputPayloadsAreExplicit() throws {
     let payload=WorkflowGuideSnapshot.inputPayload(workflowID:"workflow-1",inputs:WorkflowInputs(assetIDs:["audio-1"],revisionIDs:[]))
     XCTAssertEqual(payload["workflow_id"] as? String,"workflow-1")
     XCTAssertEqual(((payload["inputs"] as? [String:Any])?["asset_ids"] as? [String]),["audio-1"])
+}
+
+func testWorkflowKindsAndParentGroupingRemainExplicit() throws {
+    let raw:[String:Any]=[
+        "templates":[
+            ["id":"long_form_youtube","name":"Long-form YouTube","description":"Main delivery","kind":"deliverable"],
+            ["id":"clean_audio","name":"Clean audio","description":"Supporting pass","kind":"supporting_action"],
+        ],
+        "workflow_instances":[
+            ["id":"main","template_id":"long_form_youtube","name":"Main video","kind":"deliverable","inputs":["asset_ids":[],"revision_ids":[],"annotation_ids":NSNull()],"steps":[]],
+            ["id":"clean","template_id":"clean_audio","name":"Clean narration","kind":"supporting_action","parent_workflow_id":"main","inputs":["asset_ids":[],"revision_ids":[],"annotation_ids":NSNull()],"steps":[]],
+        ],
+        "active_workflow_id":"main",
+    ]
+    let guide=try WorkflowGuideSnapshot.parse(raw)
+    XCTAssertEqual(guide.deliverables.map(\.id),["main"])
+    XCTAssertEqual(guide.supportingActions.map(\.id),["clean"])
+    XCTAssertEqual(guide.supportingActions(parentedTo:"main").map(\.id),["clean"])
+    XCTAssertTrue(guide.standaloneActions.isEmpty)
+    XCTAssertEqual(guide.template(for:try XCTUnwrap(guide.activeWorkflow))?.kind,.deliverable)
+    let unlink=WorkflowGuideSnapshot.parentPayload(workflowID:"clean",parentWorkflowID:nil)
+    XCTAssertTrue(unlink["parent_workflow_id"] is NSNull)
+}
+
+func testWorkflowGuideUsesEffectiveInputsForAllProjectPresentation() throws {
+    let raw:[String:Any]=[
+        "templates":[["id":"long_form_youtube","label":"Long-form YouTube","summary":"Edit a video","inputs":[]]],
+        "active_workflow_id":"main",
+        "workflow_instances":[[
+            "id":"main","template_id":"long_form_youtube","name":"Main production","input_mode":"all_project",
+            "inputs":["asset_ids":[],"revision_ids":[],"annotation_ids":NSNull()],
+            "effective_inputs":["asset_ids":["source-a"],"revision_ids":["revision-a"],"annotation_ids":["note-a"]],
+            "steps":[],"stale_reasons":[],
+        ]],
+    ]
+    let workflow=try XCTUnwrap(WorkflowGuideSnapshot.parse(raw).activeWorkflow)
+    XCTAssertEqual(workflow.inputs.assetIDs,["source-a"])
+    XCTAssertEqual(workflow.inputs.revisionIDs,["revision-a"])
+    XCTAssertEqual(workflow.inputs.annotationIDs,["note-a"])
+    XCTAssertEqual(workflow.inputMode,.allProject)
 }
 
 

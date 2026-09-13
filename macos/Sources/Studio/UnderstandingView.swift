@@ -40,17 +40,20 @@ struct UnderstandingView:View {
 struct WorkflowEvidenceRecorder:View {
     @EnvironmentObject var w:Workspace
     let workflowID:String
+    var selectedStageID:String?=nil
     @State private var stage="intake"
     @State private var reason=""
     @State private var evidence=[String]()
     var stages:[[String:Any]] {w.workflow["stages"] as? [[String:Any]] ?? []}
     var body:some View {GroupBox("Record workflow evidence") {VStack(alignment:.leading,spacing:12) {
         Text("Record only evidence you actually reviewed. This does not manually complete a step or replace final audiovisual QA.").foregroundStyle(.secondary)
-        Picker("Step",selection:$stage) {ForEach(stages.indices,id:\.self) {index in Text(stages[index]["label"] as? String ?? "Step").tag(stages[index]["id"] as? String ?? "")}}
+        if selectedStageID == nil {Picker("Step",selection:$stage) {ForEach(stages.indices,id:\.self) {index in Text(stages[index]["label"] as? String ?? "Step").tag(stages[index]["id"] as? String ?? "")}}}
+        else if let selectedStageID {Text("Step: \(stageLabel(selectedStageID))").font(.subheadline.weight(.semibold))}
         TextField("What was established, and where is it documented?",text:$reason,axis:.vertical).lineLimit(2...5).textFieldStyle(.roundedBorder)
         Button("Select evidence files") {let panel=NSOpenPanel();panel.allowsMultipleSelection=true;if panel.runModal() == .OK {evidence=panel.urls.map(\.path)}}
         if !evidence.isEmpty {Text(evidence.joined(separator:"\n")).font(.caption).textSelection(.enabled)}
         Button("Record evidence") {let params:[String:Any]=["workflow_id":workflowID,"stage":stage,"reason":reason,"evidence":evidence];w.perform {try await w.request("record_stage",params);reason="";evidence=[];w.notice="Workflow evidence recorded and statuses reassessed."}}.disabled(stage.isEmpty || reason.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || evidence.isEmpty || w.busy)
-    }.padding(12)}.onChange(of:workflowID){_,_ in resetDraft()}.onAppear {if !stages.contains(where:{$0["id"] as? String == stage}) {resetDraft()}}}
-    func resetDraft() {stage=stages.first?["id"] as? String ?? "";reason="";evidence=[]}
+    }.padding(12)}.onChange(of:workflowID){_,_ in resetDraft()}.onChange(of:selectedStageID){_,_ in resetDraft()}.onAppear {if !stages.contains(where:{$0["id"] as? String == stage}) || selectedStageID != nil {resetDraft()}}}
+    func resetDraft() {stage=selectedStageID ?? stages.first?["id"] as? String ?? "";reason="";evidence=[]}
+    func stageLabel(_ id:String)->String {stages.first{$0["id"] as? String == id}?["label"] as? String ?? id.replacingOccurrences(of:"_",with:" ").capitalized}
 }

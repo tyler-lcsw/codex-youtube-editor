@@ -33,8 +33,9 @@ Remaining limits are listed in `known-limits.md`. General job-cache integration 
 
 ### Audio-first visual podcast development — September 7, 2026
 
-The September 8 discoverability correction adds a dedicated **Podcast** sidebar
-destination with accessible routes to source setup and podcast visual review. Review
+The September 8 discoverability checkpoint added a dedicated **Podcast** sidebar
+destination; the workflow-first correction below supersedes that navigation while retaining
+accessible routes to source setup and podcast visual review. Review
 area state is shared so the review route opens the podcast score directly. Misleading
 setup-only copy was replaced with the actual Codex & QA generation/render workflow and
 explicit-review boundary. The sidebar now shows version, numeric build and exact engine
@@ -331,10 +332,12 @@ Renamed visible branding, the window/application name, Codex client title and bu
 
 ## End-user help — September 6
 
-Codex Media Studio now includes a **How to Use** tab and **Help for this tab** sheet.
-The editable `docs/user-guide.json` contains 78 short articles across ten sections,
-covering all native tabs/options, all 18 production skills and the separate browser
-cut editor. Articles distinguish available, limited, retained and deferred functions.
+The September 6 build introduced a **How to Use** tab and **Help for this tab** sheet;
+the workflow-first correction below supersedes those navigation labels while retaining
+the same help capabilities. At that checkpoint, the editable `docs/user-guide.json`
+contained 78 short articles across ten sections, covering all native tabs/options, all 18
+production skills and the separate browser cut editor. Articles distinguish available,
+limited, retained and deferred functions.
 `docs/help-coverage.md` maps the instructions to implementation; `docs/how-to-use.html`
 is the standalone searchable/printable export. Both native help and HTML use the same
 source. The native loader validates content and displays bundled fallback provenance.
@@ -422,38 +425,40 @@ materialize the separate file on the first style mutation. Current automated evi
 checks**, plus a clean native app build. Interactive keyboard/VoiceOver review of the
 new screen and authentic-footage creative qualification remain separate pending checks.
 
-## Contextual Workflow Guide — September 13, 2026
+## Workflow-first Studio correction — September 13, 2026
 
-Studio's earlier permanent **Podcast**, **Understanding** and **Review** navigation is
-superseded by a grouped project workspace. The stable project destinations are Overview,
-Brief, Sources, Revisions and Feedback; Workflow Guide lives in the Work group, with
-Editing Styles, Resources, Codex and How to Use in their relevant setup or system groups.
-Legacy deep links still resolve to the corresponding working capability. Solo-podcast
-setup appears in Sources only after a Solo podcast workflow exists, or when an older
-configured podcast project is migrated.
+The owner rejected the earlier approach of adding a **Workflow Guide** beside the existing
+capability destinations. The approved correction makes workflow the organizing principle
+of the application. **Brief**, **Sources**, **Revisions**, **Feedback**, **Workflow Guide**,
+**Editing Styles**, **Resources** and **Codex & QA** are no longer permanent peer sidebar
+destinations.
 
-**Add Workflow** offers the six implemented templates supplied by the backend catalog:
-Long-form YouTube, Solo podcast, Short-form video, Clean audio, Tighten silence and
-Thumbnail. A project can hold multiple named workflow instances, select one as active and
-bind workflow-specific source and revision inputs. Existing schema-v1 projects migrate to
-a Main production workflow without losing their earlier evidence; configured podcast
-projects also retain a conditional Solo podcast path.
+The consolidated shell uses **Project Home**, dynamic **Current Work**, **New Work**,
+**Project Settings** and **Help**. Selecting a named item under Current Work opens its
+ordered stages; the relevant brief, source, editing-style, resource, revision and review
+controls appear in that stage. Codex and QA are a persistent contextual inspector rather
+than a place the user must navigate away to visit. Existing destination names and podcast
+deep links remain compatibility routes into the corresponding consolidated context; they
+do not restore the old navigation.
 
-Workflow Guide status is derived from current evidence and reports Complete, Ready, Not
-started, Blocked or Needs review. It does not display a synthetic completion percentage.
-Evidence, source/revision bindings and related feedback are evaluated for the selected
-workflow, so unrelated work does not make another workflow stale. Shared brief, editing
-style, resource, universal-rule and workflow-definition changes can still invalidate
-dependent evidence across workflows. Each guide action can open its real destination or
-prefill an editable Codex prompt; prompt preparation switches to Codex but never sends the
-task automatically. Creating, selecting or editing a workflow does not record evidence,
-accept owner feedback, complete QA or authorize publication.
+The six existing templates are now presented as two different concepts. Long-form
+YouTube, Solo podcast, Short-form video and Thumbnail create deliverables. Clean audio and
+Tighten silence create supporting actions. A supporting action can be standalone or have
+an optional organizational parent that is a deliverable. That relationship changes only
+where the action is shown: the action retains explicit source, revision and annotation
+inputs and does not inherit evidence from its parent.
 
-The standalone HTML guide was regenerated from the same authoritative JSON. Current
-automated verification passed with **281 Python tests, 1 publication test intentionally
-deselected, 33 subtests and 64 native core checks**, plus a signed production build and
-successful subscription-path probes on Astra and Sol. Authentic-media qualification and
-publication remain outside this information-architecture change. The canonical native
-release advances to **Codex Media Studio 0.4.0 (build 5)** so the installed workflow-guide
-build is visibly distinguishable from build 4; the footer continues to show its exact
-engine source revision.
+The evidence model remains authoritative. Status is derived from current evidence and
+reports Complete, Ready, Not started, Blocked or Needs review without a synthetic
+percentage. Scoped input and feedback changes stale the affected workflow; shared brief,
+style, resource, universal-rule and workflow-definition changes can require broader
+reassessment. Preparing a Codex prompt only reveals an editable draft; it never sends a
+task. Creating, selecting, re-parenting or editing work does not record evidence, accept
+owner feedback, complete QA or authorize publication.
+
+Documentation and standalone Help are generated from the same authoritative JSON. The
+integrated correction passes **293 Python tests, 1 publication test deselected, 33
+subtests, and 64 native core checks**, plus a clean release build, generated-guide check,
+skill audit and whitespace validation. Interactive acceptance and canonical app
+installation remain separate release checks. No authentic media qualification, hosted
+generation or publication is claimed by the information-architecture change.

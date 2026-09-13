@@ -14,7 +14,14 @@ public struct HelpArticle: Codable, Identifiable, Equatable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         id = try values.decode(String.self, forKey: .id)
         let decodedSection = try values.decode(String.self, forKey: .section)
-        section = decodedSection == "Editing styles" ? "Editing Styles" : decodedSection
+        switch decodedSection {
+        case "Getting started": section = "Project Home"
+        case "Brief", "Sources", "Workflow Guide", "Feedback": section = "Current Work"
+        case "Editing Styles", "Editing styles", "Resources": section = "Project Settings"
+        case "Codex & QA": section = "Codex inspector"
+        case "How to Use": section = "Help"
+        default: section = decodedSection
+        }
         title = try values.decode(String.self, forKey: .title)
         summary = try values.decode(String.self, forKey: .summary)
         status = try values.decode(String.self, forKey: .status)
@@ -25,7 +32,7 @@ public struct HelpArticle: Codable, Identifiable, Equatable {
 }
 
 public struct HelpGuide: Codable, Equatable {
-    public static let sections = ["Getting started", "Brief", "Sources", "Workflow Guide", "Editing Styles", "Feedback", "Resources", "Codex & QA", "How to Use", "Production skills", "Troubleshooting"]
+    public static let sections = ["Project Home", "Current Work", "Project Settings", "Codex inspector", "Help", "Production skills", "Troubleshooting"]
     public let schemaVersion: Int
     public let title: String
     public let articles: [HelpArticle]
