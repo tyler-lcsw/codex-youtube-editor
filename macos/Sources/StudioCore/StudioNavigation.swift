@@ -1,17 +1,26 @@
 import Foundation
 
 public enum StudioDestination:String,CaseIterable,Codable {
-    case brief="Brief & sources"
-    case podcast="Podcast"
-    case editingStyles="Editing styles"
-    case understanding="Understanding"
-    case review="Review"
+    case overview="Overview"
+    case brief="Brief"
+    case sources="Sources"
+    case revisions="Revisions"
+    case feedback="Feedback"
+    case workflowGuide="Workflow Guide"
+    case editingStyles="Editing Styles"
     case resources="Resources"
     case codex="Codex & QA"
     case help="How to Use"
 
     public init(title:String) {
-        self=Self.allCases.first {$0.rawValue == title} ?? .brief
+        switch title {
+        case "Brief & sources":self = .brief
+        case "Podcast":self = .sources
+        case "Understanding":self = .workflowGuide
+        case "Review":self = .feedback
+        case "Editing styles":self = .editingStyles
+        default:self=Self.allCases.first {$0.rawValue == title} ?? .overview
+        }
     }
 }
 
@@ -35,7 +44,7 @@ public struct StudioNavigationState:Equatable {
     public var reviewArea:StudioReviewArea
     public private(set) var route:StudioRoute
 
-    public init(destination:StudioDestination = .brief,reviewArea:StudioReviewArea = .media) {
+    public init(destination:StudioDestination = .overview,reviewArea:StudioReviewArea = .media) {
         self.destination=destination;self.reviewArea=reviewArea
         self.route=StudioRoute(deepLink:Self.defaultDeepLink(destination,reviewArea),destination:destination,reviewArea:reviewArea)
     }
@@ -43,8 +52,9 @@ public struct StudioNavigationState:Equatable {
     @discardableResult public mutating func open(deepLink:String)->Bool {
         let next:StudioRoute
         switch deepLink {
-        case "podcast/setup":next=StudioRoute(deepLink:deepLink,destination:.brief)
-        case "review/podcast":next=StudioRoute(deepLink:deepLink,destination:.review,reviewArea:.podcast)
+        case "podcast/setup":next=StudioRoute(deepLink:deepLink,destination:.sources)
+        case "review/podcast":next=StudioRoute(deepLink:deepLink,destination:.feedback,reviewArea:.podcast)
+        case "workflow/source_understanding":next=StudioRoute(deepLink:deepLink,destination:.workflowGuide)
         default:return false
         }
         destination=next.destination;reviewArea=next.reviewArea;route=next
@@ -66,27 +76,46 @@ public struct StudioNavigationState:Equatable {
     }
 
     private static func defaultDeepLink(_ destination:StudioDestination,_ reviewArea:StudioReviewArea)->String {
-        destination == .review && reviewArea == .podcast ? "review/podcast" : destination.rawValue
+        destination == .feedback && reviewArea == .podcast ? "review/podcast" : destination.rawValue
     }
 }
 
-public struct StudioNavigationItem:Equatable {
+public struct StudioNavigationItem:Equatable,Identifiable {
     public let destination:StudioDestination
     public let title:String
     public let systemImage:String
+    public var id:String {destination.rawValue}
+}
+
+public struct StudioNavigationSection:Equatable,Identifiable {
+    public let title:String
+    public let items:[StudioNavigationItem]
+    public var id:String {title}
+    public init(title:String,items:[StudioNavigationItem]) {self.title=title;self.items=items}
 }
 
 public enum StudioNavigationContract {
-    public static let sidebarItems:[StudioNavigationItem]=[
-        .init(destination:.brief,title:StudioDestination.brief.rawValue,systemImage:"tray.and.arrow.down"),
-        .init(destination:.podcast,title:StudioDestination.podcast.rawValue,systemImage:"waveform"),
-        .init(destination:.editingStyles,title:StudioDestination.editingStyles.rawValue,systemImage:"checklist"),
-        .init(destination:.understanding,title:StudioDestination.understanding.rawValue,systemImage:"text.magnifyingglass"),
-        .init(destination:.review,title:StudioDestination.review.rawValue,systemImage:"play.rectangle"),
-        .init(destination:.resources,title:StudioDestination.resources.rawValue,systemImage:"slider.horizontal.3"),
-        .init(destination:.codex,title:StudioDestination.codex.rawValue,systemImage:"checkmark.shield"),
-        .init(destination:.help,title:StudioDestination.help.rawValue,systemImage:"questionmark.circle"),
+    public static let sections:[StudioNavigationSection]=[
+        .init(title:"Project",items:[
+            .init(destination:.overview,title:"Overview",systemImage:"square.grid.2x2"),
+            .init(destination:.brief,title:"Brief",systemImage:"doc.text"),
+            .init(destination:.sources,title:"Sources",systemImage:"tray.and.arrow.down"),
+            .init(destination:.revisions,title:"Revisions",systemImage:"film.stack"),
+            .init(destination:.feedback,title:"Feedback",systemImage:"text.bubble"),
+        ]),
+        .init(title:"Work",items:[
+            .init(destination:.workflowGuide,title:"Workflow Guide",systemImage:"point.topleft.down.to.point.bottomright.curvepath"),
+        ]),
+        .init(title:"Project Setup",items:[
+            .init(destination:.editingStyles,title:"Editing Styles",systemImage:"checklist"),
+            .init(destination:.resources,title:"Resources",systemImage:"slider.horizontal.3"),
+        ]),
+        .init(title:"System",items:[
+            .init(destination:.codex,title:"Codex & QA",systemImage:"checkmark.shield"),
+            .init(destination:.help,title:"How to Use",systemImage:"questionmark.circle"),
+        ]),
     ]
+    public static let sidebarItems=sections.flatMap(\.items)
 }
 
 public enum PodcastQuickStartAction:String,CaseIterable {
@@ -103,8 +132,8 @@ public enum PodcastQuickStartAction:String,CaseIterable {
     public var systemImage:String {self == .setup ? "waveform.badge.plus" : "rectangle.stack.badge.play"}
     public var route:StudioRoute {
         self == .setup
-            ? StudioRoute(deepLink:"podcast/setup",destination:.brief)
-            : StudioRoute(deepLink:"review/podcast",destination:.review,reviewArea:.podcast)
+            ? StudioRoute(deepLink:"podcast/setup",destination:.sources)
+            : StudioRoute(deepLink:"review/podcast",destination:.feedback,reviewArea:.podcast)
     }
 }
 

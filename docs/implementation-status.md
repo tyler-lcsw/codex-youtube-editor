@@ -421,3 +421,39 @@ materialize the separate file on the first style mutation. Current automated evi
 **244 Python tests, 1 publication test deselected, 33 subtests, and 49 native core
 checks**, plus a clean native app build. Interactive keyboard/VoiceOver review of the
 new screen and authentic-footage creative qualification remain separate pending checks.
+
+## Contextual Workflow Guide — September 13, 2026
+
+Studio's earlier permanent **Podcast**, **Understanding** and **Review** navigation is
+superseded by a grouped project workspace. The stable project destinations are Overview,
+Brief, Sources, Revisions and Feedback; Workflow Guide lives in the Work group, with
+Editing Styles, Resources, Codex and How to Use in their relevant setup or system groups.
+Legacy deep links still resolve to the corresponding working capability. Solo-podcast
+setup appears in Sources only after a Solo podcast workflow exists, or when an older
+configured podcast project is migrated.
+
+**Add Workflow** offers the six implemented templates supplied by the backend catalog:
+Long-form YouTube, Solo podcast, Short-form video, Clean audio, Tighten silence and
+Thumbnail. A project can hold multiple named workflow instances, select one as active and
+bind workflow-specific source and revision inputs. Existing schema-v1 projects migrate to
+a Main production workflow without losing their earlier evidence; configured podcast
+projects also retain a conditional Solo podcast path.
+
+Workflow Guide status is derived from current evidence and reports Complete, Ready, Not
+started, Blocked or Needs review. It does not display a synthetic completion percentage.
+Evidence, source/revision bindings and related feedback are evaluated for the selected
+workflow, so unrelated work does not make another workflow stale. Shared brief, editing
+style, resource, universal-rule and workflow-definition changes can still invalidate
+dependent evidence across workflows. Each guide action can open its real destination or
+prefill an editable Codex prompt; prompt preparation switches to Codex but never sends the
+task automatically. Creating, selecting or editing a workflow does not record evidence,
+accept owner feedback, complete QA or authorize publication.
+
+The standalone HTML guide was regenerated from the same authoritative JSON. Current
+automated verification passed with **281 Python tests, 1 publication test intentionally
+deselected, 33 subtests and 64 native core checks**, plus a signed production build and
+successful subscription-path probes on Astra and Sol. Authentic-media qualification and
+publication remain outside this information-architecture change. The canonical native
+release advances to **Codex Media Studio 0.4.0 (build 5)** so the installed workflow-guide
+build is visibly distinguishable from build 4; the footer continues to show its exact
+engine source revision.

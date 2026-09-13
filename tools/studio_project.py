@@ -39,7 +39,9 @@ def create(project, params):
     title = text(params.get('title'), 'title')
     for folder in ('source', 'revisions', 'output', 'work/studio', 'work/transcript', 'work/transcripts', 'work/audio', 'work/analysis', 'work/quality', 'work/frames'):
         (project / folder).mkdir(parents=True, exist_ok=True)
-    return dict(schema_version=1, project=str(project), title=title, brief={}, assets=[], revisions=[], annotations=[], resources=[], routes={}, thread_id=None, stage_reviews={}, podcast=None, podcast_settings_revision=0)
+    data = dict(schema_version=1, project=str(project), title=title, brief={}, assets=[], revisions=[], annotations=[], resources=[], routes={}, thread_id=None, stage_reviews={}, podcast=None, podcast_settings_revision=0)
+    from .studio_workflows import migrate
+    return migrate(project, data)
 
 
 def read(project):
@@ -65,6 +67,8 @@ def read(project):
     data.setdefault('podcast', None)
     data.setdefault('podcast_settings_revision', 0)
     data['project'] = str(project)
+    from .studio_workflows import migrate
+    migrate(project, data)
     return data
 
 

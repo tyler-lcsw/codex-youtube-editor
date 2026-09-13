@@ -13,10 +13,14 @@ def source(name: str) -> str:
     return path.read_text() if path.is_file() else ""
 
 
-def test_sidebar_exposes_a_podcast_destination_and_icon():
+def test_podcast_is_contextual_instead_of_a_permanent_sidebar_destination():
     app = source("StudioApp.swift")
-    assert "StudioNavigationContract.sidebarItems" in app
-    assert "PodcastQuickStartView()" in app
+    navigation = (STUDIO_CORE / "StudioNavigation.swift").read_text()
+    intake = source("IntakeView.swift")
+    assert "StudioNavigationContract.sections" in app
+    assert ".init(destination:.podcast" not in navigation
+    assert "hasSoloPodcastWorkflow" in intake
+    assert "if hasSoloPodcastWorkflow" in intake
 
 
 def test_podcast_quick_start_exposes_accessible_setup_and_review_routes():
@@ -27,6 +31,9 @@ def test_podcast_quick_start_exposes_accessible_setup_and_review_routes():
     assert "w.open(action.route)" in quick_start
     assert '.id("podcast-setup")' in intake
     assert 'proxy.scrollTo("podcast-setup"' in intake
+    navigation = (STUDIO_CORE / "StudioNavigation.swift").read_text()
+    assert 'case "podcast/setup"' in navigation and 'destination:.sources' in navigation
+    assert 'case "review/podcast"' in navigation and 'destination:.feedback' in navigation
 
 
 def test_review_area_is_workspace_owned_instead_of_local_picker_state():
@@ -55,9 +62,8 @@ def test_sidebar_displays_version_build_and_revision_identity():
 
 def test_podcast_context_help_has_real_articles():
     guide = json.loads((ROOT / "docs/user-guide.json").read_text())
-    podcast_articles = [article for article in guide["articles"] if article["section"] == "Podcast"]
-    assert {article["id"] for article in podcast_articles} == {
-        "podcast-setup",
-        "review-podcast-visual-score",
-        "review-podcast-qualification",
-    }
+    by_id = {article["id"]: article for article in guide["articles"]}
+    assert by_id["podcast-setup"]["section"] == "Sources"
+    assert by_id["review-podcast-visual-score"]["section"] == "Feedback"
+    assert by_id["review-podcast-qualification"]["section"] == "Feedback"
+    assert "Solo podcast" in by_id["manage-workflows"]["steps"][1]

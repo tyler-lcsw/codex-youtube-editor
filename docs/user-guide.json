@@ -41,8 +41,9 @@
       "summary": "The sidebar follows the production process.",
       "status": "Available",
       "steps": [
-        "Start with Brief & sources, then Understanding. For a one-speaker audio-first episode, choose Podcast for a dedicated quick start.",
-        "Use Podcast to reach source setup and chapter review directly, Review for general playback and feedback, Resources for preferences, and Codex & QA to request work and inspect checks.",
+        "Use the Project group for Overview, Brief, Sources, Revisions and Feedback. Use Workflow Guide to see the active workflow and its next evidence-based step.",
+        "Choose Add Workflow to add Long-form YouTube, Solo podcast, Short-form video, Clean audio, Tighten silence or Thumbnail work. Podcast setup appears in Sources only after a Solo podcast workflow is added or an older podcast project is opened.",
+        "Use Project Setup for Editing Styles and Resources, and System for Codex & QA and How to Use.",
         "Use How to Use whenever you need instructions."
       ],
       "notes": [
@@ -90,10 +91,11 @@
       "summary": "Begin with source understanding and a small preview.",
       "status": "Available",
       "steps": [
-        "Create a production, import footage and save a brief.",
-        "In Codex & QA, ask Codex to explain the source and prepare an edit strategy before cutting.",
+        "Create a production, save its Brief, and import footage in Sources. A migrated or new project starts with a Long-form YouTube workflow.",
+        "Open Workflow Guide, check the active workflow and its bound inputs, then choose Prepare editable Codex prompt for the next step.",
+        "Review and edit the prepared text in Codex & QA, then choose Send to Codex yourself. Preparing a prompt never sends it automatically.",
         "Read the findings, then request a representative preview.",
-        "Review the actual video and add specific feedback before a full edit."
+        "Register the output in Revisions, then open Feedback to review the actual media and add specific notes before a full edit."
       ],
       "notes": [
         "Short synthetic examples prove parts of the tools work. They do not qualify every kind of raw footage or a finished creative result.",
@@ -103,12 +105,12 @@
     },
     {
       "id": "brief-audience",
-      "section": "Brief & sources",
+      "section": "Brief",
       "title": "Describe your audience",
       "summary": "Use Audience to explain who the viewer is and what they already know.",
       "status": "Available",
       "steps": [
-        "Open Brief & sources.",
+        "Open Brief.",
         "Enter your guidance in Audience.",
         "Choose Save brief."
       ],
@@ -119,12 +121,12 @@
     },
     {
       "id": "brief-purpose",
-      "section": "Brief & sources",
+      "section": "Brief",
       "title": "State the takeaway",
       "summary": "Use What should the viewer understand? to explain the one idea or outcome viewers should leave with.",
       "status": "Available",
       "steps": [
-        "Open Brief & sources.",
+        "Open Brief.",
         "Enter your guidance in “What should the viewer understand?”.",
         "Choose Save brief."
       ],
@@ -135,12 +137,12 @@
     },
     {
       "id": "brief-length",
-      "section": "Brief & sources",
+      "section": "Brief",
       "title": "Set a length goal",
       "summary": "Use Desired length to explain a target duration or range.",
       "status": "Available",
       "steps": [
-        "Open Brief & sources.",
+        "Open Brief.",
         "Enter your guidance in Desired length.",
         "Choose Save brief."
       ],
@@ -151,12 +153,12 @@
     },
     {
       "id": "brief-tone",
-      "section": "Brief & sources",
+      "section": "Brief",
       "title": "Choose tone and pacing",
       "summary": "Use Tone and pacing to explain the feeling and pace you want.",
       "status": "Available",
       "steps": [
-        "Open Brief & sources.",
+        "Open Brief.",
         "Enter your guidance in Tone and pacing.",
         "Choose Save brief."
       ],
@@ -167,12 +169,12 @@
     },
     {
       "id": "brief-required",
-      "section": "Brief & sources",
+      "section": "Brief",
       "title": "Protect important content",
       "summary": "Use Keep or emphasize to explain anything that must remain or deserves emphasis.",
       "status": "Available",
       "steps": [
-        "Open Brief & sources.",
+        "Open Brief.",
         "Enter your guidance in Keep or emphasize.",
         "Choose Save brief."
       ],
@@ -183,12 +185,12 @@
     },
     {
       "id": "brief-context",
-      "section": "Brief & sources",
+      "section": "Brief",
       "title": "Add editing context",
       "summary": "Use Context and editing instructions to explain background, constraints and specific editorial requests.",
       "status": "Available",
       "steps": [
-        "Open Brief & sources.",
+        "Open Brief.",
         "Enter your guidance in Context and editing instructions.",
         "Choose Save brief."
       ],
@@ -199,7 +201,7 @@
     },
     {
       "id": "brief-conflict",
-      "section": "Brief & sources",
+      "section": "Brief",
       "title": "Resolve a changed saved brief",
       "summary": "Studio prevents your draft from overwriting a brief changed elsewhere.",
       "status": "Available",
@@ -214,7 +216,7 @@
     },
     {
       "id": "import-sources",
-      "section": "Brief & sources",
+      "section": "Sources",
       "title": "Import media or documents",
       "summary": "Import copies into the production while preserving originals.",
       "status": "Available",
@@ -225,37 +227,38 @@
       ],
       "notes": [
         "PDF, TXT, MD, DOCX, JSON and CSV are classified as documents; other imports use the source role. Importing a document does not prove Codex has read or understood it.",
-        "Review is for media playback; documents are not shown in its Viewing picker."
+        "Feedback is for media playback; documents are not shown in its Viewing picker."
       ]
     },
     {
       "id": "podcast-setup",
-      "section": "Podcast",
+      "section": "Sources",
       "title": "Configure a solo audio-first podcast",
       "summary": "Choose one canonical audio source, an optional camera source and a visual-density preference.",
       "status": "Available",
       "steps": [
-        "Choose Podcast in the sidebar, then choose Set up podcast sources. Import an audio-bearing source if the project does not have one yet.",
+        "Choose Add Workflow, select Solo podcast, name it and optionally bind an imported source. Open Sources and import an audio-bearing source if needed.",
         "Choose Primary audio. Choose Optional camera or leave No camera selected.",
         "Choose Restrained, Balanced or Illustrative visual density, then choose Save podcast setup.",
         "If the saved-setup warning appears, choose Reload saved podcast setup before reapplying and saving your draft.",
-        "Choose Clear podcast setup to return the project to the general production workflow."
+        "Use Workflow Guide to follow the episode-specific stages. Clear podcast setup removes its saved source configuration but does not delete the Solo podcast workflow."
       ],
       "notes": [
         "Audio is canonical. An optional camera selection is an association only; Studio does not infer or verify synchronization.",
+        "Podcast source and visual-density settings are project-level. If a project contains more than one Solo podcast workflow, those workflow instances share the same podcast setup.",
         "Visual density is an editorial preference, not a fixed effects-per-minute rule.",
-        "Saving setup does not itself generate media. Codex can now prepare and render the deterministic waveform stage, and can create a transcript-bound visual score for separate owner review.",
+        "Saving setup does not itself generate media. A Workflow Guide action can prefill an editable Codex request for the deterministic waveform stage or transcript-bound visual score, but you must review and send it yourself.",
         "Older imported media without stream metadata is checked against the actual staged bytes when you save. A mismatched selection is rejected without replacing the saved setup."
       ]
     },
     {
       "id": "editing-styles",
-      "section": "Editing styles",
+      "section": "Editing Styles",
       "title": "Choose and customize a project editing style",
       "summary": "Create a style from the master rule list, edit its wording, and enable only the guidance wanted for this project.",
       "status": "Available",
       "steps": [
-        "Open Editing styles in the sidebar. Choose an existing project style, or choose New from master and give the new style a distinct name.",
+        "Open Editing Styles in the sidebar. Choose an existing project style, or choose New from master and give the new style a distinct name.",
         "Use the checkbox beside each stable rule ID to enable or disable that rule in the selected style.",
         "Edit rule wording directly in its text editor, rename the style if needed, then choose Save style.",
         "If Studio reports that the saved style changed, choose Reload saved style before applying your edits again.",
@@ -269,7 +272,7 @@
     },
     {
       "id": "add-resource-link",
-      "section": "Brief & sources",
+      "section": "Sources",
       "title": "Add a source, reference or background link",
       "summary": "Give each link a role so Codex knows why it is here.",
       "status": "Available",
@@ -284,15 +287,34 @@
       ]
     },
     {
+      "id": "manage-workflows",
+      "section": "Workflow Guide",
+      "title": "Add and switch project workflows",
+      "summary": "A project can contain several independently named workflows with scoped source and revision inputs.",
+      "status": "Available",
+      "steps": [
+        "Choose Add Workflow in the sidebar or Workflow Guide.",
+        "Choose Long-form YouTube, Solo podcast, Short-form video, Clean audio, Tighten silence or Thumbnail, give the workflow a name, and optionally choose an initial source or output revision.",
+        "Use Active workflow to switch between project workflows. Choose Edit workflow inputs to select the sources and output revisions owned by the active workflow.",
+        "Read the ordered step cards and their evidence-based statuses. Studio reports Complete, Ready, Not started, Blocked or Needs review; it does not invent a percentage.",
+        "Choose a step action to open its program screen or prefill an editable request in Codex & QA. Inspect and edit the request, then choose Send to Codex yourself."
+      ],
+      "notes": [
+        "A new or migrated project retains a Main production Long-form YouTube workflow. A Solo podcast workflow and its specialized Sources setup are absent until you add one, except when an older configured podcast is migrated.",
+        "Source, revision and related feedback changes stale only workflows bound to those inputs. Shared Brief, Editing Style, Resources, authoritative rules or workflow-definition changes can require reassessment across workflows.",
+        "Selecting a workflow, preparing a prompt, importing a revision or recording evidence does not perform the work, manufacture completion, accept media or authorize publication."
+      ]
+    },
+    {
       "id": "stage-intake",
-      "section": "Understanding",
+      "section": "Workflow Guide",
       "title": "Complete Intake",
       "summary": "This stage requires no earlier stage.",
       "status": "Available",
       "steps": [
-        "Read the Intake card and its Requires and Required artifacts lines.",
-        "Ask Codex to establish a clear brief, source roles, original-file provenance and resource choices.",
-        "Check that the files and assessment describe the current production before recording evidence."
+        "Open Workflow Guide, select the intended workflow and read its first step.",
+        "Use its action to prefill a Codex request for a clear brief, bound source roles, original-file provenance and resource choices; review and send the request yourself.",
+        "Check that the files and assessment describe this workflow's current bound inputs before recording evidence."
       ],
       "notes": [
         "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
@@ -302,14 +324,14 @@
     },
     {
       "id": "stage-source-understanding",
-      "section": "Understanding",
+      "section": "Workflow Guide",
       "title": "Complete Source understanding",
       "summary": "This stage requires Intake.",
       "status": "Available",
       "steps": [
-        "Read the Source understanding card and its Requires and Required artifacts lines.",
-        "Ask Codex to establish work/analysis/source-understanding.md and work/analysis/content-map.json describing the argument, demonstrations, beats, conclusion and timing uncertainties.",
-        "Check that the files and assessment describe the current production before recording evidence."
+        "Open Workflow Guide, select the intended workflow and read its source-understanding step.",
+        "Use its action to prefill a Codex request for source-understanding and content-map evidence describing the argument, demonstrations, beats, conclusion and timing uncertainties.",
+        "Check that the files and assessment describe this workflow's current bound inputs before recording evidence."
       ],
       "notes": [
         "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
@@ -319,14 +341,14 @@
     },
     {
       "id": "stage-editorial-strategy",
-      "section": "Understanding",
+      "section": "Workflow Guide",
       "title": "Complete Editorial strategy",
       "summary": "This stage requires Source understanding.",
       "status": "Available",
       "steps": [
-        "Read the Editorial strategy card and its Requires and Required artifacts lines.",
-        "Ask Codex to establish work/edit-plan.md explaining cuts, retained meaning, timing, graphics, sound and a representative preview.",
-        "Check that the files and assessment describe the current production before recording evidence."
+        "Open Workflow Guide, select the intended workflow and read its editorial-strategy step.",
+        "Use its action to prefill a Codex request for an edit plan explaining cuts, retained meaning, timing, graphics, sound and a representative preview.",
+        "Check that the files and assessment describe this workflow's current bound inputs before recording evidence."
       ],
       "notes": [
         "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
@@ -336,14 +358,14 @@
     },
     {
       "id": "stage-edit",
-      "section": "Understanding",
+      "section": "Workflow Guide",
       "title": "Complete Edit",
       "summary": "This stage requires Editorial strategy.",
       "status": "Available",
       "steps": [
-        "Read the Edit card and its Requires and Required artifacts lines.",
-        "Ask Codex to establish actual reviewed revisions, timing records and evidence for each media action.",
-        "Check that the files and assessment describe the current production before recording evidence."
+        "Open Workflow Guide, select the intended workflow and read its edit step.",
+        "Use its action to prefill a Codex request for actual reviewed revisions, timing records and evidence for each media action.",
+        "Check that the files and assessment describe this workflow's current bound inputs before recording evidence."
       ],
       "notes": [
         "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
@@ -353,14 +375,14 @@
     },
     {
       "id": "stage-final-review",
-      "section": "Understanding",
+      "section": "Workflow Guide",
       "title": "Complete Final review",
       "summary": "This stage requires Edit.",
       "status": "Available",
       "steps": [
-        "Read the Final review card and its Requires and Required artifacts lines.",
-        "Ask Codex to establish registered delivery files and a current work/quality/completion.json receipt with audiovisual and technical findings resolved.",
-        "Check that the files and assessment describe the current production before recording evidence."
+        "Open Workflow Guide, select the intended workflow and read its final-review step.",
+        "Use its action to prefill a Codex request for registered delivery files and a current completion receipt with audiovisual and technical findings resolved.",
+        "Check that the files and assessment describe this workflow's current bound inputs before recording evidence."
       ],
       "notes": [
         "A stage status is tied to current inputs and prerequisites. Changed footage, brief, rules or workflow can make it stale.",
@@ -370,60 +392,61 @@
     },
     {
       "id": "record-stage-evidence",
-      "section": "Understanding",
+      "section": "Workflow Guide",
       "title": "Record evidence that already exists",
-      "summary": "Record completed stage evidence stores an assessment, not a substitute for work.",
+      "summary": "Record workflow evidence stores an assessment for the selected workflow, not a substitute for work.",
       "status": "Available",
       "steps": [
-        "Choose Stage under Record completed stage evidence.",
+        "Open Workflow Guide, select the intended workflow, then choose a Step under Record workflow evidence.",
         "Explain what was established and where it is documented.",
         "Choose Select evidence files and select the actual evidence files.",
         "Check the selected paths, then choose Record evidence."
       ],
       "notes": [
-        "A reason and at least one evidence file are required. Required artifacts and earlier stages must be current.",
+        "A reason and at least one evidence file are required. Required artifacts and earlier steps must be current for that workflow.",
         "Ask Codex to perform routine checks and record its findings; do not fill in passing evidence for work no one reviewed."
       ]
     },
     {
       "id": "read-workflow",
-      "section": "Understanding",
-      "title": "Read the authoritative workflow",
-      "summary": "The stage definitions come from a local editable workflow file.",
+      "section": "Workflow Guide",
+      "title": "Understand workflow templates and authority",
+      "summary": "Six contextual templates present one authoritative evidence sequence without changing its QA authority.",
       "status": "Available",
       "steps": [
-        "Choose Open authoritative workflow.",
-        "Read the stage instructions and allowed routes in the opened file.",
-        "If a workflow change is needed, describe it to Codex and reassess affected reviews afterward."
+        "Open Workflow Guide and choose the workflow whose contextual steps you want to inspect.",
+        "The six templates are Long-form YouTube, Solo podcast, Short-form video, Clean audio, Tighten silence and Thumbnail. Each relabels and routes the same authoritative evidence stages for its purpose.",
+        "Read config/studio-workflows.json for the template presentation and config/studio-workflow.json for authoritative stage prerequisites and required artifacts.",
+        "If a definition changes, reassess affected reviews afterward."
       ],
       "notes": [
-        "The file is config/studio-workflow.json in the engine repository. Editing it changes the workflow; opening it only displays it."
+        "A template changes guidance and destinations, not evidence truth. No template selection, status card or percentage substitutes for current evidence or QA."
       ]
     },
     {
       "id": "review-media",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Play a source or revision",
       "summary": "Viewing selects the exact version you want to review.",
       "status": "Available",
       "steps": [
-        "Choose a source or revision in Viewing.",
+        "Open Feedback and choose a source or revision in Viewing.",
         "Use the inline player controls to play, pause and seek.",
         "Choose another item in Viewing to compare versions."
       ],
       "notes": [
         "Feedback stays attached to its original version. The unresolved count covers the entire production, not just the selected item.",
-        "Switching selected media clears frame/region/transcript selections. Save the current annotation first. Playback pauses when you leave Review."
+        "Switching selected media clears frame/region/transcript selections. Save the current annotation first. Playback pauses when you leave Feedback."
       ]
     },
     {
       "id": "review-podcast-visual-score",
-      "section": "Podcast",
+      "section": "Feedback",
       "title": "Review podcast visuals by chapter",
       "summary": "Inspect transcript-bound proposals and record an explicit decision before they can enter a reviewed stage.",
       "status": "Available when Codex has prepared a visual score",
       "steps": [
-        "Choose Podcast in the sidebar, then choose Review podcast visuals. This opens Review directly on Podcast visual score.",
+        "After adding and configuring a Solo podcast workflow, open Feedback and choose Podcast visual score.",
         "Confirm that the score binding says Current, then inspect the whole-episode proposal timeline and choose a chapter.",
         "Read each proposal's purpose, treatment, transcript anchor, provenance and camera policy. Open a representative preview when one is available.",
         "Enter a required decision note, then choose Accept proposal, Keep base stage or Reject proposal.",
@@ -438,12 +461,12 @@
     },
     {
       "id": "review-podcast-qualification",
-      "section": "Podcast",
+      "section": "Feedback",
       "title": "Read long-form podcast qualification evidence",
       "summary": "Inspect measured 25–45 minute technical evidence without confusing it with creative review.",
       "status": "Available after a production-quality-routed qualification run",
       "steps": [
-        "Choose Podcast in the sidebar, then choose Review podcast visuals and find Long-form qualification.",
+        "After adding and configuring a Solo podcast workflow, open Feedback, choose Podcast visual score and find Long-form qualification.",
         "Choose Reload qualification after Codex completes or interrupts a qualification attempt.",
         "Check the 1080p30 target, runtime, peak child-process memory, memory pressure, cache, frame count, duration, exactly one audio and one video stream, codecs and full-decode result.",
         "Confirm Studio calls the report current after its live check of the visual-score revision, owner decision, exact source, reviewed-stage contract, output hashes and successfully completed production-quality action; otherwise read it as historical evidence and inspect the stale reasons.",
@@ -459,22 +482,24 @@
     },
     {
       "id": "add-revision",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Add a rendered revision",
       "summary": "A revision is an output version, separate from original footage.",
       "status": "Available",
       "steps": [
-        "Choose Add revision.",
+        "Open Revisions and choose Add rendered revision, or choose Add revision in Feedback.",
         "Select the rendered media file you want reviewed.",
-        "Choose the new version in Viewing."
+        "Studio attaches the revision to the active workflow and lists its workflow ownership in Revisions.",
+        "Choose Review this revision to open that exact file in Feedback, or choose it manually in Viewing."
       ],
       "notes": [
-        "Codex can also register actual output revisions. Importing a revision alone does not certify its quality or resolve earlier feedback."
+        "Registration and active-workflow attachment are saved together for revisions added in Studio. Codex can also register actual output revisions with an explicit workflow ID.",
+        "Importing a revision does not certify its quality, resolve earlier feedback, complete QA or authorize publication."
       ]
     },
     {
       "id": "annotate-frame",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Leave a video frame or time-range note",
       "summary": "Pause & capture frame records a real frame from the selected video version.",
       "status": "Available",
@@ -492,7 +517,7 @@
     },
     {
       "id": "annotate-audio",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Leave an audio-only time or range note",
       "summary": "Audio-only sources can be annotated without manufacturing a video frame.",
       "status": "Available",
@@ -509,7 +534,7 @@
     },
     {
       "id": "annotate-region",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Mark an area of the picture",
       "summary": "Draw region adds a rectangle to your captured frame.",
       "status": "Available",
@@ -526,7 +551,7 @@
     },
     {
       "id": "transcript-anchors",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Attach a note to spoken words",
       "summary": "Transcript anchors are optional word links for a matching rendered version.",
       "status": "Available",
@@ -542,7 +567,7 @@
     },
     {
       "id": "inspect-feedback",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Find a saved note",
       "summary": "Feedback on this version shows the notes attached to the selected media.",
       "status": "Available",
@@ -558,7 +583,7 @@
     },
     {
       "id": "resolve-feedback",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Move a correction through review",
       "summary": "Each status change needs fresh Resolution notes.",
       "status": "Available",
@@ -575,7 +600,7 @@
     },
     {
       "id": "reopen-feedback",
-      "section": "Review",
+      "section": "Feedback",
       "title": "Reopen a correction",
       "summary": "Use Reopen when a previously handled issue still needs work.",
       "status": "Available",
@@ -1243,7 +1268,7 @@
       "id": "legacy-cut-editor",
       "section": "Production skills",
       "title": "Open the optional browser cut editor",
-      "summary": "The cut editor is a separate local browser tool, not the native Review screen.",
+      "summary": "The cut editor is a separate local browser tool, not the native Feedback screen.",
       "status": "Retained browser tool",
       "steps": [
         "Ask Codex to prepare the source proxy and cut decisions and open the local cut editor for this production.",

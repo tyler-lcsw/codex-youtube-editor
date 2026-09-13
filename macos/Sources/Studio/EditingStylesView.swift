@@ -23,7 +23,7 @@ struct EditingStylesView:View {
         ScrollView {
             VStack(alignment:.leading,spacing:20) {
                 if w.project.isEmpty {
-                    StudioEmptyState(symbol:"checklist",title:"Open a production first",detail:"Editing styles are saved separately for each project.")
+                    StudioEmptyState(symbol:"checklist",title:"Open a production first",detail:"Editing Styles are saved separately for each project.")
                 } else if let configuration,let selected=configuration.selectedStyle {
                     Text("Choose how this project should be edited.").font(.title2.bold())
                     Text("Each style is a project-local copy of the master rule list. Unchecking a rule removes it from this style’s editorial guidance; the mandatory production-quality policy still applies.").foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
@@ -63,10 +63,10 @@ struct EditingStylesView:View {
                     Text("The master production rules remain the QA authority. Style changes invalidate dependent editorial reviews so they can be reassessed.").font(.callout).foregroundStyle(.secondary)
                     Text("Selected: \(selected.name)").font(.caption).foregroundStyle(.secondary).accessibilityHidden(true)
                 } else if let localError {
-                    StudioEmptyState(symbol:"exclamationmark.triangle",title:"Editing styles could not be loaded",detail:localError)
+                    StudioEmptyState(symbol:"exclamationmark.triangle",title:"Editing Styles could not be loaded",detail:localError)
                     Button("Retry") {reloadFromDisk()}.disabled(w.busy)
                 } else {
-                    ProgressView("Loading editing styles")
+                    ProgressView("Loading Editing Styles")
                 }
             }.padding(24)
         }

@@ -23,7 +23,7 @@ import StudioCore
                     }
                     if !workspace.project.isEmpty {workspace.perform {try await workspace.refresh()}}
                     if ProcessInfo.processInfo.arguments.contains("--smoke-review") {
-                        try? await Task.sleep(for:.seconds(1));workspace.select(.review)
+                        try? await Task.sleep(for:.seconds(1));workspace.select(.feedback)
                         try? await Task.sleep(for:.seconds(4));Diagnostics.shared?.record("review_smoke_passed");try? FileHandle.standardOutput.write(contentsOf:Data("REVIEW_SMOKE_OK\n".utf8));NSApp.terminate(nil)
                     }
                 }
@@ -46,9 +46,12 @@ struct StudioWindow:View {
                 }
                 Text(w.title).font(.title2.bold())
                 Text("A clear path from footage to finished story.").foregroundStyle(.secondary)
-                List(StudioNavigationContract.sidebarItems,id:\.destination,selection:Binding(get:{w.navigation.destination},set:{if let destination=$0 {w.select(destination)}})) {item in
-                    Label(item.title,systemImage:item.systemImage).padding(.vertical,7).tag(item.destination)
+                List(selection:Binding(get:{w.navigation.destination},set:{if let destination=$0 {w.select(destination)}})) {
+                    ForEach(StudioNavigationContract.sections) {section in
+                        Section(section.title) {ForEach(section.items) {item in StudioSidebarRow(item:item)}}
+                    }
                 }.listStyle(.sidebar).scrollContentBackground(.hidden)
+                Button("Add Workflow",systemImage:"plus") {w.showAddWorkflow()}.disabled(w.project.isEmpty || w.busy)
                 HStack {Button("New",action:w.newProject).accessibilityLabel("New");Button("Open",action:w.openProject).accessibilityLabel("Open")}
                 Text("Development edition · M4\n\(StudioBuildIdentity.current.visibleLabel)").font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
             }.padding(18).background(StudioTheme.panel).navigationSplitViewColumnWidth(260)
@@ -57,22 +60,25 @@ struct StudioWindow:View {
                 HStack {
                     VStack(alignment:.leading) {Text(w.section).font(.title.bold());Text(w.project.isEmpty ? "Create a production to begin" : w.project).font(.caption).foregroundStyle(.secondary).lineLimit(1)}
                     Spacer()
-                    Button("Help for this tab",systemImage:"questionmark.circle") {helpSection=w.section;showingHelp=true}.accessibilityLabel("Help for this tab")
+                    Button("Help for this tab",systemImage:"questionmark.circle") {helpSection=StudioTheme.helpSection(for:w.navigation);showingHelp=true}.accessibilityLabel("Help for this tab")
                     if w.busy {ProgressView().controlSize(.small)}
                     Button("Refresh",systemImage:"arrow.clockwise") {w.perform {try await w.refresh()}}.accessibilityLabel("Refresh").disabled(w.project.isEmpty || w.busy)
                     Button("Export handoff",systemImage:"square.and.arrow.up") {w.perform {_ = try await w.handoff()}}.accessibilityLabel("Export handoff").disabled(w.project.isEmpty || w.busy)
                 }.padding(24)
                 Divider()
+                WorkflowContextBar()
                 Group {
                     switch w.navigation.destination {
                     case .help:HelpView(engine:w.engine)
-                    case .podcast:PodcastQuickStartView()
+                    case .overview:ProjectOverviewView()
+                    case .brief:BriefView()
+                    case .sources:SourcesView()
+                    case .revisions:RevisionsView()
+                    case .feedback:FeedbackView()
+                    case .workflowGuide:WorkflowGuideView()
                     case .editingStyles:EditingStylesView()
-                    case .understanding:UnderstandingView()
-                    case .review:ReviewView()
                     case .resources:ResourcesView()
                     case .codex:CodexView(client:w.codex)
-                    default:IntakeView()
                     }
                 }.frame(maxWidth:.infinity,maxHeight:.infinity)
                 if !w.notice.isEmpty {Text(w.notice).font(.caption).foregroundStyle(.secondary).padding(8)}
@@ -89,4 +95,8 @@ struct StudioWindow:View {
         .onReceive(NotificationCenter.default.publisher(for:NSApplication.willTerminateNotification)) {_ in Diagnostics.shared?.record("session_ended")}
         .alert("Action needs attention",isPresented:Binding(get:{w.error != nil},set:{if !$0 {w.error=nil}})) {Button("OK"){w.error=nil}.accessibilityLabel("OK")} message:{Text(w.error ?? "")}
     }
+}
+private struct StudioSidebarRow:View {
+    let item:StudioNavigationItem
+    var body:some View {Label(item.title,systemImage:item.systemImage).padding(.vertical,6).tag(item.destination)}
 }
