@@ -1,6 +1,12 @@
-# Codex YouTube Editor
+# Codex Media Studio
 
-A Codex-native fork of [Claude YouTube Editor](https://github.com/hassancs91/claude-youtube-editor), retaining its Remotion compositions, editing tools and publication functionality. GPT-6 Astra is recommended; GPT-5.6 Sol uses the same skills and commands.
+`YT-codex` is the local project and repository name. The product, application and
+documentation name is **Codex Media Studio**.
+
+Codex Media Studio is a Codex-native fork of
+[Claude YouTube Editor](https://github.com/hassancs91/claude-youtube-editor), retaining
+its Remotion compositions, editing tools and publication functionality. GPT-6 Astra is
+recommended; GPT-5.6 Sol uses the same skills and commands.
 
 This first release targets one Apple Silicon Mac with 24 GiB of unified memory. It uses local transcription, alignment, cleanup, reference narration and bounded image generation/editing. Codex still runs online; local inference workers run with network access denied after explicit model setup.
 
@@ -55,6 +61,8 @@ stages, native playback, frame and time-range annotations, revision feedback, re
 preferences and subscription-authenticated Codex. Build the development app with
 `.venv/bin/python tools/build_studio_app.py --install`. This updates the one canonical
 `~/Applications/Codex Media Studio.app` in place so its pinned Dock item continues to
-open the newest installed build. Read the [approved plan](plan/Mac%20Production%20Studio%20%E2%80%94%20Implementation%20Plan.html) for scope and acceptance.
+open the newest installed build. Read the
+[approved plan](plan/Codex%20Media%20Studio%20%E2%80%94%20Native%20App%20Implementation%20Plan.html)
+for scope and acceptance.
 
 For end-user instructions, open **How to Use** in the app or read the [step-by-step user guide](docs/how-to-use.html). **Help for this tab** opens contextual instructions while preserving your current draft.

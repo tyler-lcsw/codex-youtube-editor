@@ -13,6 +13,10 @@ The user reports that in-app authentication remains unresolved. The tutorial the
 
 No narration, cloned voice, hosted images, external reference media, music-generation model, avatar, diffusion-video model or publication service was used. The absence of narration is intentional: all teaching content is readable on screen, with time based on about 175 words per minute plus entrance allowance.
 
-The durable Studio project and local media live outside Git in `~/Movies/Codex Studio/Studio Tutorial September 6`. The source guide is imported as a document, project context is exported to a real Codex handoff, and rendered revisions preserve separate attempt folders. Media and project state are not committed.
+The durable Codex Media Studio project and local media live outside Git at the
+legacy-compatible storage path `~/Movies/Codex Studio/Studio Tutorial September 6`.
+The source guide is imported as a document, project context is exported to a real Codex
+handoff, and rendered revisions preserve separate attempt folders. Media and project state
+are not committed.
 
 See `Execution Report.md` for actual deliverables and review status. This tutorial does not qualify authentic supplied-footage editing or resolve the authentication bug.

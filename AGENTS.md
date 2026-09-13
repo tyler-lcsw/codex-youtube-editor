@@ -1,8 +1,14 @@
-# Codex YouTube Editor
+# Codex Media Studio
 
 Codex authors editorial decisions and Remotion TSX; deterministic local tools render,
 validate and record artifacts. Read `docs/implementation-status.md` for current capability
 state, then the selected `.agents/skills/<name>/SKILL.md`.
+
+The local project/repository name is `YT-codex` and its directory slug is `yt-codex`.
+Use **Codex Media Studio** for the product, application and all human-facing documentation
+or decision references. Preserve older technical identifiers only where changing a literal
+path, bundle identifier, executable, preference domain or compatibility contract would
+break continuity; label them as legacy technical identifiers when documenting them.
 
 ## Mandatory production quality contract
 
@@ -29,7 +35,8 @@ tests do not require fabricated production checklists or creative-review evidenc
 
 ## Native production workspace
 
-The approved Mac app plan is `plan/Mac Production Studio — Implementation Plan.md`.
+The approved native app plan is
+`plan/Codex Media Studio — Native App Implementation Plan.md`.
 Use ChatGPT sign-in/subscription access exclusively in Studio; no API fallback.
 For a Studio project rooted at `PROJECT/`, read `PROJECT/work/studio/project.json`,
 `PROJECT/work/studio/editing-styles.json` when present,

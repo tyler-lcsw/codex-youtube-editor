@@ -1,4 +1,4 @@
-# Codex YouTube Editor Implementation Plan
+# Codex Media Studio Engine Implementation Plan
 
 ## First-release scope revision — September 5, 2026
 
@@ -15,7 +15,7 @@ Qualify models only on this single 24 GiB M4, with room for macOS, context and n
 
 **Tech Stack:** Codex CLI/App; Python 3.11 core with separately locked model environments; Node LTS selected during preflight; React/Remotion 4 initially; FFmpeg; MLX Audio; local inference adapters; JSON Schema; pytest; TypeScript checking; browser interaction tests; SQLite for the local tracker index.
 
-**Spec:** [Codex YouTube Editor — Design and Research.md](Codex%20YouTube%20Editor%20%E2%80%94%20Design%20and%20Research.md). Read the entire spec before implementation. All new APIs, flags and files below are **proposed**, not existing commands.
+**Spec:** [Codex Media Studio — Design and Research.md](Codex%20Media%20Studio%20%E2%80%94%20Design%20and%20Research.md). Read the entire spec before implementation. All new APIs, flags and files below are **proposed**, not existing commands.
 
 ## Global constraints
 

@@ -1,4 +1,4 @@
-# Mac Production Studio specification
+# Codex Media Studio native app specification
 
 Approved September 5, 2026. Build a developmental native Mac application around the existing editing engine. Use ChatGPT sign-in and subscription access to Codex exclusively; no API-key login or API fallback. User authorized implementation, tests, local app installation and autonomous reviewed PR merges. Publication remains explicitly approved per deliverable/destination, with publication testing excluded.
 
@@ -6,7 +6,7 @@ Approved September 5, 2026. Build a developmental native Mac application around 
 
 Native SwiftUI application, AVKit playback, portable project files, Python engine. M4 24 GiB is the controller and initial worker. Retain Remotion, source preservation, one heavy local inference job, existing provider qualification and scoped native-image approvals. Do not configure other nodes. Native Codex image/plugin availability is discovered/tested, never presumed from app-server access.
 
-The workspace has five areas: Brief & sources, Understanding, Review, Resources, and Codex & QA. Intake accepts footage/documents through file selection or drag/drop and labeled HTTP(S) resource links. Brief includes title, audience, purpose, target length, tone, required content, and context. File imports preserve originals, hash staged copies and record provenance; source and revision media are distinct. Defaults create projects under ~/Movies/Codex Studio. The repository is a configurable engine location, not the media library.
+The workspace has five areas: Brief & sources, Understanding, Review, Resources, and Codex & QA. Intake accepts footage/documents through file selection or drag/drop and labeled HTTP(S) resource links. Brief includes title, audience, purpose, target length, tone, required content, and context. File imports preserve originals, hash staged copies and record provenance; source and revision media are distinct. Defaults create projects under the legacy-compatible storage path `~/Movies/Codex Studio`. The repository is a configurable engine location, not the media library.
 
 Understanding follows an editable runtime workflow: intake → source understanding → editorial strategy → edit → final review. Required evidence is project-local files plus individual explanations, bound to source/brief/workflow/rules hashes. No automatic pass from an empty file, model exit, playback opening, or generated placeholder. The AI can produce the artifacts using existing tools and records them through the bridge. A changed brief/source/policy/workflow invalidates dependent reviews.
 

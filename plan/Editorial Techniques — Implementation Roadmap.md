@@ -14,7 +14,7 @@ effects generator, a retention-score optimizer, or a keyword-stuffing tool.
 
 The next format expansion should preserve that semantic core while treating YouTube
 Shorts, organic TikTok, and TikTok advertising as separate versioned platform targets.
-See `Short-Form Vertical Video Research and Studio Specification.html` and
+See `Codex Media Studio — Short-Form Vertical Video Research and Specification.html` and
 `Short-Form Platform and Editorial Contract — Draft.json`. A vertical crop is not, by
 itself, a short-form edit.
 

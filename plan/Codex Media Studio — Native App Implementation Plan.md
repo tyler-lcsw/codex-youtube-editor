@@ -1,4 +1,4 @@
-# Mac Production Studio Implementation Plan
+# Codex Media Studio Native App Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox syntax for tracking.
 
@@ -8,7 +8,7 @@
 
 **Tech Stack:** Swift Package Manager (Swift 6.3 tools / Swift 5 mode), SwiftUI, AVKit, Foundation Process, Python 3.11 standard library, existing pytest dependencies, installed Codex app-server.
 
-**Spec:** `plan/Mac Production Studio — Specification.md`
+**Spec:** `plan/Codex Media Studio — Native App Specification.md`
 
 ## Global Constraints
 
@@ -28,7 +28,7 @@
 - `macos/Sources/StudioCore/`: JSON values, bridge client, subscription-only Codex protocol and transport.
 - `macos/Sources/Studio/`: app entry, observable workspace, intake/understanding/review/resources/Codex views.
 - `macos/Tests/StudioCoreTests/`: transport, account boundary, parsing and frame-coordinate tests.
-- `tools/build_studio_app.py`: release build, .app bundle metadata, ad-hoc signing. Output ignored `work/apps/Codex Studio.app`.
+- `tools/build_studio_app.py`: release build, .app bundle metadata, ad-hoc signing. Output ignored `work/apps/Codex Media Studio.app`.
 - `docs/mac-studio.md`: installation, operation, actual validation and remaining limitations.
 
 ### Task 1: Durable project and workflow bridge

@@ -4,7 +4,8 @@ Rendered September 6, 2026 on M4 using the existing Studio engine and desktop Co
 
 ## Output
 
-- Local Studio project: `~/Movies/Codex Studio/Studio Tutorial September 6`.
+- Local Codex Media Studio project at the legacy-compatible storage path:
+  `~/Movies/Codex Studio/Studio Tutorial September 6`.
 - Video: `output/codex-media-studio-tutorial.mp4` (about 9.2 MB).
 - Chapter list: `output/chapters.txt`.
 - Registered Studio revision: SHA-256 `9354c6f0309c2aeb2f190eff70d511161b86211e441a51eb9337f589311e2e7e`, labeled “Tutorial v1 — full playback review pending”.

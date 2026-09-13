@@ -14,7 +14,7 @@
         "Check the production name and folder shown in Studio."
       ],
       "notes": [
-        "The suggested location is Movies/Codex Studio in your home folder. Cancel leaves your current selection unchanged.",
+        "The suggested legacy-compatible storage location is Movies/Codex Studio in your home folder. Cancel leaves your current selection unchanged.",
         "Wait for any current action, or stop the running Codex task, before changing projects."
       ]
     },
@@ -1340,7 +1340,7 @@
       ],
       "notes": [
         "Diagnostics are local; opening the folder does not send a report. Avoid sharing credentials or unrelated personal material when reporting a problem.",
-        "The local folder is Library/Logs/Codex Studio in your home folder. It contains session event logs, stderr records and copied CodexStudio crash reports; macOS originals live in Library/Logs/DiagnosticReports."
+        "The legacy-compatible local diagnostic folder is Library/Logs/Codex Studio in your home folder. It contains session event logs, stderr records and copied CodexStudio crash reports; macOS originals live in Library/Logs/DiagnosticReports."
       ]
     },
     {

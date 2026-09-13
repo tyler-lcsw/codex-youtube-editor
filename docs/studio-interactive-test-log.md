@@ -1,8 +1,9 @@
 # Studio stability and basic-function test log
 
 Run: September 5–6, 2026, M4. Synthetic production: **Stability QA September 5**,
-under `~/Movies/Codex Studio`. This checks the application; it does not certify a
-finished production or authentic supplied-footage editorial quality.
+under the legacy-compatible storage path `~/Movies/Codex Studio`. This checks the
+application; it does not certify a finished production or authentic supplied-footage
+editorial quality.
 
 ## Outcome
 
@@ -37,7 +38,7 @@ labels and startup window activation improve native control operation.
 | Stop an active task | PASS | Observed Working, pressed Stop Task, then observed the task leave running state. |
 | Show QA gates | PASS | Expanded gate showed missing reviews rather than a false completion. No QA evidence was fabricated. |
 | Export handoff | PASS | Header action generated the project handoff and displayed “Handoff copied for Codex.” |
-| Open diagnostics from Help | PASS | Open Diagnostic Logs opened the Codex Studio logs folder in Finder. |
+| Open diagnostics from Help | PASS | Open Diagnostic Logs opened the Codex Media Studio logs folder in Finder. |
 | Publication | EXCLUDED | User explicitly waived publication testing. No upload performed. |
 
 ## Crash evidence and diagnostics
