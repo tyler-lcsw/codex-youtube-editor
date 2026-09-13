@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 from . import production_quality as quality
+from . import editing_styles
 from .jobs import file_hash
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -104,6 +105,9 @@ def binding(project, data):
         p = Path(asset['path'])
         files.append({'id':asset['id'], 'registered':asset['sha256'], 'current':file_hash(p) if p.is_file() else None})
     inputs = dict(brief=data['brief'], assets=files, resources=data['resources'], routes=data['routes'], annotations=data['annotations'], workflow=file_hash(WORKFLOW), rules=file_hash(quality.RULES))
+    style_binding = editing_styles.active_binding(project)
+    if style_binding is not None:
+        inputs['editing_style'] = style_binding
     # A null additive migration is equivalent to the legacy general-production
     # state. Once configured, podcast source semantics are review-bound inputs.
     podcast_revision = data.get('podcast_settings_revision', 0)

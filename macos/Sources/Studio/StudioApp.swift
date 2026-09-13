@@ -67,6 +67,7 @@ struct StudioWindow:View {
                     switch w.navigation.destination {
                     case .help:HelpView(engine:w.engine)
                     case .podcast:PodcastQuickStartView()
+                    case .editingStyles:EditingStylesView()
                     case .understanding:UnderstandingView()
                     case .review:ReviewView()
                     case .resources:ResourcesView()

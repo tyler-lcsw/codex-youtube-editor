@@ -3,6 +3,7 @@ import Foundation
 public enum StudioDestination:String,CaseIterable,Codable {
     case brief="Brief & sources"
     case podcast="Podcast"
+    case editingStyles="Editing styles"
     case understanding="Understanding"
     case review="Review"
     case resources="Resources"
@@ -79,6 +80,7 @@ public enum StudioNavigationContract {
     public static let sidebarItems:[StudioNavigationItem]=[
         .init(destination:.brief,title:StudioDestination.brief.rawValue,systemImage:"tray.and.arrow.down"),
         .init(destination:.podcast,title:StudioDestination.podcast.rawValue,systemImage:"waveform"),
+        .init(destination:.editingStyles,title:StudioDestination.editingStyles.rawValue,systemImage:"checklist"),
         .init(destination:.understanding,title:StudioDestination.understanding.rawValue,systemImage:"text.magnifyingglass"),
         .init(destination:.review,title:StudioDestination.review.rawValue,systemImage:"play.rectangle"),
         .init(destination:.resources,title:StudioDestination.resources.rawValue,systemImage:"slider.horizontal.3"),

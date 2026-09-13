@@ -19,6 +19,7 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Save brief; Reload saved brief; dirty/baseline warning | `brief-conflict` | macos/Sources/Studio/IntakeView.swift |
 | Import media or documents; file multi-select; drop target; asset list/roles | `import-sources` | macos/Sources/Studio/IntakeView.swift; macos/Sources/Studio/Workspace.swift |
 | Podcast quick start; Set up podcast sources; Review podcast visuals; Solo podcast visuals; Primary audio; Optional camera; No camera; Visual density; Restrained/Balanced/Illustrative; Save/Clear/Reload podcast setup; generation/review and synchronization limits | `podcast-setup` | macos/Sources/Studio/PodcastQuickStartView.swift; macos/Sources/Studio/IntakeView.swift; macos/Sources/StudioCore/StudioNavigation.swift; macos/Sources/StudioCore/PodcastConfiguration.swift |
+| Editing styles; Editing style picker; New from master; Style name; per-rule checkbox and text editor; Save style; Reload saved style; conflict and master-change notices | `editing-styles` | macos/Sources/Studio/EditingStylesView.swift; macos/Sources/StudioCore/EditingStyle.swift; tools/editing_styles.py |
 | Label; https://…; Use as; Reference; Source; Background; Add link; saved Link | `add-resource-link` | macos/Sources/Studio/IntakeView.swift |
 | Intake stage; prerequisites/artifacts/status | `stage-intake` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
 | Source understanding stage; prerequisites/artifacts/status | `stage-source-understanding` | macos/Sources/Studio/UnderstandingView.swift; config/studio-workflow.json |
@@ -96,4 +97,4 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 - No production, hosted generation, model download, publication test or upload was run for this documentation task.
 - Planned editorial/short-form research is explicitly labeled; authentic raw-footage and full audiovisual qualification remain production-specific work.
 
-Content inventory: 78 articles across 10 sections; 18 primary skill articles.
+Content inventory: 81 articles across 11 sections; 18 primary skill articles.
