@@ -21,6 +21,7 @@ enum StudioTheme {
     static func symbol(for section:String)->String {
         switch section {
         case "Podcast":return "waveform"
+        case "Editing styles":return "checklist"
         case "How to Use":return "questionmark.circle"
         case "Understanding":return "text.magnifyingglass"
         case "Review":return "play.rectangle"

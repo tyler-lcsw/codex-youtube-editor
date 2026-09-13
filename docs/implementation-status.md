@@ -394,3 +394,26 @@ The visible native build number is 3; the footer continues to show the exact eng
 revision.
 Focused installer and bundle regression tests passed, followed by **228 Python tests,
 1 publication test deselected, 33 subtests, and 47 native core checks**.
+
+## Per-project editing styles — September 13, 2026
+
+Studio now exposes **Editing styles** as a dedicated project screen. A new project gets
+a readable `work/studio/editing-styles.json` file seeded from the current master rule
+list. Each style retains stable rule IDs, editable wording and one enabled checkbox per
+rule; additional styles can be created from the current master, selected, renamed and
+saved independently per project. Unselected styles can be deleted from the screen.
+
+The selected style's enabled wording is carried into the Codex handoff as explicitly
+untrusted project data and is bound to Studio workflow evidence. Switching styles or
+editing the active style therefore makes dependent evidence stale, while changing an
+unused style does not. Exact-byte SHA-256 plus monotonic revision checks stop a stale
+screen from overwriting readable-file edits. Unsaved native drafts block tab and project
+changes until saved or reloaded.
+
+Editing styles are editorial overlays, not a QA bypass. `docs/production-rules.md`
+remains the mandatory production-quality policy, including R24–R26 and R31 even when a
+style checkbox is off. Existing schema-v1 projects open with a virtual default style and
+materialize the separate file on the first style mutation. Current automated evidence is
+**244 Python tests, 1 publication test deselected, 33 subtests, and 49 native core
+checks**, plus a clean native app build. Interactive keyboard/VoiceOver review of the
+new screen and authentic-footage creative qualification remain separate pending checks.

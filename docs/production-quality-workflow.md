@@ -2,6 +2,8 @@
 
 [Production rules](production-rules.md) are the single authoritative source. Every production uses them, with editing supplied footage as the default. They are read at runtime, not copied into Python or individual skills. Stable IDs identify each rule; its full current wording controls the review. Edit that file to change policy. The `final-required` metadata names rules that cannot be waived at final QA.
 
+Studio editing styles are subordinate, project-specific editorial guidance. A style may copy, reword, enable or disable master-rule wording for the creative handoff, but it never removes a rule from this production-quality checklist or changes its authority. Switching or editing the selected style invalidates dependent Studio workflow evidence so the editorial strategy can be reassessed.
+
 Each rule's bold lead names its primary responsibility. A cross-reference is not a
 substitute for the referenced review. The same evidence file may support several rules,
 but record the distinct finding for each; do not copy a generic "quality checked" reason.

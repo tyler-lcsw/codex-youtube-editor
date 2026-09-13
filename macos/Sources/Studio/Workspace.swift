@@ -17,6 +17,7 @@ import StudioCore
     @Published var error: String?
     @Published var notice=""
     @Published var navigation=StudioNavigationState()
+    @Published var hasUnsavedStyleDraft=false
     let codex=CodexClient()
     private let selection=ProjectSelection()
     private var codexObserver:AnyCancellable?
@@ -42,10 +43,12 @@ import StudioCore
     }
     var section:String {navigation.destination.rawValue}
     func open(_ route:StudioRoute) {
+        guard !hasUnsavedStyleDraft || route.destination == .editingStyles else {error="Save or reload the editing style before leaving this screen.";return}
         Diagnostics.shared?.record("tab_selected",detail:route.deepLink)
         navigation.open(route)
     }
     func select(_ destination:StudioDestination) {
+        guard !hasUnsavedStyleDraft || destination == .editingStyles else {error="Save or reload the editing style before leaving this screen.";return}
         Diagnostics.shared?.record("tab_selected",detail:destination.rawValue)
         navigation.select(destination)
     }
@@ -74,6 +77,7 @@ import StudioCore
         try await request("open")
     }
     func newProject() {
+        guard !hasUnsavedStyleDraft else {error="Save or reload the editing style before changing projects.";return}
         guard !busy && !codex.running else {error="Wait for the current action or stop the Codex task before changing projects.";return}
         let panel=NSSavePanel();panel.title="Create production folder";panel.nameFieldStringValue="Untitled Production"
         let base=FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Movies/Codex Studio")
@@ -86,6 +90,7 @@ import StudioCore
         }
     }
     func openProject() {
+        guard !hasUnsavedStyleDraft else {error="Save or reload the editing style before changing projects.";return}
         guard !busy && !codex.running else {error="Wait for the current action or stop the Codex task before changing projects.";return}
         let panel=NSOpenPanel();panel.canChooseDirectories=true;panel.canChooseFiles=false;panel.title="Open production folder"
         guard panel.runModal() == .OK,let url=panel.url else{return}

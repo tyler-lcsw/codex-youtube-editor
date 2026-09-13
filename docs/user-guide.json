@@ -249,6 +249,25 @@
       ]
     },
     {
+      "id": "editing-styles",
+      "section": "Editing styles",
+      "title": "Choose and customize a project editing style",
+      "summary": "Create a style from the master rule list, edit its wording, and enable only the guidance wanted for this project.",
+      "status": "Available",
+      "steps": [
+        "Open Editing styles in the sidebar. Choose an existing project style, or choose New from master and give the new style a distinct name.",
+        "Use the checkbox beside each stable rule ID to enable or disable that rule in the selected style.",
+        "Edit rule wording directly in its text editor, rename the style if needed, then choose Save style.",
+        "If Studio reports that the saved style changed, choose Reload saved style before applying your edits again.",
+        "Open Codex & QA and send the editing request. The exported handoff names the selected style and includes its enabled rule wording."
+      ],
+      "notes": [
+        "Styles are saved per project in work/studio/editing-styles.json. Changing the selected style or its enabled rules makes dependent workflow evidence stale.",
+        "A style controls project-specific editorial guidance. Unchecked rules are not removed from the mandatory production-quality checklist; docs/production-rules.md remains the master QA policy.",
+        "Existing custom wording is preserved if the master file later changes. Create a new style from master to start with the latest rule list."
+      ]
+    },
+    {
       "id": "add-resource-link",
       "section": "Brief & sources",
       "title": "Add a source, reference or background link",
