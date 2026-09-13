@@ -223,7 +223,7 @@ another.
 
 ## Related drafts
 
-- [Editorial Techniques Research and Studio Development Specification](./Editorial%20Techniques%20Research%20and%20Studio%20Development%20Specification.html)
+- [Codex Media Studio — Editorial Techniques Research and Development Specification](./Codex%20Media%20Studio%20%E2%80%94%20Editorial%20Techniques%20Research%20and%20Development%20Specification.html)
 - [Editorial Technique Catalog](./Editorial%20Technique%20Catalog%20%E2%80%94%20Draft.json)
 - [Editorial Style Profile example](./Editorial%20Style%20Profile%20%E2%80%94%20Example%20Draft.json)
 - [Editorial Techniques implementation roadmap](./Editorial%20Techniques%20%E2%80%94%20Implementation%20Roadmap.md)

@@ -1,4 +1,4 @@
-# Codex YouTube Editor — Design and Research
+# Codex Media Studio — Design and Research
 
 ## First-release scope revision — September 5, 2026
 

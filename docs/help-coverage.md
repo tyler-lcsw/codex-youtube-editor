@@ -84,7 +84,7 @@ The authoritative help is `docs/user-guide.json`. This audit maps visible contro
 | Open Diagnostic Logs | `diagnostic-logs` | macos/Sources/Studio/StudioApp.swift; macos/Sources/StudioCore/Diagnostics.swift |
 | provider readiness; no fallback; memory limits | `provider-not-ready` | docs/providers.md; docs/known-limits.md |
 | native image dispatch/import recovery | `interrupted-image` | docs/providers.md; docs/known-limits.md |
-| planned research; raw-footage qualification; scheduler/editor limits | `unfinished-capabilities` | docs/mac-studio.md; docs/known-limits.md; plan/Editorial Techniques — Implementation Roadmap.md; plan/Short-Form Vertical Video Research and Studio Specification.html |
+| planned research; raw-footage qualification; scheduler/editor limits | `unfinished-capabilities` | docs/mac-studio.md; docs/known-limits.md; plan/Editorial Techniques — Implementation Roadmap.md; plan/Codex Media Studio — Short-Form Vertical Video Research and Specification.html |
 
 ## Qualification and maintenance
 

@@ -187,9 +187,10 @@ Validation: 13 focused quality-workflow tests; full Python suite **227 passed, 3
 1 publication test deselected, 33 subtests passed**. No media edit, generation, publication,
 or fabricated audiovisual acceptance was performed for this policy amendment.
 
-## Native Mac production studio — development app
+## Codex Media Studio — native development app
 
-Approved native application plan: `../plan/Mac Production Studio — Implementation Plan.html`.
+Approved native application plan:
+`../plan/Codex Media Studio — Native App Implementation Plan.html`.
 The app integrates intake/brief/resources, editable source-understanding workflow, native
 AVKit playback, provenance-bound frame/rectangle/range feedback, revision-specific
 resolution history, provider preferences, file-based handoff, and integrated Codex
@@ -206,7 +207,8 @@ checks passed; skill audit passed; release .app built and ad-hoc signed.** Real 
 account read identified ChatGPT Pro and bounded Astra/Sol subscription responses passed.
 No API use, token copying, hosted media generation, remote-node setup or publication.
 
-Installed development bundle: `~/Applications/Codex Studio.app`, with its engine set to
+Historical development bundle at the legacy technical path
+`~/Applications/Codex Studio.app`, with its engine set to
 the retained `codex/mac-production-app` worktree until merge. Signature verification passed.
 A final whole-branch review found and fixed stale cached QA display and completion
 refreshes lost when leaving the Codex panel; the scoped re-review is approved.
@@ -215,7 +217,8 @@ The development app launched successfully, but native visual/playback/interactio
 acceptance is **pending**: the computer-use tool reported M4 locked and unable to unlock.
 The user was asked to unlock M4. Do not substitute the automated results for interactive
 acceptance or merge the app as qualified until that gate is completed. A synthetic
-Interface Demo production under `~/Movies/Codex Studio` is prepared for this UI check.
+Interface Demo production under the legacy-compatible storage path
+`~/Movies/Codex Studio` is prepared for this UI check.
 It is not authentic-footage editorial qualification. Native image/plugin parity remains
 a capability-specific verification and scoped-approval boundary. See `mac-studio.md`.
 
@@ -274,7 +277,7 @@ SVG master, full ICNS family and in-app PNG mark; the bundle registers and ships
 Added adaptive theme tokens, native navigation symbols, state badges and useful empty
 states. Brand colors are for the app; production styles remain project-specific.
 The asset inventory records current assets and deferred document/technique/distribution
-needs in `plan/Codex Studio — Visual Identity.html`.
+needs in `plan/Codex Media Studio — Visual Identity.html`.
 
 Validation: 35 focused Python checks passed, including a new bundle regression observed
 failing before implementation; release build and native dark Review layout inspected.
@@ -285,7 +288,7 @@ accessibility qualification across every screen and appearance.
 ### Editorial-technique research and development specification (September 6, 2026)
 
 A research-only Studio expansion is documented in
-`../plan/Editorial Techniques Research and Studio Development Specification.html`, with a
+`../plan/Codex Media Studio — Editorial Techniques Research and Development Specification.html`, with a
 machine-readable draft technique catalog, illustrative style profile, draft decision
 rules, a YouTube packaging-pattern catalog, and a test-first implementation roadmap. The
 synthesis covers YouTube guidance, measured research, professional craft, dissenting
@@ -306,7 +309,7 @@ authentic-footage qualification remain proposed work.
 ### Short-form research expansion (September 6, 2026)
 
 The research now anticipates separate YouTube Shorts and TikTok support. The companion
-`../plan/Short-Form Vertical Video Research and Studio Specification.html` and
+`../plan/Codex Media Studio — Short-Form Vertical Video Research and Specification.html` and
 machine-readable draft contract distinguish YouTube Shorts, organic TikTok, and TikTok
 advertising from long-form YouTube and from each other. They cover classification and
 upload envelopes, feed/search/profile acquisition, editorial archetypes, 9:16 composition,
@@ -355,7 +358,8 @@ still govern any later recording. Publication testing/uploads were not performed
 
 ## Illustrated tutorial render — September 6
 
-A 5:38 text-led tutorial is rendered and registered in the local Studio project
+A 5:38 text-led tutorial is rendered and registered in the local Codex Media Studio
+project at the legacy-compatible storage path
 `~/Movies/Codex Studio/Studio Tutorial September 6`. It uses Remotion, procedural
 chapter cues, a real exported Codex handoff, revision registration and the quality
 coordinator. See `../productions/studio-tutorial/Execution Report.md` and its editable

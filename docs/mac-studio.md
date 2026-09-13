@@ -33,7 +33,7 @@ The installed command-line tools on the initial M4 have mismatched private/publi
 
 ## Your workflow
 
-1. Create a production folder (the default location is `~/Movies/Codex Studio`) or open one created by Studio. Import files or drag them onto Brief & sources. Copies are staged and hashed; originals remain untouched. Add the audience, purpose, pacing, required content and meaningful context. Links are labeled as source, reference or background; adding a link does not automatically download it. For a one-speaker podcast, choose **Podcast** in the sidebar for a visible quick start, then open **Set up podcast sources** to choose the canonical audio, optional camera and restrained, balanced or illustrative visual-density preference. Use **Codex & QA** to request waveform/visual-score generation and rendering; generated proposals and renders still require explicit review, and camera synchronization remains unverified.
+1. Create a production folder (the legacy-compatible default storage location is `~/Movies/Codex Studio`) or open one created by Studio. Import files or drag them onto Brief & sources. Copies are staged and hashed; originals remain untouched. Add the audience, purpose, pacing, required content and meaningful context. Links are labeled as source, reference or background; adding a link does not automatically download it. For a one-speaker podcast, choose **Podcast** in the sidebar for a visible quick start, then open **Set up podcast sources** to choose the canonical audio, optional camera and restrained, balanced or illustrative visual-density preference. Use **Codex & QA** to request waveform/visual-score generation and rendering; generated proposals and renders still require explicit review, and camera synchronization remains unverified.
 2. Open **Editing styles** to choose the project’s editorial style. Every new style begins as an editable copy of the current master rule list. The checkbox beside each rule controls whether that wording is included in the selected project style; edit the wording and choose **Save style**. These project preferences are stored in `work/studio/editing-styles.json`, included in Codex handoffs, and bound to workflow evidence. The authoritative production-quality rules still apply in full.
 3. Review the Understanding stages. The responsible AI documents the source's content, narrative and proposed edit using the current workflow definition. Existing evidence can be selected and recorded from the interface. Changing inputs or policy makes prior assessments stale.
 4. Choose task-specific resource preferences. These are included in each handoff. Codex still checks actual provider readiness, qualified limits and approval scope before work. Local PAIR remains bounded assistance; its availability is not proof of useful editorial output. Native images remain a scoped capability/handoff until verified in the actual session; no automatic API substitution.
@@ -138,7 +138,8 @@ This increment is not a general nonlinear editor, multi-user service, automatic 
 
 ## Crash diagnostics
 
-Help → **Open Diagnostic Logs** opens `~/Library/Logs/Codex Studio/`.
+Help → **Open Diagnostic Logs** opens the legacy-compatible diagnostic path
+`~/Library/Logs/Codex Studio/`.
 Each launch writes an immediately flushed `session-<id>.jsonl` containing lifecycle,
 tab selections, engine operation names/exit status and error types. Matching `.stderr`
 files preserve native fatal runtime messages, including Swift traps that ordinary
